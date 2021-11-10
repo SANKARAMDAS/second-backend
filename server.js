@@ -4,6 +4,8 @@ const cors = require("cors");
 const env = require("dotenv").config();
 const mongoose = require("mongoose");
 
+const subscriptionRouter = require("./routes/subscription");
+
 const app = express();
 
 // Connecting to mongodb
@@ -24,7 +26,7 @@ mongoose.connect(
 
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function () {});
+db.once("open", function () { });
 
 // Middlewares
 app.use(cors());
@@ -37,6 +39,7 @@ app.get("/", (req, res) => {
 });
 
 // Base Routes
+app.use("/api/subscription", subscriptionRouter.route);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {
