@@ -1,10 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const session = require('express-session')
 const cors = require("cors");
 const env = require("dotenv").config();
 const mongoose = require("mongoose");
 
 const subscriptionRouter = require("./routes/subscription");
+const userRoute = require('./routes/user')
 
 const app = express();
 
@@ -32,7 +34,9 @@ db.once("open", function () { });
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true }))
 app.use(bodyParser.urlencoded({ extended: false }));
+
 
 app.get("/", (req, res) => {
 	res.send("Working!");
@@ -40,6 +44,7 @@ app.get("/", (req, res) => {
 
 // Base Routes
 app.use("/api/subscription", subscriptionRouter.route);
+app.use(userRoute)
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {
