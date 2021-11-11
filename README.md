@@ -10,3 +10,8 @@ Clone using Link: [https://github.com/Polaris-By-Octaloop/polaris-backend.git]
 $ npm install --save
 $ npm start
 ```
+## Run tests on your machine locally
+#### After installing libraries
+```
+$ npm test
+```
