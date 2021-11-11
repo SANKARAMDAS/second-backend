@@ -3,27 +3,38 @@ const express = require("express");
 var router = express.Router();
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const validator = require('validator')
 
 // User Schema
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
+        trim: true,
         required: true
     },
     email: {
         type: String,
-        required: true
+        trim: true,
+        required: true,
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error('not an email')
+            }
+        }
     },
     password: {
         type: String,
+        trim: true,
         required: true
     },
     company: {
         type: String,
+        trim: true,
         required: false
     },
     ethereumWallet: {
         type: String,
+        trim: true,
         required: false
     },
     role: {

@@ -46,7 +46,9 @@ app.get("/", (req, res) => {
 app.use("/api/subscription", subscriptionRouter.route);
 app.use(userRoute)
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, function () {
 	console.log("Server Running on PORT " + PORT);
 });
+
+module.exports = app
