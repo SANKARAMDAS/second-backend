@@ -29,7 +29,7 @@ mongoose.connect(
 
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function () {});
+db.once("open", function () { });
 
 // Middlewares
 app.use(cors());
@@ -53,7 +53,7 @@ app.use("/api/subscription", subscriptionRouter.route);
 app.use(userRoute);
 app.use("/api/google-api", googleLoginRouter.route);
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5100;
 app.listen(PORT, function () {
 	console.log("Server Running on PORT " + PORT);
 });
