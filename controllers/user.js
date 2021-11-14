@@ -81,7 +81,7 @@ const forgotPassword = async (req, res) => {
 
     await User.findByIdAndUpdate({ _id: user._id }, { resetToken: hash })
 
-    const link = `localhost:4001/api/auth/passwordreset/${user._id}/${token}`;
+    const link = `localhost:4001/api/auth/passwordreset?id=${user._id}&token=${token}`;
 
     res.send({ link, token, id: user._id })
 }
