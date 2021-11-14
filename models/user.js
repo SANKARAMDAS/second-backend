@@ -25,7 +25,17 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         trim: true,
-        required: true
+        required: true,
+        validate(value) {
+            if (value.length < 6) {
+                throw new Error('not valid, less than 6 chars')
+            } else if (value.includes("password")) {
+                throw new Error('not valid, password contains password')
+            }
+        }
+    },
+    resetToken: {
+        type: String
     },
     company: {
         type: String,

@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt')
 const User = require("../models/user");
+const jwt = require('jsonwebtoken')
+var ObjectId = require('mongoose').Types.ObjectId;
 let err;
 
 const signup = async (req, res) => {
@@ -66,6 +68,64 @@ const signin = async (req, res) => {
     }
 }
 
+const forgotPassword = async (req, res) => {
+    const { email } = req.body
+    const user = await User.findOne({ email });
+    if (!user) {
+        return res.status(400).send("Email does not exist");
+    }
+
+    const token = jwt.sign({ _id: user._id.toString() }, process.env.VERIFY_TOKEN, { expiresIn: '30 minutes' })
+
+    const hash = await bcrypt.hash(token.toString("hex"), 10);
+
+    await User.findByIdAndUpdate({ _id: user._id }, { resetToken: hash })
+
+    const link = `localhost:4001/api/auth/passwordreset/${user._id}/${token}`;
+
+    res.send({ link, token, id: user._id })
+}
+
+const passwordReset = async (req, res) => {
+    const { token, id, password, password2 } = req.body
+    let decoded
+
+    if (!ObjectId.isValid(id) || password != password2) {
+        return res.status(400).send()
+    }
+
+    const user = await User.findById(id)
+    if (!user) {
+        return res.status(400).send({ "error": "invalid or expired url" })
+    }
+
+    const isMatch = await bcrypt.compare(token, user.resetToken)
+
+    if (!isMatch) {
+        return res.status(400).send({ "error": "invalid or expired url" })
+    }
+
+    try {
+        decoded = jwt.verify(token, process.env.VERIFY_TOKEN)
+    } catch (e) {
+        return res.status(400).send({ "error": "invalid or expired url" })
+    }
+
+    if (decoded._id != id) {
+        return res.status(400).send({ "error": "invalid or expired url" })
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    try {
+        await User.findByIdAndUpdate({ _id: id }, { password: hash })
+    } catch (e) {
+        return res.status(400).send()
+    }
+
+    res.status(200).send({ user })
+}
+
 module.exports = {
-    signin, signup
+    signin, signup, forgotPassword, passwordReset
 }
