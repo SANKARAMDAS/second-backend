@@ -1,11 +1,13 @@
 const bcrypt = require("bcrypt");
-const User = require("../models/user");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 var ObjectId = require("mongoose").Types.ObjectId;
+const User = require("../models/user");
 const { sendEmail } = require("./sendEmail");
 let err;
 
-const signup = async (req, res) => {
+// Register User
+const sendOtp = async (req, res, next) => {
 	const { name, email, password, password2, role } = req.body;
 
 	if (!name || !email || !password || !password2) {
@@ -27,26 +29,84 @@ const signup = async (req, res) => {
 	if (userExists) {
 		err = "Email already exists";
 		return res.status(400).send(err);
+	} else {
+		const otp = Math.floor(100000 + Math.random() * 900000);
+		console.log(otp);
+		const ttl = 5 * 60 * 1000;
+		const expires = Date.now() + ttl;
+		const data = `${email}.${name}.${password}.${role}.${otp}.${expires}`;
+		const hash = crypto
+			.createHmac("sha256", process.env.hashkey)
+			.update(data)
+			.digest("hex");
+		const fullHash = `${hash}.${expires}`;
+
+		const emailBody = `
+        <div style="padding:10px;  color: black ;font-size:16px; line-height: normal;">
+            <p style="font-weight: bold;" >Hello ${name},</p>
+            <p>Your OTP to verify email is ${otp}</p>
+            <p>If you have not registered on the website, kindly ignore the email</p>
+            <br/>
+            <p>Have a Nice Day!</p>            
+        </div>
+        `;
+
+		await sendEmail(
+			{ email: email, name: name },
+			emailBody,
+			"OTP Verification"
+		);
+		res.status(200).send({
+			msg: "Verified",
+			expires,
+			hash: fullHash,
+			name,
+			email,
+			password,
+			otp,
+		});
 	}
+};
+
+const signup = async (req, res) => {
+	const { name, email, password, role, otp, hash } = req.body;
+
+	let [hashValue, expires] = hash.split(".");
+
+	let now = Date.now();
+
+	if (now > parseInt(expires)) {
+		return res.send({ msg: "OTP Timeout" });
+	}
+
+	const data = `${email}.${name}.${password}.${role}.${otp}.${expires}`;
+
+	const newCalculatedHash = crypto
+		.createHmac("sha256", process.env.HASHKEY)
+		.update(data)
+		.digest("hex");
 
 	const salt = await bcrypt.genSalt(10);
 	const hashPassword = await bcrypt.hash(req.body.password, salt);
 
-	const user = new User({
-		name,
-		email,
-		password: hashPassword,
-		role,
-	});
-
-	try {
-		const savedUser = await user.save();
-		const token = await user.generateAuthToken();
-		req.session.token = token;
-		return res.status(200).send(savedUser);
-	} catch (err) {
-		console.log(err);
-		return res.status(400).send(err);
+	if (newCalculatedHash === hashValue) {
+		const user = new User({
+			name,
+			email,
+			password: hashPassword,
+			role,
+		});
+		try {
+			const savedUser = await user.save();
+			const token = await user.generateAuthToken();
+			req.session.token = token;
+			return res.status(200).send(savedUser);
+		} catch (err) {
+			console.log(err);
+			return res.status(400).send(err);
+		}
+	} else {
+		res.send({ msg: "Invalid OTP" });
 	}
 };
 
@@ -135,6 +195,7 @@ const passwordReset = async (req, res) => {
 };
 
 module.exports = {
+	sendOtp,
 	signin,
 	signup,
 	forgotPassword,
