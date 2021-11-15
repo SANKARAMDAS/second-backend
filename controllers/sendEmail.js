@@ -1,9 +1,10 @@
 const nodemailer = require("nodemailer");
 const smtpTransport = require("nodemailer-smtp-transport");
 
-const sendEmail = async (req, res) => {
-	const { email } = req.body;
+const sendEmail = async (data, emailBody, emailSubject) => {
+	const { email } = data;
 	const name = "Polaris";
+	//console.log(email, emailBody, subject);
 
 	var transporter = nodemailer.createTransport(
 		smtpTransport({
@@ -11,7 +12,7 @@ const sendEmail = async (req, res) => {
 			port: 465,
 			secure: true, // use SSL
 			auth: {
-				user: "polaristestemail@gmail.com",
+				user: "octalooppolaristest@gmail.com",
 				pass: process.env.PASS,
 			},
 			tls: {
@@ -22,10 +23,10 @@ const sendEmail = async (req, res) => {
 
 	// setup e-mail data
 	var mailOptions = {
-		from: `${name} <rapidquote2021@gmail.com>`, // sender address (who sends)
+		from: `${name} <octalooppolaristest@gmail.com>`, // sender address (who sends)
 		to: email, // list of receivers (who receives)
-		subject: "test", // Subject line
-		html: "<b>Hey!</b><br> This is a test email", // html body
+		subject: `${emailSubject}`, // Subject line
+		html: emailBody, // html body
 	};
 
 	// send mail with defined transport object
@@ -33,9 +34,10 @@ const sendEmail = async (req, res) => {
 		if (error) {
 			return console.log(error);
 		}
-
 		console.log("Message sent: " + info.response);
 	});
+
+	return;
 };
 
 module.exports = {

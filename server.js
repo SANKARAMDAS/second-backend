@@ -53,7 +53,7 @@ app.use("/api/subscription", subscriptionRouter.route);
 app.use("/api/auth", userRoute);
 app.use("/api/google-api", googleLoginRouter.route);
 
-const PORT = process.env.PORT || 5100;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {
 	console.log("Server Running on PORT " + PORT);
 });
