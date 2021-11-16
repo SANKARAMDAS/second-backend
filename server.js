@@ -5,7 +5,6 @@ const cors = require("cors");
 const env = require("dotenv").config();
 const mongoose = require("mongoose");
 
-const subscriptionRouter = require("./routes/subscription");
 const googleLoginRouter = require("./routes/googleLogin");
 const userRoute = require("./routes/user");
 
@@ -29,7 +28,7 @@ mongoose.connect(
 
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function () {});
+db.once("open", function () { });
 
 // Middlewares
 app.use(cors());
@@ -49,7 +48,6 @@ app.get("/", (req, res) => {
 });
 
 // Base Routes
-app.use("/api/subscription", subscriptionRouter.route);
 app.use("/api/auth", userRoute);
 app.use("/api/google-api", googleLoginRouter.route);
 
