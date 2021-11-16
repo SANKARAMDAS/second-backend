@@ -46,10 +46,10 @@ const UserSchema = new mongoose.Schema({
 		trim: true,
 		required: false,
 	},
-	role: {
-		type: String,
-		required: true,
-	},
+	// role: {
+	// 	type: String,
+	// 	required: true,
+	// },
 	isProfileComplete: {
 		type: Boolean,
 		default: false,

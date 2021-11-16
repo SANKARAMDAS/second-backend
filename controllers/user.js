@@ -8,7 +8,7 @@ let err;
 
 // Register User
 const sendOtp = async (req, res, next) => {
-	const { name, email, password, password2, role } = req.body;
+	const { name, email, password, password2 } = req.body;
 
 	if (!name || !email || !password || !password2) {
 		err = "Please enter all fields";
@@ -34,7 +34,7 @@ const sendOtp = async (req, res, next) => {
 		console.log(otp);
 		const ttl = 5 * 60 * 1000;
 		const expires = Date.now() + ttl;
-		const data = `${email}.${name}.${password}.${role}.${otp}.${expires}`;
+		const data = `${email}.${name}.${password}.${otp}.${expires}`;
 		const hash = crypto
 			.createHmac("sha256", process.env.hashkey)
 			.update(data)
@@ -69,7 +69,7 @@ const sendOtp = async (req, res, next) => {
 };
 
 const signup = async (req, res) => {
-	const { name, email, password, role, otp, hash } = req.body;
+	const { name, email, password, otp, hash } = req.body;
 
 	let [hashValue, expires] = hash.split(".");
 
@@ -79,7 +79,7 @@ const signup = async (req, res) => {
 		return res.send({ msg: "OTP Timeout" });
 	}
 
-	const data = `${email}.${name}.${password}.${role}.${otp}.${expires}`;
+	const data = `${email}.${name}.${password}.${otp}.${expires}`;
 
 	const newCalculatedHash = crypto
 		.createHmac("sha256", process.env.HASHKEY)
@@ -94,7 +94,6 @@ const signup = async (req, res) => {
 			name,
 			email,
 			password: hashPassword,
-			role,
 		});
 		try {
 			const savedUser = await user.save();
@@ -111,7 +110,6 @@ const signup = async (req, res) => {
 };
 
 const signin = async (req, res) => {
-	// Check for role
 	try {
 		const user = await User.findByCredentials(
 			req.body.email,

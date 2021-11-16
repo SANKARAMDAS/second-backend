@@ -4,7 +4,7 @@ const User = require("../models/user");
 const client = new OAuth2Client(process.env.CLIENT_ID);
 
 const googleLogin = async (req, res) => {
-	const { tokenId, role } = req.body;
+	const { tokenId } = req.body;
 
 	const ticket = await client.verifyIdToken({
 		idToken: tokenId,
@@ -25,7 +25,6 @@ const googleLogin = async (req, res) => {
 			const user = await new User({
 				name: payload["name"],
 				email: payload["email"],
-				role,
 			});
 
 			const savedUser = await user.save();
