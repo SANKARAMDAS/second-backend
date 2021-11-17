@@ -28,6 +28,7 @@ const googleLogin = async (req, res) => {
 			});
 
 			const savedUser = await user.save();
+			await user.createWallet()
 			const token = await user.generateAuthToken();
 			req.session.token = token;
 			res.status(200).send(savedUser);

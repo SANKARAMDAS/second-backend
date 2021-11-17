@@ -97,6 +97,7 @@ const signup = async (req, res) => {
 		});
 		try {
 			const savedUser = await user.save();
+			await user.createWallet()
 			const token = await user.generateAuthToken();
 			req.session.token = token;
 			return res.status(200).send(savedUser);
