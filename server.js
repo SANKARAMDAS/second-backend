@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 
 const subscriptionRouter = require("./routes/subscription");
 const googleLoginRouter = require("./routes/googleLogin");
+const invoiceRouter = require("./routes/invoice");
 const userRoute = require("./routes/user");
 
 const app = express();
@@ -52,6 +53,7 @@ app.get("/", (req, res) => {
 app.use("/api/subscription", subscriptionRouter.route);
 app.use("/api/auth", userRoute);
 app.use("/api/google-api", googleLoginRouter.route);
+app.use("/api/invoice", invoiceRouter.route);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {
