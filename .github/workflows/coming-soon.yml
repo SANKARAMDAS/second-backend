@@ -5,43 +5,47 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ coming-soon ]
   pull_request:
-    branches: [ main ]
+    branches: [ coming-soon ]
 
 jobs:
-  web-deploy:
-    name: 🎉 Deploy
-    runs-on: ubuntu-latest
-    steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v2
+  test:
+    name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: ['8', '10', '12']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
-    - name: Use Node.js 14
-      uses: actions/setup-node@v2-beta
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node_version }}
+      uses: actions/setup-node@v1
       with:
-        node-version: '14'
-  
-    - name: create env file
-      run: |
-        touch .env
-        echo GENERATE_SOURCEMAP=false >> .env
-        echo REACT_APP_BACKEND_API=${{ secrets.REACT_APP_BACKEND_API }} >> .env
-        
-    - name: 🔨 Build Project
+        node-version: ${{ matrix.node_version }}
+
+    - name: npm install, build and test
       run: |
         npm install
+        npm run build --if-present
+        npm test
+
+  web-deploy:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+        
+    steps:
+    - name: 🔨 Build Project
+      run: |
         npm run build
     
     - name: List output files
       run: find build/ -print
       
 #     - name: Deploy to Server
-#       uses: wlixcc/SFTP-Deploy-Action@v1.0
+#       uses: 
 #       with:
-#         username: 'root'
-#         server: '3.109.88.68'
+#         username: ''
+#         server: ''
 #         ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }} 
-#         local_path: 'build/*'
-#         remote_path: '/var/www/html/charrycoin.com'
-#         args: '-o ConnectTimeout=5'
