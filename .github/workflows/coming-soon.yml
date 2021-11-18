@@ -5,27 +5,43 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ coming-soon ]
+    branches: [ main ]
   pull_request:
-    branches: [ coming-soon ]
+    branches: [ main ]
 
 jobs:
-  build:
-
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x, 16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
+
+    - name: Use Node.js 14
+      uses: actions/setup-node@v2-beta
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+        node-version: '14'
+  
+    - name: create env file
+      run: |
+        touch .env
+        echo GENERATE_SOURCEMAP=false >> .env
+        echo REACT_APP_BACKEND_API=${{ secrets.REACT_APP_BACKEND_API }} >> .env
+        
+    - name: 🔨 Build Project
+      run: |
+        npm install
+        npm run build
+    
+    - name: List output files
+      run: find build/ -print
+      
+#     - name: Deploy to Server
+#       uses: wlixcc/SFTP-Deploy-Action@v1.0
+#       with:
+#         username: 'root'
+#         server: '3.109.88.68'
+#         ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }} 
+#         local_path: 'build/*'
+#         remote_path: '/var/www/html/charrycoin.com'
+#         args: '-o ConnectTimeout=5'
