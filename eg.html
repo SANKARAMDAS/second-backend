@@ -1,56 +1,4 @@
-const { v4: uuidv4 } = require("uuid");
-const CryptoJS = require("crypto-js");
-const Invoice = require("../models/invoice");
-const { sendEmail } = require("./sendEmail");
-
-const invoiceCreation = async (req, res) => {
-	const { email, ETH, BTC, TRX, item, memo } = req.body;
-	const clientId = uuidv4();
-
-	const encrypedClientId = encodeURIComponent(
-		CryptoJS.AES.encrypt(
-			JSON.stringify({ clientId }),
-			process.env.ENCRYPTION_SECRET
-		)
-	);
-
-	const sum = ETH + BTC + TRX;
-
-	if (sum === 100) {
-		let total = 0;
-		let savedInvoice;
-
-		// Calculate total amount
-		for (let i = 0; i < item.length; i++) {
-			// console.log(item[i]);
-			const pdt = item[i].qty * item[i].unitPrice;
-			total = total + pdt;
-		}
-
-		console.log(total);
-
-		// save in db
-		const invoice = new Invoice({
-			requestId: clientId,
-			clientEmail: email,
-			item: item,
-			ETH: ETH,
-			BTC: BTC,
-			TRX: TRX,
-			totalAmount: total,
-			memo: memo,
-		});
-
-		try {
-			savedInvoice = await invoice.save();
-		} catch (err) {
-			console.log(err);
-			return res.status(400).send(err);
-		}
-
-		//send email
-		const emailBody = `
-		<html lang="en">
+<html lang="en">
 	<head>
 		<style>
 			body {
@@ -58,9 +6,11 @@ const invoiceCreation = async (req, res) => {
 			}
 
 			.wrapper {
-				height: 100%;
-				width: 100%;
+				height: 97vh;
+				width: 35%;
 				margin: auto;
+				display: flex;
+				flex-direction: column;
 				justify-content: center;
 				align-items: center;
 				/* border: 3px solid green; */
@@ -193,17 +143,15 @@ const invoiceCreation = async (req, res) => {
 	<body>
 		<div class="wrapper">
 			<div class="invoice-content-header">
-				<img width="50%" src="https://i.postimg.cc/CKdd49nM/Whats-App-Image-2021-11-18-at-12-44-42-AM.jpg" />
+				<img width="100%" class="logo" src="images/logoPlaceholder.png" />
 			</div>
 			<div class="invoice-content-body">
 				<p>
 					You have received an invoice from <b>Tarang Padia</b> for
-					<b>${total} USD</b>
+					<b>500.00 USD</b>
 				</p>
 				<p>Payment is due on <b>31st October 2021</b></p>
-				<form action="https://google.com/${encrypedClientId}">
-    			<input type="submit" value="View my Invoice" />
-				</form>
+				<button>View my Invoice</button>
 				<p style="margin-bottom: 20px">
 					Cheers, <br />
 					The Polaris Team
@@ -227,28 +175,3 @@ const invoiceCreation = async (req, res) => {
         **Stop here
     -->
 </html>
-
-	`;
-
-		await sendEmail({ email: email }, emailBody, "New Invoice Request");
-		return res.status(200).send(savedInvoice);
-	} else {
-		res.send("Proportions should add up to 100");
-	}
-};
-
-const getInvoiceInfo = async (req, res) => {
-	const { requestId } = req.body;
-
-	const InvoiceInfo = await Invoice.findOne({ requestId });
-	if (InvoiceInfo) {
-		return res.status(200).send(InvoiceInfo);
-	} else {
-		return res.status(400).send("Invalid Request");
-	}
-};
-
-module.exports = {
-	invoiceCreation,
-	getInvoiceInfo,
-};

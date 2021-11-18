@@ -86,8 +86,8 @@ const signup = async (req, res) => {
 		.update(data)
 		.digest("hex");
 
-	const salt = await bcrypt.genSalt(10);
-	const hashPassword = await bcrypt.hash(req.body.password, salt);
+	// const salt = await bcrypt.genSalt(10);
+	// const hashPassword = await bcrypt.hash(req.body.password, salt);
 
 	if (newCalculatedHash === hashValue) {
 		const user = new User({
@@ -97,7 +97,7 @@ const signup = async (req, res) => {
 		});
 		try {
 			const savedUser = await user.save();
-			await user.createWallet()
+			await user.createWallet();
 			const token = await user.generateAuthToken();
 			req.session.token = token;
 			return res.status(200).send(savedUser);
