@@ -1,5 +1,9 @@
 const express = require("express");
-const { invoiceCreation, getInvoiceInfo } = require("../controllers/invoice");
+const {
+	invoiceCreation,
+	getInvoiceInfo,
+	getFreelancerInvoices,
+} = require("../controllers/invoice");
 
 const router = express.Router();
 
@@ -7,6 +11,8 @@ const router = express.Router();
 router.post("/invoiceCreation", invoiceCreation);
 
 router.post("/getInvoiceInfo", getInvoiceInfo);
+
+router.post("/getFreelancerInvoices", getFreelancerInvoices);
 
 module.exports = {
 	route: router,
