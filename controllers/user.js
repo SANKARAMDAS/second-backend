@@ -36,7 +36,7 @@ const sendOtp = async (req, res, next) => {
 		const expires = Date.now() + ttl;
 		const data = `${email}.${name}.${password}.${otp}.${expires}`;
 		const hash = crypto
-			.createHmac("sha256", process.env.hashkey)
+			.createHmac("sha256", process.env.HASHKEY)
 			.update(data)
 			.digest("hex");
 		const fullHash = `${hash}.${expires}`;
@@ -86,8 +86,8 @@ const signup = async (req, res) => {
 		.update(data)
 		.digest("hex");
 
-	// const salt = await bcrypt.genSalt(10);
-	// const hashPassword = await bcrypt.hash(req.body.password, salt);
+	const salt = await bcrypt.genSalt(10);
+	const hashPassword = await bcrypt.hash(req.body.password, salt);
 
 	if (newCalculatedHash === hashValue) {
 		const user = new User({
@@ -192,6 +192,35 @@ const passwordReset = async (req, res) => {
 
 	res.status(200).send({ user });
 };
+
+const getUser = (req, res) => {
+	try {
+		res.send(req.user)
+	} catch (e) {
+		res.status(500).send(e)
+	}
+}
+
+const updateProfile = async (req, res) => {
+
+	const updates = Object.keys(req.body)
+	const allowedUpdates = ['ethWallet', 'bitcoinWallet', 'name', 'company']
+	const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+
+	if (!isValidOperation) {
+		return res.status(400).send({ error: 'Invalid updates!' })
+	}
+
+	try {
+		updates.forEach((update) => req.user[update] = req.body[update])
+		await req.user.save()
+		res.status(200).send(req.user)
+	} catch (e) {
+		console.log(e)
+		res.status(500).send()
+	}
+
+}
 
 module.exports = {
 	sendOtp,
