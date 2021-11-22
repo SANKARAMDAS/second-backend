@@ -4,7 +4,7 @@
 	"description": "backend for polaris",
 	"main": "server.js",
 	"scripts": {
-		"test": "mocha --timeout 70000",
+		"test": "mocha --exit",
 		"start": "nodemon server.js"
 	},
 	"author": "",
