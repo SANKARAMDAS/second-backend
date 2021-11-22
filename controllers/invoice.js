@@ -223,9 +223,6 @@ const invoiceCreation = async (req, res) => {
 			</div>
 		</div>
 	</body>
-	<!--
-        **Stop here
-    -->
 </html>
 
 	`;
