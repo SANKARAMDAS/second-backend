@@ -76,7 +76,7 @@ const signup = async (req, res) => {
 	let now = Date.now();
 
 	if (now > parseInt(expires)) {
-		return res.send({ msg: "OTP Timeout" });
+		return res.status(401).send({ msg: "OTP Timeout" });
 	}
 
 	const data = `${email}.${name}.${password}.${otp}.${expires}`;
@@ -106,7 +106,7 @@ const signup = async (req, res) => {
 			return res.status(400).send(err);
 		}
 	} else {
-		res.send({ msg: "Invalid OTP" });
+		res.status(400).send({ msg: "Invalid OTP" });
 	}
 };
 
@@ -118,7 +118,7 @@ const signin = async (req, res) => {
 		);
 		const token = await user.generateAuthToken();
 		req.session.token = token;
-		res.send(user);
+		res.status(200).send(user);
 	} catch (e) {
 		res.status(400).send(e.message);
 	}
@@ -150,7 +150,7 @@ const forgotPassword = async (req, res) => {
                         <a href=${link}>${link}</a></p>`;
 	await sendEmail({ email: email }, emailBody, "Password Reset");
 
-	res.send({ link, token, id: user._id });
+	res.status(200).send({ link, token, id: user._id });
 };
 
 const passwordReset = async (req, res) => {
@@ -195,7 +195,7 @@ const passwordReset = async (req, res) => {
 
 const getUser = (req, res) => {
 	try {
-		res.send(req.user)
+		res.status(200).send(req.user)
 	} catch (e) {
 		res.status(500).send(e)
 	}
