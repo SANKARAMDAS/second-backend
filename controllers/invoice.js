@@ -4,7 +4,7 @@ const Invoice = require("../models/invoice");
 const { sendEmail } = require("./sendEmail");
 
 const invoiceCreation = async (req, res) => {
-	const { email, ETH, BTC, TRX, item, memo } = req.body;
+	const { clientEmail, freelancerEmail, ETH, BTC, TRX, item, memo } = req.body;
 	const clientId = uuidv4();
 
 	const encrypedClientId = encodeURIComponent(
@@ -32,7 +32,8 @@ const invoiceCreation = async (req, res) => {
 		// save in db
 		const invoice = new Invoice({
 			requestId: clientId,
-			clientEmail: email,
+			freelancerEmail: freelancerEmail,
+			clientEmail: clientEmail,
 			item: item,
 			ETH: ETH,
 			BTC: BTC,
@@ -59,7 +60,7 @@ const invoiceCreation = async (req, res) => {
 
 			.wrapper {
 				height: 100%;
-				width: 100%;
+				width: 50%;
 				margin: auto;
 				justify-content: center;
 				align-items: center;
@@ -69,7 +70,7 @@ const invoiceCreation = async (req, res) => {
 			.wrapper .invoice-content-header {
 				/* border: 3px solid green; */
 				width: 100%;
-				height: 20%;
+				height: 40%;
 				display: flex;
 				justify-content: center;
 				align-items: center;
@@ -84,7 +85,7 @@ const invoiceCreation = async (req, res) => {
 				background-color: #fff;
 				width: 100%;
 				height: 55%;
-				padding: 60px;
+				padding: 0px;
 				padding-top: 40px;
 				box-sizing: border-box;
 				/* display: flex; */
@@ -136,6 +137,22 @@ const invoiceCreation = async (req, res) => {
 				justify-content: center;
 				align-items: center;
 			}
+
+			.submit-button{
+				background-color: #3246a8;
+				color: #ffffff;
+				border: none;
+				padding: 8px;
+				text-decoration: none;
+				font-size: 16px;
+				border-radius: 8px;
+			}
+
+			.center {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			  }
 
 			@media screen and (max-width: 992px) {
 				.wrapper {
@@ -193,16 +210,16 @@ const invoiceCreation = async (req, res) => {
 	<body>
 		<div class="wrapper">
 			<div class="invoice-content-header">
-				<img width="50%" src="https://i.postimg.cc/CKdd49nM/Whats-App-Image-2021-11-18-at-12-44-42-AM.jpg" />
+				<img width="100%" src="https://i.postimg.cc/CKdd49nM/Whats-App-Image-2021-11-18-at-12-44-42-AM.jpg" />
 			</div>
 			<div class="invoice-content-body">
 				<p>
-					You have received an invoice from <b>Tarang Padia</b> for
+					You have received an invoice from <b>${freelancerEmail}</b> for
 					<b>${total} USD</b>
 				</p>
 				<p>Payment is due on <b>31st October 2021</b></p>
 				<form action="https://google.com/${encrypedClientId}">
-    			<input type="submit" value="View my Invoice" />
+    			<input type="submit" value="View my Invoice" class="submit-button center"/>
 				</form>
 				<p style="margin-bottom: 20px">
 					Cheers, <br />
@@ -227,7 +244,7 @@ const invoiceCreation = async (req, res) => {
 
 	`;
 
-		await sendEmail({ email: email }, emailBody, "New Invoice Request");
+		await sendEmail({ email: clientEmail }, emailBody, "New Invoice Request");
 		return res.status(200).send(savedInvoice);
 	} else {
 		res.send("Proportions should add up to 100");
@@ -245,7 +262,19 @@ const getInvoiceInfo = async (req, res) => {
 	}
 };
 
+const getFreelancerInvoices = async (req, res) => {
+	const { freelancerEmail } = req.body;
+
+	const InvoiceInfo = await Invoice.findOne({ freelancerEmail });
+	if (InvoiceInfo) {
+		return res.status(200).send(InvoiceInfo);
+	} else {
+		return res.status(400).send("Invalid Request");
+	}
+};
+
 module.exports = {
 	invoiceCreation,
 	getInvoiceInfo,
+	getFreelancerInvoices,
 };
