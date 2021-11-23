@@ -32,7 +32,7 @@ const invoiceCreation = async (req, res) => {
 		// save in db
 		const invoice = new Invoice({
 			requestId: clientId,
-			freelancerEmail: freelancerEmail,
+			freelancerEmail: req.user.email,
 			clientEmail: clientEmail,
 			item: item,
 			ETH: ETH,
