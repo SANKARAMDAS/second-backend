@@ -4,7 +4,17 @@ const Invoice = require("../models/invoice");
 const { sendEmail } = require("./sendEmail");
 
 const invoiceCreation = async (req, res) => {
-	const { clientEmail, freelancerEmail, ETH, BTC, TRX, item, memo } = req.body;
+	const {
+		clientEmail,
+		freelancerEmail,
+		clientName,
+		freelancerName,
+		ETH,
+		BTC,
+		FIAT,
+		item,
+		memo,
+	} = req.body;
 	const clientId = uuidv4();
 
 	const encrypedClientId = encodeURIComponent(
@@ -14,7 +24,7 @@ const invoiceCreation = async (req, res) => {
 		)
 	);
 
-	const sum = ETH + BTC + TRX;
+	const sum = ETH + BTC + FIAT;
 
 	if (sum === 100) {
 		let total = 0;
@@ -37,7 +47,7 @@ const invoiceCreation = async (req, res) => {
 			item: item,
 			ETH: ETH,
 			BTC: BTC,
-			TRX: TRX,
+			FIAT: FIAT,
 			totalAmount: total,
 			memo: memo,
 		});
@@ -53,6 +63,7 @@ const invoiceCreation = async (req, res) => {
 		const emailBody = `
 		<html lang="en">
 	<head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 		<style>
 			body {
 				background-color: #f2f4f6;
@@ -64,11 +75,9 @@ const invoiceCreation = async (req, res) => {
 				margin: auto;
 				justify-content: center;
 				align-items: center;
-				/* border: 3px solid green; */
 			}
 
 			.wrapper .invoice-content-header {
-				/* border: 3px solid green; */
 				width: 100%;
 				height: 40%;
 				display: flex;
@@ -126,14 +135,12 @@ const invoiceCreation = async (req, res) => {
 			}
 
 			.wrapper .invoice-content-footer {
-				/* border: 3px solid green; */
 				width: 100%;
 				height: 10%;
-				display: flex;
 				font-family: sans-serif;
 				font-size: 0.8rem;
 				color: #6b6a6a;
-				flex-direction: column;
+				display: flex;
 				justify-content: center;
 				align-items: center;
 			}
@@ -203,10 +210,6 @@ const invoiceCreation = async (req, res) => {
 		</style>
 	</head>
 
-	<!-- 
-        **Copy From here
-    -->
-
 	<body>
 		<div class="wrapper">
 			<div class="invoice-content-header">
@@ -214,7 +217,9 @@ const invoiceCreation = async (req, res) => {
 			</div>
 			<div class="invoice-content-body">
 				<p>
-					You have received an invoice from <b>${freelancerEmail}</b> for
+					Hey ${clientName}!
+					<br/>
+					You have received an invoice from <b>${freelancerName}</b> for
 					<b>${total} USD</b>
 				</p>
 				<p>Payment is due on <b>31st October 2021</b></p>
@@ -235,10 +240,13 @@ const invoiceCreation = async (req, res) => {
 				</p>
 			</div>
 			<div class="invoice-content-footer">
-				<p style="margin-bottom: -10px">&copy; 2021. All rights reserved.</p>
-				<p>Polaris</p>
+				&copy; 2021. All rights reserved.
+				<br/>
+				Polaris
 			</div>
+			<button class="btn btn-primary">Click me</button>
 		</div>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	</body>
 </html>
 

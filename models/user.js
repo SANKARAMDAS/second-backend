@@ -2,17 +2,17 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
-const axios = require("axios")
-const { v4: uuidv4 } = require('uuid')
+const axios = require("axios");
+const { v4: uuidv4 } = require("uuid");
 
 const instance = axios.create({
 	baseURL: process.env.baseURL,
 	headers: {
-		Accept: 'application/json',
-		'Content-Type': 'application/json',
-		Authorization: 'Bearer ' + process.env.API_KEY
-	}
-})
+		Accept: "application/json",
+		"Content-Type": "application/json",
+		Authorization: "Bearer " + process.env.API_KEY,
+	},
+});
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -46,7 +46,7 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 	},
 	circleWallet: {
-		type: String
+		type: String,
 	},
 	// role: {
 	// 	type: String,
@@ -66,26 +66,26 @@ const UserSchema = new mongoose.Schema({
 	],
 });
 
-UserSchema.methods.createWallet = async function () {
-	const user = this;
-	const idempotencyKey = uuidv4()
-	const url = '/v1/wallets'
+// UserSchema.methods.createWallet = async function () {
+// 	const user = this;
+// 	const idempotencyKey = uuidv4();
+// 	const url = "/v1/wallets";
 
-	const payload = {
-		idempotencyKey
-	}
-	let result
-	try {
-		result = await instance.post(url, payload)
-	} catch (e) {
-		console.log(e)
-		throw new Error("there was an error creating wallet");
-	}
+// 	const payload = {
+// 		idempotencyKey,
+// 	};
+// 	let result;
+// 	try {
+// 		result = await instance.post(url, payload);
+// 	} catch (e) {
+// 		console.log(e);
+// 		throw new Error("there was an error creating wallet");
+// 	}
 
-	user.circleWallet = result.data.data.walletId
-	user.save();
-	return result
-}
+// 	user.circleWallet = result.data.data.walletId;
+// 	user.save();
+// 	return result;
+// };
 
 UserSchema.methods.generateAuthToken = async function () {
 	const user = this;

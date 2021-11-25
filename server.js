@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 
 const googleLoginRouter = require("./routes/googleLogin");
 const invoiceRouter = require("./routes/invoice");
+const stripeIntegrationRouter = require("./routes/stripe/accountCreation");
 const userRoute = require("./routes/user");
 
 const app = express();
@@ -29,7 +30,7 @@ mongoose.connect(
 
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function () { });
+db.once("open", function () {});
 
 // Middlewares
 app.use(cors());
@@ -52,6 +53,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", userRoute);
 app.use("/api/google-api", googleLoginRouter.route);
 app.use("/api/invoice", invoiceRouter.route);
+app.use("/api/fiat", stripeIntegrationRouter.route);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

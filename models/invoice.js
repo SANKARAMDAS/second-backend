@@ -33,7 +33,7 @@ const value = {
 	],
 	ETH: value,
 	BTC: value,
-	TRX: value,
+	FIAT: value,
 	totalAmount: value,
 	memo: {
 		type: String,

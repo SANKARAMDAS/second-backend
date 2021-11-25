@@ -13,9 +13,11 @@ describe("POST /invoiceCreation", function () {
 			.send({
 				freelancerEmail: "tarang.padia2@gmail.com",
 				clientEmail: "sanchi.shirur4@gmail.com",
+				freelancerName: "Tarang",
+				clientName: "Sanchita",
 				ETH: 10,
 				BTC: 50,
-				TRX: 40,
+				FIAT: 40,
 				item: [
 					{
 						description: "Product Description 1",
