@@ -24,7 +24,7 @@ const invoiceCreation = async (req, res) => {
 		CryptoJS.AES.encrypt(
 			JSON.stringify({ invoiceId }),
 			process.env.ENCRYPTION_SECRET
-		)
+		).toString()
 	);
 
 	const sum = ETH + BTC + FIAT;
@@ -37,7 +37,7 @@ const invoiceCreation = async (req, res) => {
 		// Calculate total amount
 		for (let i = 0; i < item.length; i++) {
 			// console.log(item[i]);
-			const pdt = item[i].qty * item[i].unitPrice;
+			const pdt = parseInt(item[i].quantity) * parseInt(item[i].price);
 			total = total + pdt;
 		}
 
@@ -256,8 +256,8 @@ const invoiceCreation = async (req, res) => {
 
 	`;
 
-		await sendEmail({ email: clientEmail }, emailBody, "New Invoice Request");
-		return res.status(200).send(link);
+		//await sendEmail({ email: clientEmail }, emailBody, "New Invoice Request");
+		return res.status(200).send(encrypedClientId);
 	} else {
 		res.send("Proportions should add up to 100");
 	}
