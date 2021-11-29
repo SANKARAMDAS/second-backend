@@ -2,17 +2,17 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
-const axios = require("axios");
-const { v4: uuidv4 } = require("uuid");
+// const axios = require("axios");
+// const { v4: uuidv4 } = require("uuid");
 
-const instance = axios.create({
-	baseURL: process.env.baseURL,
-	headers: {
-		Accept: "application/json",
-		"Content-Type": "application/json",
-		Authorization: "Bearer " + process.env.API_KEY,
-	},
-});
+// const instance = axios.create({
+// 	baseURL: process.env.baseURL,
+// 	headers: {
+// 		Accept: "application/json",
+// 		"Content-Type": "application/json",
+// 		Authorization: "Bearer " + process.env.API_KEY,
+// 	},
+// });
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -87,15 +87,37 @@ const UserSchema = new mongoose.Schema({
 // 	return result;
 // };
 
-UserSchema.methods.generateAuthToken = async function () {
+UserSchema.methods.createAuthToken = async function () {
 	const user = this;
 	const token = jwt.sign(
 		{ _id: user._id.toString() },
-		process.env.VERIFY_TOKEN
+		process.env.VERIFY_AUTH_TOKEN,
+		{
+			expiresIn: "10m",
+		}
 	);
 
-	user.tokens = user.tokens.concat({ token });
-	user.save();
+	// user.tokens = user.tokens.concat({ token });
+	// user.save();
+	return token;
+};
+
+UserSchema.methods.createRefreshToken = async function () {
+	const user = this;
+	const token = jwt.sign(
+		{ _id: user._id.toString() },
+		process.env.VERIFY_REFRESH_TOKEN,
+		{
+			expiresIn: "1d",
+		}
+	);
+
+	try {
+		user.refreshToken = token;
+		await user.save()
+	} catch (e) {
+		throw new Error(e)
+	}
 	return token;
 };
 
