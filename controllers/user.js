@@ -121,8 +121,8 @@ const generateAccessToken = async (req, res) => {
 
 
 
-		const accessToken = jwt.sign({ _id: user._id.to_string() },
-			prcess.env.VERIFY_AUTH_TOKEN, {
+		const accessToken = jwt.sign({ _id: user._id.toString() },
+			process.env.VERIFY_AUTH_TOKEN, {
 			expiresIn: '10m'
 		})
 
@@ -133,13 +133,14 @@ const generateAccessToken = async (req, res) => {
 
 const logout = async (req, res) => {
 	try {
-		const { refreshToken } = req.body;
-		const user = await User.findOne({ requestToken })
-		user.requestToken = ""
+		const user = req.user
+		console.log(user)
+		user.refreshToken = null
 		user.save()
 		return res.status(200).send({ success: "user logged out" })
 	} catch (e) {
-		return res.status(400).send()
+		console.log(e)
+		return res.status(400).send(e)
 	}
 }
 

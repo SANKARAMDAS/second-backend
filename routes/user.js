@@ -1,5 +1,5 @@
 const express = require("express");
-const auth = require('../middlewares/auth')
+const { auth } = require('../middlewares/auth')
 const router = express.Router();
 const {
 	signup,
@@ -22,6 +22,8 @@ router.post("/signin", signin);
 router.post("/sendemail", sendEmail);
 
 router.post("/refreshToken", generateAccessToken)
+
+router.post("/logout", auth, logout)
 
 router.post("/forgotpassword", forgotPassword);
 

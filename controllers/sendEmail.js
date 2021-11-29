@@ -13,7 +13,7 @@ const sendEmail = async (data, emailBody, emailSubject) => {
 			secure: true, // use SSL
 			auth: {
 				// user: "octalooppolaristest@gmail.com",
-				user: "octalooppolaristest@gmail.com",
+				user: "jmcnally2978@gmail.com",
 				pass: process.env.PASS,
 			},
 			tls: {

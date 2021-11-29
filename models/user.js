@@ -56,14 +56,10 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false,
 	},
-	tokens: [
-		{
-			token: {
-				type: String,
-				required: true,
-			},
-		},
-	],
+	refreshToken: {
+		type: String,
+		required: false
+	}
 });
 
 // UserSchema.methods.createWallet = async function () {
