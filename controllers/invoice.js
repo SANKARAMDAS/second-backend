@@ -14,17 +14,21 @@ const invoiceCreation = async (req, res) => {
 		FIAT,
 		item,
 		memo,
+		creationDate,
+		dueDate,
 	} = req.body;
-	const clientId = uuidv4();
+
+	const invoiceId = uuidv4();
 
 	const encrypedClientId = encodeURIComponent(
 		CryptoJS.AES.encrypt(
-			JSON.stringify({ clientId }),
+			JSON.stringify({ invoiceId }),
 			process.env.ENCRYPTION_SECRET
 		)
 	);
 
 	const sum = ETH + BTC + FIAT;
+	const link = `http://localhost:3000/pay-invoice/${encrypedClientId}`;
 
 	if (sum === 100) {
 		let total = 0;
@@ -41,7 +45,7 @@ const invoiceCreation = async (req, res) => {
 
 		// save in db
 		const invoice = new Invoice({
-			requestId: clientId,
+			invoiceId: invoiceId,
 			freelancerEmail: freelancerEmail,
 			clientEmail: clientEmail,
 			item: item,
@@ -50,6 +54,9 @@ const invoiceCreation = async (req, res) => {
 			FIAT: FIAT,
 			totalAmount: total,
 			memo: memo,
+			creationDate: creationDate,
+			dueDate: dueDate,
+			link: link,
 		});
 
 		try {
@@ -62,9 +69,8 @@ const invoiceCreation = async (req, res) => {
 		//send email
 		const emailBody = `
 		<html lang="en">
-	<head>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<style>
+		<head>
+			<style>
 			body {
 				background-color: #f2f4f6;
 			}
@@ -219,11 +225,11 @@ const invoiceCreation = async (req, res) => {
 				<p>
 					Hey ${clientName}!
 					<br/>
-					You have received an invoice from <b>${freelancerName}</b> for
+					You have received an invoice from <b>${freelancerName}</b> generated on ${creationDate} for
 					<b>${total} USD</b>
 				</p>
-				<p>Payment is due on <b>31st October 2021</b></p>
-				<form action="https://google.com/${encrypedClientId}">
+				<p>Payment is due on <b>${dueDate}</b></p>
+				<form action="http://localhost:3000/pay-invoice/${encrypedClientId}">
     			<input type="submit" value="View my Invoice" class="submit-button center"/>
 				</form>
 				<p style="margin-bottom: 20px">
@@ -244,16 +250,14 @@ const invoiceCreation = async (req, res) => {
 				<br/>
 				Polaris
 			</div>
-			<button class="btn btn-primary">Click me</button>
 		</div>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	</body>
+		</body>
 </html>
 
 	`;
 
 		await sendEmail({ email: clientEmail }, emailBody, "New Invoice Request");
-		return res.status(200).send(savedInvoice);
+		return res.status(200).send(link);
 	} else {
 		res.send("Proportions should add up to 100");
 	}

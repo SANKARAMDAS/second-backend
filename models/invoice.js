@@ -10,7 +10,7 @@ const value = {
 
 // Status Model
 (Invoice = new Schema({
-	requestId: {
+	invoiceId: {
 		type: String,
 		required: true,
 	},
@@ -40,6 +40,9 @@ const value = {
 		trim: true,
 		required: true,
 	},
+	link: String,
+	creationDate: String,
+	dueDate: String,
 })),
 	(Invoice = mongoose.model("Invoice", Invoice));
 

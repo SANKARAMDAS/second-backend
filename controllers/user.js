@@ -135,10 +135,10 @@ const forgotPassword = async (req, res) => {
 };
 
 const passwordReset = async (req, res) => {
-	const { token, id, password, password2 } = req.body;
+	const { token, id, password } = req.body;
 	let decoded;
 
-	if (!ObjectId.isValid(id) || password != password2) {
+	if (!ObjectId.isValid(id)) {
 		return res.status(400).send();
 	}
 
