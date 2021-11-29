@@ -12,8 +12,7 @@ const sendEmail = async (data, emailBody, emailSubject) => {
 			port: 465,
 			secure: true, // use SSL
 			auth: {
-				// user: "octalooppolaristest@gmail.com",
-				user: "jmcnally2978@gmail.com",
+				user: "octalooppolaristest@gmail.com",
 				pass: process.env.PASS,
 			},
 			tls: {
