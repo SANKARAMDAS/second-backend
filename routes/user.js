@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require('../middlewares/auth')
 const router = express.Router();
 const {
 	signup,
@@ -6,6 +7,8 @@ const {
 	forgotPassword,
 	passwordReset,
 	sendOtp,
+	generateAccessToken,
+	logout
 } = require("../controllers/user");
 
 const { sendEmail } = require("../controllers/sendEmail");
@@ -17,6 +20,8 @@ router.post("/signup", signup);
 router.post("/signin", signin);
 
 router.post("/sendemail", sendEmail);
+
+router.post("/refreshToken", generateAccessToken)
 
 router.post("/forgotpassword", forgotPassword);
 
