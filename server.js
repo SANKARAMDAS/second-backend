@@ -7,7 +7,8 @@ const mongoose = require("mongoose");
 
 const googleLoginRouter = require("./routes/googleLogin");
 const invoiceRouter = require("./routes/invoice");
-const stripeIntegrationRouter = require("./routes/stripe/accountCreation");
+const stripeOnboardingRouter = require("./routes/stripe/onBoarding");
+const stripePaymentRouter = require("./routes/stripe/payment");
 const userRoute = require("./routes/user");
 
 const app = express();
@@ -53,7 +54,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", userRoute);
 app.use("/api/google-api", googleLoginRouter.route);
 app.use("/api/invoice", invoiceRouter.route);
-app.use("/api/fiat", stripeIntegrationRouter.route);
+app.use("/api/stripe-onBoarding", stripeOnboardingRouter.route);
+app.use("/api/stripe-payment", stripePaymentRouter.route);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

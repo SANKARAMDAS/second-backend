@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 var ObjectId = require("mongoose").Types.ObjectId;
 const User = require("../models/user");
 const { sendEmail } = require("./sendEmail");
+const { accountCreation } = require("../controllers/stripe/onBoarding");
+
 let err;
 
 // Register User
@@ -72,17 +74,21 @@ const signup = async (req, res) => {
 		.digest("hex");
 
 	if (newCalculatedHash === hashValue) {
+		const { accountId } = await accountCreation(email);
+		console.log(accountId);
 		const user = new User({
 			name,
 			email,
 			password,
+			stripeAccountId: accountId,
 		});
 		try {
 			const savedUser = await user.save();
 			const accessToken = await user.createAuthToken();
 			const refreshToken = await user.createRefreshToken();
 			return res.status(200).send({
-				accessToken, refreshToken
+				accessToken,
+				refreshToken,
 			});
 		} catch (err) {
 			console.log(err);
@@ -107,42 +113,41 @@ const signin = async (req, res) => {
 	}
 };
 
-
 const generateAccessToken = async (req, res) => {
 	const { refreshToken } = req.body;
 
 	if (!refreshToken) {
-		return res.status(400).send({ error: "access denied" })
+		return res.status(400).send({ error: "access denied" });
 	} else {
 		const user = await User.findOne({ refreshToken });
-		if (!user) res.status(400).send({ error: "access denied" })
+		if (!user) res.status(400).send({ error: "access denied" });
 		const decoded = jwt.verify(refreshToken, process.env.VERIFY_REFRESH_TOKEN);
-		if (decoded._id != user._id) res.status(400).send()
+		if (decoded._id != user._id) res.status(400).send();
 
+		const accessToken = jwt.sign(
+			{ _id: user._id.toString() },
+			process.env.VERIFY_AUTH_TOKEN,
+			{
+				expiresIn: "10m",
+			}
+		);
 
-
-		const accessToken = jwt.sign({ _id: user._id.toString() },
-			process.env.VERIFY_AUTH_TOKEN, {
-			expiresIn: '10m'
-		})
-
-		res.status(200).send({ accessToken })
-
+		res.status(200).send({ accessToken });
 	}
-}
+};
 
 const logout = async (req, res) => {
 	try {
-		const user = req.user
-		console.log(user)
-		user.refreshToken = null
-		user.save()
-		return res.status(200).send({ success: "user logged out" })
+		const user = req.user;
+		console.log(user);
+		user.refreshToken = null;
+		user.save();
+		return res.status(200).send({ success: "user logged out" });
 	} catch (e) {
-		console.log(e)
-		return res.status(400).send(e)
+		console.log(e);
+		return res.status(400).send(e);
 	}
-}
+};
 
 const forgotPassword = async (req, res) => {
 	const { email } = req.body;
@@ -249,5 +254,5 @@ module.exports = {
 	forgotPassword,
 	passwordReset,
 	generateAccessToken,
-	logout
+	logout,
 };

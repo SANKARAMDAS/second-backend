@@ -2,17 +2,6 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
-// const axios = require("axios");
-// const { v4: uuidv4 } = require("uuid");
-
-// const instance = axios.create({
-// 	baseURL: process.env.baseURL,
-// 	headers: {
-// 		Accept: "application/json",
-// 		"Content-Type": "application/json",
-// 		Authorization: "Bearer " + process.env.API_KEY,
-// 	},
-// });
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -48,40 +37,19 @@ const UserSchema = new mongoose.Schema({
 	circleWallet: {
 		type: String,
 	},
-	// role: {
-	// 	type: String,
-	// 	required: true,
-	// },
 	isProfileComplete: {
 		type: Boolean,
 		default: false,
 	},
 	refreshToken: {
 		type: String,
-		required: false
-	}
+		required: false,
+	},
+
+	stripeAccountId: {
+		type: String,
+	},
 });
-
-// UserSchema.methods.createWallet = async function () {
-// 	const user = this;
-// 	const idempotencyKey = uuidv4();
-// 	const url = "/v1/wallets";
-
-// 	const payload = {
-// 		idempotencyKey,
-// 	};
-// 	let result;
-// 	try {
-// 		result = await instance.post(url, payload);
-// 	} catch (e) {
-// 		console.log(e);
-// 		throw new Error("there was an error creating wallet");
-// 	}
-
-// 	user.circleWallet = result.data.data.walletId;
-// 	user.save();
-// 	return result;
-// };
 
 UserSchema.methods.createAuthToken = async function () {
 	const user = this;
@@ -110,9 +78,9 @@ UserSchema.methods.createRefreshToken = async function () {
 
 	try {
 		user.refreshToken = token;
-		await user.save()
+		await user.save();
 	} catch (e) {
-		throw new Error(e)
+		throw new Error(e);
 	}
 	return token;
 };

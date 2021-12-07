@@ -256,17 +256,18 @@ const invoiceCreation = async (req, res) => {
 
 	`;
 
-		//await sendEmail({ email: clientEmail }, emailBody, "New Invoice Request");
+		await sendEmail({ email: clientEmail }, emailBody, "New Invoice Request");
 		return res.status(200).send(encrypedClientId);
 	} else {
 		res.send("Proportions should add up to 100");
 	}
 };
 
+// Get Invoice info
 const getInvoiceInfo = async (req, res) => {
-	const { requestId } = req.body;
+	const { invoiceId } = req.body;
 
-	const InvoiceInfo = await Invoice.findOne({ requestId });
+	const InvoiceInfo = await Invoice.findOne({ invoiceId });
 	if (InvoiceInfo) {
 		return res.status(200).send(InvoiceInfo);
 	} else {
@@ -274,6 +275,7 @@ const getInvoiceInfo = async (req, res) => {
 	}
 };
 
+// Get Invoice - Freelancer
 const getFreelancerInvoices = async (req, res) => {
 	const { freelancerEmail } = req.body;
 
