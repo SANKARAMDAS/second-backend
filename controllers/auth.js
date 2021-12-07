@@ -22,10 +22,19 @@ const googleSignup = async (req, res) => {
 				stripeAccountId: accountId,
 			});
 
-			const savedUser = await user.save();
-			const token = await user.generateAuthToken();
-			req.session.token = token;
-			res.status(200).send(savedUser);
+			try {
+				const savedUser = await user.save();
+				await user.createWallet()
+				const accessToken = await user.createAuthToken();
+				const refreshToken = await user.createRefreshToken();
+				return res.status(200).send({
+					accessToken,
+					refreshToken,
+				});
+			} catch (err) {
+				console.log(err);
+				return res.status(400).send(err);
+			}
 		}
 	} else {
 		res.status(400).send("There was an error accessing your google account.");

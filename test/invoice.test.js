@@ -21,8 +21,8 @@ describe("POST /invoiceCreation", function () {
 				item: [
 					{
 						description: "Product Description 1",
-						qty: 5,
-						unitPrice: 80,
+						quantity: 5,
+						price: 80,
 					},
 				],
 				memo: "Some general description",
