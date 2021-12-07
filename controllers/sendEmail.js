@@ -1,42 +1,22 @@
-const nodemailer = require("nodemailer");
-const smtpTransport = require("nodemailer-smtp-transport");
+const sgMail = require("@sendgrid/mail");
 
-const sendEmail = async (data, emailBody, emailSubject) => {
-	const { email } = data;
-	const name = "Polaris";
-	//console.log(email, emailBody, subject);
+const sendEmail = async (data, emailBody, subject) => {
+	sgMail.setApiKey(process.env.EMAIL_API_KEY);
 
-	var transporter = nodemailer.createTransport(
-		smtpTransport({
-			host: "smtp.gmail.com",
-			port: 465,
-			secure: true, // use SSL
-			auth: {
-				user: "octalooppolaristest@gmail.com",
-				pass: process.env.PASS,
-			},
-			tls: {
-				rejectUnauthorized: false,
-			},
-		})
-	);
-
-	// setup e-mail data
-	var mailOptions = {
-		from: `${name} <octalooppolaristest@gmail.com>`, // sender address (who sends)
-		to: email, // list of receivers (who receives)
-		subject: `${emailSubject}`, // Subject line
-		html: emailBody, // html body
+	// Client message
+	const messageUser = {
+		to: data.email,
+		from: {
+			name: "Polaris",
+			email: "octalooppolaristest@gmail.com", // senders email as registered with sendgrid
+		},
+		subject: subject,
+		html: emailBody,
 	};
 
-	// send mail with defined transport object
-	transporter.sendMail(mailOptions, function (error, info) {
-		if (error) {
-			return console.log(error);
-		}
-		console.log("Message sent: " + info.response);
+	await sgMail.send(messageUser).then((response) => {
+		console.log(response[0].statusCode);
 	});
-
 	return;
 };
 

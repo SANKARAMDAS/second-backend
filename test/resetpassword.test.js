@@ -1,23 +1,24 @@
-var supertest = require('supertest');
-var chai = require('chai');
-var app = require('../server.js');
-const User = require('../models/user')
+var supertest = require("supertest");
+var chai = require("chai");
+var app = require("../server.js");
+const User = require("../models/user");
 
 global.app = app;
 global.expect = chai.expect;
 global.request = supertest(app);
 
-describe('POST /forgotPassword', function () {
-    it('generates a link to reset password', function (done) {
-        request.post('/api/auth/forgotPassword')
-            .send({
-                email: "jmcnally2978@gmail.com",
-            })
-            .expect(200)
-            .end(function (err, res) {
-                done(err);
-            });
-    });
+describe("POST /forgotPassword", function () {
+	it("generates a link to reset password", function (done) {
+		request
+			.post("/api/auth/forgotPassword")
+			.send({
+				email: "sanchi.shirur4@gmail.com",
+			})
+			.expect(200)
+			.end(function (err, res) {
+				done(err);
+			});
+	});
 });
 
 // describe('POST /passwordreset', function () {

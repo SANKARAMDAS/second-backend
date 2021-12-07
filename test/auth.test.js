@@ -1,69 +1,70 @@
-var supertest = require('supertest');
-var chai = require('chai');
-var app = require('../server.js');
-const User = require('../models/user')
+var supertest = require("supertest");
+var chai = require("chai");
+var app = require("../server.js");
+const User = require("../models/user");
 
 global.app = app;
 global.expect = chai.expect;
 global.request = supertest(app);
 
+describe("db", () => {
+	beforeEach((done) => {
+		//empty the database
+		User.remove({}, (err) => {
+			done();
+		});
+	});
 
-describe('db', () => {
-    beforeEach((done) => { //empty the database
-        User.remove({}, (err) => {
-            done();
-        });
-    });
+	// Sign up test
+	describe("POST /emailverification", function () {
+		it("sends an otp", function (done) {
+			request
+				.post("/api/auth/emailverification")
+				.send({
+					name: "test",
+					email: "sanchi.shirur4@gmail.com",
+					password: "test@123",
+					password2: "test@123",
+				})
+				.expect(200)
+				.end(function (err, res) {
+					const result = JSON.parse(res.text);
+					console.log(result);
+					done(err);
+				});
+		});
+	});
 
-    // Sign up test
-    describe('POST /emailverification', function () {
-        it('sends an otp', function (done) {
-            request.post('/api/auth/emailverification')
-                .send({
-                    name: "test",
-                    email: "jmcnally2978@gmail.com",
-                    password: "test@123",
-                    password2: "test@123",
-                })
-                .expect(200)
-                .end(function (err, res) {
-                    const result = JSON.parse(res.text)
-                    console.log(result)
-                    done(err);
-                });
-        });
-    });
-
-
-    describe('POST /signup', function () {
-        it('creates an account', function (done) {
-            request.post('/api/auth/emailverification')
-                .send({
-                    name: "test",
-                    email: "jmcnally2978@gmail.com",
-                    password: "test@123",
-                    password2: "test@123",
-                })
-                .expect(200)
-                .end(function (err, res) {
-                    const result = JSON.parse(res.text)
-                    request.post('/api/auth/signup')
-                        .send({
-                            name: result.name,
-                            email: result.email,
-                            password: result.password,
-                            otp: result.otp,
-                            hash: result.hash
-                        })
-                        .expect(200)
-                        .end(function (err, res) {
-                            done(err);
-                        });
-                    // done(err);
-                });
-        });
-    });
-
+	describe("POST /signup", function () {
+		it("creates an account", function (done) {
+			request
+				.post("/api/auth/emailverification")
+				.send({
+					name: "test",
+					email: "sanchi.shirur4@gmail.com",
+					password: "test@123",
+					password2: "test@123",
+				})
+				.expect(200)
+				.end(function (err, res) {
+					const result = JSON.parse(res.text);
+					request
+						.post("/api/auth/signup")
+						.send({
+							name: result.name,
+							email: result.email,
+							password: result.password,
+							otp: result.otp,
+							hash: result.hash,
+						})
+						.expect(200)
+						.end(function (err, res) {
+							done(err);
+						});
+					// done(err);
+				});
+		});
+	});
 });
 
 // describe('POST /signup', function () {
@@ -73,7 +74,7 @@ describe('db', () => {
 //                 name: "test",
 //                 email: "test@gmail.com",
 //                 password: "test@123",
-//                 hash: 
+//                 hash:
 
 //             })
 //             .expect(200)
@@ -99,7 +100,6 @@ describe('db', () => {
 //             });
 //     });
 // });
-
 
 // // User login test
 // describe('POST /signin', function () {

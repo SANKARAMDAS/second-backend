@@ -26,6 +26,8 @@ describe("POST /invoiceCreation", function () {
 					},
 				],
 				memo: "Some general description",
+				dueDate: "5/12/2021",
+				creationDate: "30/11/2021",
 			})
 			.expect(200)
 			.end(function (err, res) {
