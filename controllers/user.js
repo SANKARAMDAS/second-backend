@@ -79,9 +79,11 @@ const signup = async (req, res) => {
 		});
 		try {
 			const savedUser = await user.save();
-			const token = await user.generateAuthToken();
-			req.session.token = token;
-			return res.status(200).send(savedUser);
+			const accessToken = await user.createAuthToken();
+			const refreshToken = await user.createRefreshToken();
+			return res.status(200).send({
+				accessToken, refreshToken
+			});
 		} catch (err) {
 			console.log(err);
 			return res.status(400).send(err);
@@ -97,13 +99,50 @@ const signin = async (req, res) => {
 			req.body.email,
 			req.body.password
 		);
-		const token = await user.generateAuthToken();
-		req.session.token = token;
-		res.status(200).send(user);
+		const accessToken = await user.createAuthToken();
+		const refreshToken = await user.createRefreshToken();
+		res.status(200).send({ accessToken, refreshToken });
 	} catch (e) {
-		res.status(400).send(e.message);
+		res.status(400).send(e);
 	}
 };
+
+
+const generateAccessToken = async (req, res) => {
+	const { refreshToken } = req.body;
+
+	if (!refreshToken) {
+		return res.status(400).send({ error: "access denied" })
+	} else {
+		const user = await User.findOne({ refreshToken });
+		if (!user) res.status(400).send({ error: "access denied" })
+		const decoded = jwt.verify(refreshToken, process.env.VERIFY_REFRESH_TOKEN);
+		if (decoded._id != user._id) res.status(400).send()
+
+
+
+		const accessToken = jwt.sign({ _id: user._id.toString() },
+			process.env.VERIFY_AUTH_TOKEN, {
+			expiresIn: '10m'
+		})
+
+		res.status(200).send({ accessToken })
+
+	}
+}
+
+const logout = async (req, res) => {
+	try {
+		const user = req.user
+		console.log(user)
+		user.refreshToken = null
+		user.save()
+		return res.status(200).send({ success: "user logged out" })
+	} catch (e) {
+		console.log(e)
+		return res.status(400).send(e)
+	}
+}
 
 const forgotPassword = async (req, res) => {
 	const { email } = req.body;
@@ -209,4 +248,6 @@ module.exports = {
 	signup,
 	forgotPassword,
 	passwordReset,
+	generateAccessToken,
+	logout
 };
