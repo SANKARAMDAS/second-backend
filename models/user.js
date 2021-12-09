@@ -45,10 +45,6 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		required: false,
 	},
-
-	stripeAccountId: {
-		type: String,
-	},
 });
 
 UserSchema.methods.createAuthToken = async function () {

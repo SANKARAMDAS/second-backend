@@ -4,8 +4,6 @@ const jwt = require("jsonwebtoken");
 var ObjectId = require("mongoose").Types.ObjectId;
 const User = require("../models/user");
 const { sendEmail } = require("./sendEmail");
-const { accountCreation } = require("../controllers/stripe/onBoarding");
-
 let err;
 
 // Register User
@@ -74,13 +72,10 @@ const signup = async (req, res) => {
 		.digest("hex");
 
 	if (newCalculatedHash === hashValue) {
-		const { accountId } = await accountCreation(email);
-		console.log(accountId);
 		const user = new User({
 			name,
 			email,
 			password,
-			stripeAccountId: accountId,
 		});
 		try {
 			const savedUser = await user.save();
