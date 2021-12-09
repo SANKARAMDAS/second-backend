@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
+const { wyre } = require("../controllers/wyre/boilerplate");
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -34,7 +35,7 @@ const UserSchema = new mongoose.Schema({
 	resetToken: {
 		type: String,
 	},
-	circleWallet: {
+	wyreWallet: {
 		type: String,
 	},
 	isProfileComplete: {
@@ -47,6 +48,24 @@ const UserSchema = new mongoose.Schema({
 	},
 });
 
+UserSchema.methods.createWallet = async function () {
+	const user = this;
+	let result;
+	try {
+		result = await wyre.post("/wallets", {
+			type: "DEFAULT",
+			name: user._id,
+		});
+	} catch (e) {
+		console.log(e);
+		throw new Error("there was an error creating wallet");
+	}
+
+	user.wyreWallet = result.id;
+	user.save();
+	return result;
+};
+
 UserSchema.methods.createAuthToken = async function () {
 	const user = this;
 	const token = jwt.sign(
@@ -57,8 +76,6 @@ UserSchema.methods.createAuthToken = async function () {
 		}
 	);
 
-	// user.tokens = user.tokens.concat({ token });
-	// user.save();
 	return token;
 };
 
@@ -73,8 +90,7 @@ UserSchema.methods.createRefreshToken = async function () {
 	);
 
 	try {
-		user.refreshToken = token;
-		await user.save();
+		await User.findByIdAndUpdate({ _id: user._id }, { refreshToken: token });
 	} catch (e) {
 		throw new Error(e);
 	}
