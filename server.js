@@ -1,13 +1,14 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const cors = require("cors");
 const env = require("dotenv").config();
 const mongoose = require("mongoose");
 
-const googleLoginRouter = require("./routes/googleLogin");
+const googleLoginRouter = require("./routes/auth/googleLogin");
 const invoiceRouter = require("./routes/invoice");
-const userRoute = require("./routes/user");
+const userRoute = require("./routes/auth/user");
 
 const app = express();
 
@@ -35,6 +36,7 @@ db.once("open", function () {});
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,
@@ -49,7 +51,7 @@ app.get("/", (req, res) => {
 });
 
 // Base Routes
-app.use("/api/auth", userRoute);
+app.use("/api/auth", userRoute.route);
 app.use("/api/google-api", googleLoginRouter.route);
 app.use("/api/invoice", invoiceRouter.route);
 
