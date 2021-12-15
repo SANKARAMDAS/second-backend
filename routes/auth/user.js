@@ -15,11 +15,11 @@ const {
 
 router.post("/emailverification", sendOtp);
 
+router.post("/verifyOtp", verifyOtp);
+
 router.post("/signup", signup);
 
 router.post("/signin", signin);
-
-router.post("/verifyOtp", verifyOtp);
 
 router.get("/refresh", refresh);
 

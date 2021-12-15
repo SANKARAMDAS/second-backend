@@ -4,8 +4,6 @@ const Freelancer = require("../../models/freelancer");
 const Business = require("../../models/business");
 const client = new OAuth2Client(process.env.CLIENT_ID);
 
-let refreshTokens = [];
-
 // GOOGLE-API
 const googleSignup = async (req, res) => {
 	const { payload } = await googleAuth(req.body.tokenId);
@@ -16,16 +14,24 @@ const googleSignup = async (req, res) => {
 		const freelancer = await Freelancer.findOne({ email: payload["email"] });
 
 		if (business || freelancer) {
-			res.send({ msg: "This email is already registered" });
+			res.status(400).send({ msg: "This email is already registered" });
 		} else {
 			if (role === "freelancer") {
 				const newFreelancer = await new Freelancer({
 					name: payload["name"],
 					email: payload["email"],
-					password: "###",
+					password: "1nejn13#google-login#n2j1k23n2j",
+					address: "",
+					city: "",
+					state: "",
+					country: "",
+					zipCode: 0,
+					taxId: "",
+					wyreWallet: "",
+					isProfileComplete: false,
 				});
 				const savedFreelancer = await newFreelancer.save();
-				res.send({ msg: "Freelancer Registered" });
+				res.status(200).send({ msg: "Freelancer Registered" });
 			} else {
 				const newBusiness = await new Business({
 					name: payload["name"],
@@ -33,7 +39,7 @@ const googleSignup = async (req, res) => {
 					password: "###",
 				});
 				const savedBusiness = await newBusiness.save();
-				res.send({ msg: "Business Registered" });
+				res.status(200).send({ msg: "Business Registered" });
 			}
 		}
 	} else {
@@ -41,6 +47,7 @@ const googleSignup = async (req, res) => {
 	}
 };
 
+// Google Login
 const googleLogin = async (req, res) => {
 	const { payload } = await googleAuth(req.body.tokenId);
 
@@ -91,7 +98,7 @@ const googleLogin = async (req, res) => {
 				role: cookieRole,
 			});
 	} else {
-		res.send("There was an error accessing your google account.");
+		res.status(400).send("There was an error accessing your google account.");
 	}
 };
 

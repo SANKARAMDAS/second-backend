@@ -14,7 +14,7 @@ const value = {
 		type: String,
 		required: true,
 	},
-	clientEmail: {
+	businessEmail: {
 		type: String,
 		trim: true,
 		required: true,
