@@ -2,8 +2,6 @@ const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/user");
 const client = new OAuth2Client(process.env.CLIENT_ID);
 
-const { accountCreation } = require("../controllers/stripe/onBoarding");
-
 // GOOGLE-API
 const googleSignup = async (req, res) => {
 	const { payload } = await googleAuth(req.tokenId);
@@ -15,11 +13,9 @@ const googleSignup = async (req, res) => {
 			err = "Email already exists";
 			res.status(400).send(err);
 		} else {
-			const { accountId } = await accountCreation(payload["email"]);
 			const user = await new User({
 				name: payload["name"],
 				email: payload["email"],
-				stripeAccountId: accountId,
 			});
 
 			try {

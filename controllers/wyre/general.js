@@ -28,6 +28,7 @@ const createWallet = async (req, res) => {
         })
         user.wyreWallet = result.id;
         await user.save();
+        res.status(200).send()
     } catch (e) {
         console.log(e);
         res.status(400).send()

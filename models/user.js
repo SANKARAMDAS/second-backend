@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
-const { wyre } = require("../controllers/wyre/boilerplate")
+const { wyre } = require("../controllers/wyre/boilerplate");
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -46,19 +46,16 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		required: false,
 	},
-	stripeAccountId: {
-		type: String,
-	},
 });
 
 UserSchema.methods.createWallet = async function () {
-	const user = this
-	let result
+	const user = this;
+	let result;
 	try {
-		result = await wyre.post('/wallets', {
-			type: 'DEFAULT',
-			name: user._id
-		})
+		result = await wyre.post("/wallets", {
+			type: "DEFAULT",
+			name: user._id,
+		});
 	} catch (e) {
 		console.log(e);
 		throw new Error("there was an error creating wallet");
@@ -67,7 +64,7 @@ UserSchema.methods.createWallet = async function () {
 	user.wyreWallet = result.id;
 	user.save();
 	return result;
-}
+};
 
 UserSchema.methods.createAuthToken = async function () {
 	const user = this;
@@ -93,9 +90,9 @@ UserSchema.methods.createRefreshToken = async function () {
 	);
 
 	try {
-		await User.findByIdAndUpdate({ _id: user._id }, { refreshToken: token })
+		await User.findByIdAndUpdate({ _id: user._id }, { refreshToken: token });
 	} catch (e) {
-		throw new Error(e)
+		throw new Error(e);
 	}
 	return token;
 };

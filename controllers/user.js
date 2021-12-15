@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 var ObjectId = require("mongoose").Types.ObjectId;
 const User = require("../models/user");
 const { sendEmail } = require("./sendEmail");
-const { accountCreation } = require("../controllers/stripe/onBoarding");
+
 let err;
 
 // Register User
@@ -73,17 +73,14 @@ const signup = async (req, res) => {
 		.digest("hex");
 
 	if (newCalculatedHash === hashValue) {
-		const { accountId } = await accountCreation(email);
-		console.log(accountId);
 		const user = new User({
 			name,
 			email,
 			password,
-			stripeAccountId: accountId,
 		});
 		try {
 			const savedUser = await user.save();
-			await user.createWallet()
+			await user.createWallet();
 			const accessToken = await user.createAuthToken();
 			const refreshToken = await user.createRefreshToken();
 			return res.status(200).send({
@@ -157,11 +154,9 @@ const forgotPassword = async (req, res) => {
 		return res.status(400).send("Email does not exist");
 	}
 
-	const token = jwt.sign(
-		{ _id: user._id.toString() },
-		process.env.JWT_VERIFY,
-		{ expiresIn: "30 minutes" }
-	);
+	const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_VERIFY, {
+		expiresIn: "30 minutes",
+	});
 
 	const hash = await bcrypt.hash(token.toString("hex"), 10);
 
