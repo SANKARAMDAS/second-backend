@@ -5,9 +5,9 @@ const { sendEmail } = require("./sendEmail");
 
 const invoiceCreation = async (req, res) => {
 	const {
-		clientEmail,
+		businessEmail,
 		freelancerEmail,
-		clientName,
+		businessName,
 		freelancerName,
 		ETH,
 		BTC,
@@ -47,7 +47,7 @@ const invoiceCreation = async (req, res) => {
 		const invoice = new Invoice({
 			invoiceId: invoiceId,
 			freelancerEmail: freelancerEmail,
-			clientEmail: clientEmail,
+			businessEmail: businessEmail,
 			item: item,
 			ETH: ETH,
 			BTC: BTC,
@@ -223,7 +223,7 @@ const invoiceCreation = async (req, res) => {
 			</div>
 			<div class="invoice-content-body">
 				<p>
-					Hey ${clientName}!
+					Hey ${businessName}!
 					<br/>
 					You have received an invoice from <b>${freelancerName}</b> generated on ${creationDate} for
 					<b>${total} USD</b>
@@ -256,7 +256,7 @@ const invoiceCreation = async (req, res) => {
 
 	`;
 
-		await sendEmail({ email: clientEmail }, emailBody, "New Invoice Request");
+		await sendEmail({ email: businessEmail }, emailBody, "New Invoice Request");
 		return res.status(200).send(encrypedClientId);
 	} else {
 		res.send("Proportions should add up to 100");

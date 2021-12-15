@@ -44,65 +44,55 @@ const sendOtp = async (req, res) => {
 	const freelancer = await Freelancer.findOne({ email: email });
 	const business = await Business.findOne({ email: email });
 
-	if (role === "freelancer") {
-		if (freelancer === null) {
-			if (business === null) {
-				// sendOTP
-				const { fullHash, otp, expires } = await generateOTP(
-					email,
-					name,
-					password,
-					role
-				);
-				res.status(200).send({
-					msg: "Verified",
-					data: {
-						expires,
-						hash: fullHash,
-						name,
-						email,
-						password,
-						otp,
-					},
-				});
-			} else {
-				res
-					.status(400)
-					.send({ msg: "Business Already Exists with this Email" });
-			}
-		} else {
-			res
-				.status(400)
-				.send({ msg: "Freelancer Already Exists with this Email" });
-		}
-	} else {
+	// Freelancer
+	if (freelancer === null) {
 		if (business === null) {
-			if (freelancer === null) {
-				// sendOTP
-				const { fullHash, otp, expires } = await generateOTP(
-					email,
+			// sendOTP
+			const { fullHash, otp, expires } = await generateOTP(
+				email,
+				name,
+				password
+			);
+			console.log(fullHash, otp, expires);
+			res.status(200).send({
+				msg: "Verified",
+				data: {
+					expires,
+					hash: fullHash,
 					name,
-					password
-				);
-				res.status(200).send({
-					msg: "Verified",
-					data: {
-						expires,
-						hash: fullHash,
-						name,
-						email,
-						password,
-						otp,
-					},
-				});
-			} else {
-				res
-					.status(400)
-					.send({ msg: "Freelancer Already Exists with this Email" });
-			}
+					email,
+					password,
+					otp,
+				},
+			});
 		} else {
 			res.status(400).send({ msg: "Business Already Exists with this Email" });
 		}
+	} else if (business === null) {
+		if (freelancer === null) {
+			// sendOTP
+			const { fullHash, otp, expires } = await generateOTP(
+				email,
+				name,
+				password
+			);
+			console.log(fullHash, otp, expires);
+			res.status(200).send({
+				msg: "Verified",
+				data: {
+					expires,
+					hash: fullHash,
+					name,
+					email,
+					password,
+					otp,
+				},
+			});
+		} else {
+			res.status(400).send({ msg: "Business Already Exists with this Email" });
+		}
+	} else {
+		res.status(400).send({ msg: "Error" });
 	}
 };
 
@@ -299,36 +289,32 @@ const forgotPassword = async (req, res) => {
 	try {
 		const freelancer = await Freelancer.findOne({ email: email });
 		const business = await Business.findOne({ email: email });
+
+		let id;
+		let name;
+
 		if (freelancer === null && business === null) {
 			res.status(400).send({ msg: "Email is nor registered" });
 		} else {
 			if (freelancer) {
-				const link = `localhost:3000/api/auth/passwordreset?id=${freelancer._id}`;
-				console.log(link);
-
-				const emailBody = `<p> Hey ${freelancer.name} <br/>
-								Your reset password link is: <br/>
-								<a href=${link}>${link}</a></p>`;
-				await sendEmail({ email: email }, emailBody, "Password Reset");
-
-				res.status(200).send({
-					msg: "Password Reset Link sent successfully",
-					data: { link: link, id: freelancer._id },
-				});
+				id = freelancer._id;
+				name = freelancer.name;
 			} else {
-				const link = `localhost:3000/api/auth/passwordreset?id=${business._id}`;
-				console.log(link);
+				id = business._id;
+				name = business.name;
+			}
+			const link = `localhost:3000/api/auth/passwordreset?id=${id}`;
+			console.log(link);
 
-				const emailBody = `<p> Hey ${business.name} <br/>
+			const emailBody = `<p> Hey ${name} <br/>
 								Your reset password link is: <br/>
 								<a href=${link}>${link}</a></p>`;
-				await sendEmail({ email: email }, emailBody, "Password Reset");
+			await sendEmail({ email: email }, emailBody, "Password Reset");
 
-				res.status(200).send({
-					msg: "Password Reset Link sent successfully",
-					data: { link: link, id: business._id },
-				});
-			}
+			res.status(200).send({
+				msg: "Password Reset Link sent successfully",
+				data: { link: link, id: id },
+			});
 		}
 	} catch (err) {
 		res.status(400).send({ msg: err });
@@ -341,6 +327,7 @@ const passwordReset = async (req, res) => {
 	try {
 		const freelancer = await Freelancer.findOne({ _id: id });
 		const business = await Business.findOne({ _id: id });
+
 		if (freelancer) {
 			await Freelancer.findByIdAndUpdate({ _id: id }, { password: password });
 			res.status(200).send({ msg: "Password reset was successful" });

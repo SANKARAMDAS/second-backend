@@ -12,9 +12,9 @@ describe("POST /invoiceCreation", function () {
 			.post("/api/invoice/invoiceCreation")
 			.send({
 				freelancerEmail: "tarang.padia2@gmail.com",
-				clientEmail: "sanchi.shirur4@gmail.com",
+				businessEmail: "sanchi.shirur4@gmail.com",
 				freelancerName: "Tarang",
-				clientName: "Sanchita",
+				businessName: "Sanchita",
 				ETH: 10,
 				BTC: 50,
 				FIAT: 40,
