@@ -70,7 +70,7 @@ const wyreTransfer = async (req, res) => {
     }
 
     if (!user.wyreWallet) {
-        return res.status(400).send()
+        return res.status(404).send()
     }
 
     var finalResult = []
@@ -113,9 +113,9 @@ const wyreTransfer = async (req, res) => {
 
         try {
             result = await wyre.post('/transfers', {
-                //source - wyre master wallet
-                source: 'wallet:WA_XXXXXXXXX',
-                sourceCurrency: "USDC",
+                //source - wyre master account
+                source: 'account:AC_XXXXXXXXX',
+                sourceCurrency: "USD",
                 sourceAmount,
                 dest: user.wyreWallet,
                 destCurrency: currCode,

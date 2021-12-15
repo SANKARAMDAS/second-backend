@@ -9,6 +9,8 @@ const mongoose = require("mongoose");
 const googleLoginRouter = require("./routes/auth/googleLogin");
 const invoiceRouter = require("./routes/invoice");
 const userRoute = require("./routes/auth/user");
+const wyreRoute = require("./routes/wyre/general")
+const transferRoute = require("./routes/wyre/transfer")
 
 const app = express();
 
