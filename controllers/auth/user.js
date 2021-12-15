@@ -343,7 +343,7 @@ const passwordReset = async (req, res) => {
 };
 
 const updateProfile = async (req, res) => {
-	const { email, address, city, state, zipCode, country, taxId } = req.body;
+	const { email, address, city, state, zipCode, country, taxId, bitcoin, ethereum } = req.body;
 	try {
 		const freelancer = await Freelancer.findOne({ email: email });
 		const business = await Business.findOne({ email: email });
@@ -358,7 +358,9 @@ const updateProfile = async (req, res) => {
 						zipCode: zipCode,
 						country: country,
 						taxId: taxId,
-						isProfileComplete,
+						isProfileComplete: true,
+						bitcoin,
+						ethereum
 					},
 				}
 			);
@@ -375,6 +377,8 @@ const updateProfile = async (req, res) => {
 						country: country,
 						taxId: taxId,
 						isProfileComplete: true,
+						bitcoin,
+						ethereum
 					},
 				}
 			);

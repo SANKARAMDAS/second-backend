@@ -7,6 +7,7 @@ const transferCrypto = async (req, res) => {
     const { currency } = req.body
     const user = req.user
 
+
     let result, data
     try {
         data = await wyre.get(`/wallet/${user.wyreWallet}`)
@@ -30,6 +31,18 @@ const transferCrypto = async (req, res) => {
         return res.status(404).send({ failure: "wallet address does not exist" })
     }
 
+    const transferId = currency + "TransferId"
+    if (user[transferId]) {
+        try {
+            const prevTransferResult = await wyre.get(`/transfers/${user[transferId]}`)
+            if (prevTransferResult.status == "PENDING" || prevTransferResult.status == "UNCONFIRMED") {
+                res.status(400).send({ failed: "transfer is being processed" })
+            }
+        } catch (e) {
+            res.status(400).send(e)
+        }
+    }
+
     try {
         result = await wyre.post('/transfers', {
             source: "wallet:" + user.wyreWallet,
@@ -40,6 +53,8 @@ const transferCrypto = async (req, res) => {
             amountIncludesFees: true,
             autoConfirm: true
         })
+        user[transferId] = result.id
+        await user.save()
         return res.status(200).send({ success: "funds transferred", result })
     } catch (e) {
         return res.status(400).send()
@@ -57,8 +72,6 @@ const wyreTransfer = async (req, res) => {
     if (!invoiceInfo) {
         return res.status(404).send();
     }
-
-
 
     let exchangeResult, user
 
@@ -87,10 +100,13 @@ const wyreTransfer = async (req, res) => {
                 switch (transferResult.status) {
                     case "PENDING":
                         finalResult.push({ currency: "pending" })
-                        break
+                        continue
                     case "COMPLETED":
                         finalResult.push({ currency: "transfer completed" })
-                        break
+                        continue
+                    case "UNCONFIRMED":
+                        finalResult.push({ currency: "transfer being processed" })
+                        continue
                 }
             } catch (e) {
                 return res.status(400).send()
@@ -109,7 +125,7 @@ const wyreTransfer = async (req, res) => {
 
         let result
         const amount = (invoiceInfo.proportions[i].percentage / 100) * invoiceInfo.totalAmount
-        const sourceAmount = amount * exchangeResult["USDC" + currCode]
+        const sourceAmount = amount * exchangeResult["USD" + currCode]
 
         try {
             result = await wyre.post('/transfers', {
@@ -122,14 +138,13 @@ const wyreTransfer = async (req, res) => {
                 autoConfirm: true
             })
             invoiceInfo.proportions[i].transferId = result.id
-            finalResult.push({ currency: result.id })
+            await invoiceInfo.save()
+            return res.status(200).send(invoiceInfo)
         } catch (e) {
             return res.status(400).send()
         }
 
-
     }
-
 
 }
 
@@ -147,5 +162,7 @@ const getTransfer = async (req, res) => {
 
 
 module.exports = {
-    transferCrypto
+    transferCrypto,
+    wyreTransfer,
+    getTransfer
 }

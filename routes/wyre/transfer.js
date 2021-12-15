@@ -6,6 +6,6 @@ const {
 const { auth } = require("../../middlewares/auth");
 const router = express.Router();
 
-router.post("/externalTransfer", auth, transferCrypto);
+router.post("/externalTransfer", transferCrypto);
 
 module.exports = router;

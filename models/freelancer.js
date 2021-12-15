@@ -40,6 +40,10 @@ const freelancerSchema = new mongoose.Schema({
 	country: stringValue,
 	zipCode: numericValue,
 	taxId: numericValue,
+	bitcoin: stringValue,
+	ethereum: stringValue,
+	bitcoinTransferId: stringValue,
+	ethereumTransferId: stringValue,
 	wyreWallet: {
 		type: String,
 	},
