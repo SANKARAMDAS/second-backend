@@ -6,6 +6,7 @@ const {
 	signup,
 	signin,
 	verifyOtp,
+	getUserProfile,
 	refresh,
 	forgotPassword,
 	passwordReset,
@@ -26,6 +27,8 @@ router.get("/refresh", refresh);
 router.post("/forgotpassword", forgotPassword);
 
 router.post("/passwordreset", passwordReset);
+
+router.post("/getUserProfile", getUserProfile);
 
 router.post("/updateProfile", updateProfile);
 

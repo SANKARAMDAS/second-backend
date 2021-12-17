@@ -5,7 +5,7 @@ const Business = require("../../models/business");
 const Freelancer = require("../../models/freelancer");
 const { sendEmail } = require("../sendEmail");
 
-// Generate OTP and Send on Email
+// Generate OTP and Send on Email 1/4
 const generateOTP = async (email, name, password) => {
 	const otp = Math.floor(100000 + Math.random() * 900000);
 	console.log(otp);
@@ -37,7 +37,7 @@ const generateOTP = async (email, name, password) => {
 	};
 };
 
-// Check Role and Send OTP
+// Send OTP 2/4
 const sendOtp = async (req, res) => {
 	const { name, email, password } = req.body;
 
@@ -96,7 +96,7 @@ const sendOtp = async (req, res) => {
 	}
 };
 
-// Signup user on Email verification
+// Signup user on Email verification 3/4
 const verifyOtp = async (req, res) => {
 	const { name, email, password, otp, hash } = req.body;
 
@@ -122,6 +122,7 @@ const verifyOtp = async (req, res) => {
 	}
 };
 
+// Register user 4/4
 const signup = async (req, res) => {
 	const { name, email, password, role } = req.body;
 	if (role === "freelancer") {
@@ -173,7 +174,7 @@ const signup = async (req, res) => {
 	}
 };
 
-// Sign Up
+// Sign In
 const signin = async (req, res) => {
 	const { email, password } = req.body;
 
@@ -254,6 +255,7 @@ const signin = async (req, res) => {
 	}
 };
 
+// Refresh Route
 const refresh = (req, res) => {
 	const refreshToken = req.cookies.refreshToken;
 	if (!refreshToken) {
@@ -342,8 +344,38 @@ const passwordReset = async (req, res) => {
 	}
 };
 
+// Get user Profile
+const getUserProfile = async (req, res) => {
+	const { email } = req.body;
+
+	try {
+		const freelancer = await Freelancer.findOne({ email: email });
+		const business = await Business.findOne({ email: email });
+		if (freelancer) {
+			res.status(200).send({ data: freelancer });
+		} else if (business) {
+			res.status(200).send({ data: business });
+		} else {
+			res.status(404).send({ msg: "User not found" });
+		}
+	} catch (err) {
+		res.send(400).send({ msg: err });
+	}
+};
+
+// Update Profile
 const updateProfile = async (req, res) => {
-	const { email, address, city, state, zipCode, country, taxId, bitcoin, ethereum } = req.body;
+	const {
+		email,
+		address,
+		city,
+		state,
+		zipCode,
+		country,
+		taxId,
+		bitcoin,
+		ethereum,
+	} = req.body;
 	try {
 		const freelancer = await Freelancer.findOne({ email: email });
 		const business = await Business.findOne({ email: email });
@@ -360,7 +392,7 @@ const updateProfile = async (req, res) => {
 						taxId: taxId,
 						isProfileComplete: true,
 						bitcoin,
-						ethereum
+						ethereum,
 					},
 				}
 			);
@@ -378,7 +410,7 @@ const updateProfile = async (req, res) => {
 						taxId: taxId,
 						isProfileComplete: true,
 						bitcoin,
-						ethereum
+						ethereum,
 					},
 				}
 			);
@@ -389,6 +421,7 @@ const updateProfile = async (req, res) => {
 	}
 };
 
+// Logout User
 const logout = async (req, res) => {
 	try {
 		res
@@ -410,11 +443,12 @@ const logout = async (req, res) => {
 module.exports = {
 	sendOtp,
 	verifyOtp,
-	signin,
 	signup,
+	signin,
 	forgotPassword,
 	passwordReset,
 	updateProfile,
+	getUserProfile,
 	logout,
 	refresh,
 };
