@@ -11,10 +11,12 @@
 	"license": "ISC",
 	"dependencies": {
 		"@sendgrid/mail": "^7.6.0",
+		"@wyre/api": "^1.0.5",
 		"axios": "^0.24.0",
 		"bcrypt": "^5.0.1",
 		"body-parser": "^1.19.0",
 		"chai": "^4.3.4",
+		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
 		"crypto": "^1.0.1",
 		"crypto-js": "^4.1.1",
@@ -31,7 +33,6 @@
 		"nodemailer": "^6.7.0",
 		"nodemailer-smtp-transport": "^2.7.4",
 		"nodemon": "^2.0.15",
-		"stripe": "^8.191.0",
 		"supertest": "^6.1.6",
 		"uuid": "^8.3.2",
 		"validator": "^13.7.0"

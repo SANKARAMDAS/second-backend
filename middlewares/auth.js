@@ -1,8 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
 
 const auth = async (req, res, next) => {
-
 	const token = req.get("auth-token");
 
 	if (!token) {
@@ -10,8 +8,9 @@ const auth = async (req, res, next) => {
 	} else {
 		try {
 			const payload = jwt.verify(token, process.env.VERIFY_AUTH_TOKEN);
-			const user = await User.findOne({ _id: payload._id })
-			req.user = user
+			req.role = payload.role;
+			req.email = payload.email;
+			console.log(role, email);
 			next();
 		} catch (e) {
 			if (e.name === "TokenExpiredError") {

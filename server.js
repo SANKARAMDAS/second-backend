@@ -1,15 +1,16 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const cors = require("cors");
 const env = require("dotenv").config();
 const mongoose = require("mongoose");
 
-const googleLoginRouter = require("./routes/googleLogin");
+const googleLoginRouter = require("./routes/auth/googleLogin");
 const invoiceRouter = require("./routes/invoice");
-const stripeOnboardingRouter = require("./routes/stripe/onBoarding");
-const stripePaymentRouter = require("./routes/stripe/payment");
-const userRoute = require("./routes/user");
+const userRoute = require("./routes/auth/user");
+const wyreRoute = require("./routes/wyre/general")
+const transferRoute = require("./routes/wyre/transfer")
 
 const app = express();
 
@@ -31,12 +32,13 @@ mongoose.connect(
 
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function () {});
+db.once("open", function () { });
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,
@@ -51,11 +53,11 @@ app.get("/", (req, res) => {
 });
 
 // Base Routes
-app.use("/api/auth", userRoute);
+app.use("/api/auth", userRoute.route);
 app.use("/api/google-api", googleLoginRouter.route);
 app.use("/api/invoice", invoiceRouter.route);
-app.use("/api/stripe-onBoarding", stripeOnboardingRouter.route);
-app.use("/api/stripe-payment", stripePaymentRouter.route);
+app.use("/api/wyre-general", wyreRoute)
+app.use("/api/wyre-transfer", transferRoute)
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

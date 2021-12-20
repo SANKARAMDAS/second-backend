@@ -14,7 +14,7 @@ const value = {
 		type: String,
 		required: true,
 	},
-	clientEmail: {
+	businessEmail: {
 		type: String,
 		trim: true,
 		required: true,
@@ -31,9 +31,16 @@ const value = {
 			unitPrice: Number,
 		},
 	],
-	ETH: value,
-	BTC: value,
-	FIAT: value,
+	proportions: [
+		{
+			currency: String,
+			percentage: Number,
+			transferId: String,
+		}
+	],
+	// ETH: value,
+	// BTC: value,
+	// FIAT: value,
 	totalAmount: value,
 	memo: {
 		type: String,
