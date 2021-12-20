@@ -275,20 +275,24 @@ const getInvoiceInfo = async (req, res) => {
 	}
 };
 
-// Get Invoice - Freelancer
-const getFreelancerInvoices = async (req, res) => {
-	const { freelancerEmail } = req.body;
-
-	const InvoiceInfo = await Invoice.findOne({ freelancerEmail });
-	if (InvoiceInfo) {
-		return res.status(200).send(InvoiceInfo);
-	} else {
-		return res.status(400).send("Invalid Request");
+// Get Invoice - Business
+const getInvoices = async (req, res) => {
+	const { email, role } = req.body;
+	try {
+		if (role === "freelancer") {
+			const freelancer = await Invoice.find({ freelancerEmail: email });
+			res.status(200).send({ data: freelancer });
+		} else {
+			const business = await Invoice.find({ businessEmail: email });
+			res.status(200).send({ data: business });
+		}
+	} catch (err) {
+		res.status(400).send({ msg: err });
 	}
 };
 
 module.exports = {
 	invoiceCreation,
 	getInvoiceInfo,
-	getFreelancerInvoices,
+	getInvoices,
 };

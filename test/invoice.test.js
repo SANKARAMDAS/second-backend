@@ -35,3 +35,19 @@ describe("POST /invoiceCreation", function () {
 			});
 	});
 });
+
+// Get Invoices
+describe("POST /getInvoices", function () {
+	it("Get user invoices", function (done) {
+		request
+			.post("/api/invoice/getInvoices")
+			.send({
+				email: "tarang.padia2@gmail.com",
+				role: "freelancer",
+			})
+			.expect(200)
+			.end(function (err, res) {
+				done(err);
+			});
+	});
+});
