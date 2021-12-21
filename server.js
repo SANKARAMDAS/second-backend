@@ -35,7 +35,7 @@ db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function () { });
 
 // Middlewares
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_CORS_API, credentials: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());

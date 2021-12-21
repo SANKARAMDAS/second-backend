@@ -99,6 +99,7 @@ const sendOtp = async (req, res) => {
 // Signup user on Email verification 3/4
 const verifyOtp = async (req, res) => {
 	const { name, email, password, otp, hash } = req.body;
+	console.log(req.body)
 
 	let [hashValue, expires] = hash.split(".");
 
@@ -237,13 +238,13 @@ const signin = async (req, res) => {
 				.status(202)
 				.cookie("accessToken", accessToken, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
-					// httpOnly: true,
-					// sameSite: "strict",
+					httpOnly: true,
+					sameSite: "strict",
 				})
 				.cookie("refreshToken", refreshToken, {
 					expires: new Date(new Date().getTime() + 3557600000),
-					// httpOnly: true,
-					// sameSite: "strict",
+					httpOnly: true,
+					sameSite: "strict",
 				})
 				.send({
 					msg: "Logged in successfully",
