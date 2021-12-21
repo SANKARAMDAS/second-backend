@@ -2,7 +2,7 @@ const express = require("express");
 const {
 	invoiceCreation,
 	getInvoiceInfo,
-	getFreelancerInvoices,
+	getInvoices,
 } = require("../controllers/invoice");
 
 const { auth } = require("../middlewares/auth");
@@ -13,7 +13,7 @@ router.post("/invoiceCreation", invoiceCreation);
 
 router.post("/getInvoiceInfo", getInvoiceInfo);
 
-router.post("/getFreelancerInvoices", auth, getFreelancerInvoices);
+router.post("/getInvoices", getInvoices);
 
 module.exports = {
 	route: router,

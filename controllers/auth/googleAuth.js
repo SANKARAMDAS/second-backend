@@ -5,10 +5,9 @@ const Business = require("../../models/business");
 const client = new OAuth2Client(process.env.CLIENT_ID);
 
 // GOOGLE-API
-const googleSignup = async (req, res) => {
-	const { payload } = await googleAuth(req.body.tokenId);
-	const { role } = req.body;
 
+const verifyEmailGoogleAuth = async (req, res) => {
+	const { payload } = await googleAuth(req.body.tokenId);
 	if (payload["email_verified"]) {
 		const business = await Business.findOne({ email: payload["email"] });
 		const freelancer = await Freelancer.findOne({ email: payload["email"] });
@@ -16,34 +15,57 @@ const googleSignup = async (req, res) => {
 		if (business || freelancer) {
 			res.status(400).send({ msg: "This email is already registered" });
 		} else {
-			if (role === "freelancer") {
-				const newFreelancer = await new Freelancer({
-					name: payload["name"],
+			res.status(200).send({
+				data: {
 					email: payload["email"],
-					password: "1nejn13#google-login#n2j1k23n2j",
-					address: "",
-					city: "",
-					state: "",
-					country: "",
-					zipCode: 0,
-					taxId: "",
-					wyreWallet: "",
-					isProfileComplete: false,
-				});
-				const savedFreelancer = await newFreelancer.save();
-				res.status(200).send({ msg: "Freelancer Registered" });
-			} else {
-				const newBusiness = await new Business({
 					name: payload["name"],
-					email: payload["email"],
-					password: "###",
-				});
-				const savedBusiness = await newBusiness.save();
-				res.status(200).send({ msg: "Business Registered" });
-			}
+				},
+				msg: "Success",
+			});
 		}
 	} else {
 		res.status(400).send("There was an error accessing your google account.");
+	}
+};
+
+const googleSignup = async (req, res) => {
+	const { role, name, email } = req.body;
+	try {
+		if (role === "freelancer") {
+			const newFreelancer = await new Freelancer({
+				name: name,
+				email: email,
+				password: "1nejn13#google-login#n2j1k23n2j",
+				address: "",
+				city: "",
+				state: "",
+				country: "",
+				zipCode: 0,
+				taxId: "",
+				wyreWallet: "",
+				isProfileComplete: false,
+			});
+			const savedFreelancer = await newFreelancer.save();
+			res.status(200).send({ msg: "Freelancer Registered" });
+		} else {
+			const newBusiness = await new Business({
+				name: payload["name"],
+				email: payload["email"],
+				password: "1nejn13#google-login#n2j1k23n2j",
+				address: "",
+				city: "",
+				state: "",
+				country: "",
+				zipCode: 0,
+				taxId: "",
+				wyreWallet: "",
+				isProfileComplete: false,
+			});
+			const savedBusiness = await newBusiness.save();
+			res.status(200).send({ msg: "Business Registered" });
+		}
+	} catch (err) {
+		res.status(404).send({ msg: err });
 	}
 };
 
@@ -115,4 +137,5 @@ const googleAuth = async (tokenId) => {
 module.exports = {
 	googleLogin,
 	googleSignup,
+	verifyEmailGoogleAuth,
 };

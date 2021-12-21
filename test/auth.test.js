@@ -92,32 +92,40 @@ describe("db", () => {
 
 // GoogleLogin and Sign up  --> ID changes every time hence it is commented
 
-// describe("POST /googleSignUp and /googleLogin", function () {
-// 	it("Sign In Freelancer/Business", function (done) {
-// 		request
-// 			.post("/api/google-api/googleSignup")
-// 			.send({
-// 				tokenId:
-// 					"eyJhbGciOiJSUzI1NiIsImtpZCI6ImMxODkyZWI0OWQ3ZWY5YWRmOGIyZTE0YzA1Y2EwZDAzMjcxNGEyMzciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwiYXpwIjoiMzY1ODIxNjI0NzI1LWtlODlhYzVtY2trcnBnM251NzZjZWluMnZyc3MzM3RnLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiMzY1ODIxNjI0NzI1LWtlODlhYzVtY2trcnBnM251NzZjZWluMnZyc3MzM3RnLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA0NDIzNzA3MjQ3NzcxNDMwNzEyIiwiaGQiOiJvY3RhbG9vcC5jb20iLCJlbWFpbCI6InNhbmNoaXRhQG9jdGFsb29wLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiZUpNSFpjWm9PT0xFa0dtV2hHdjUzQSIsIm5hbWUiOiJTYW5jaGl0YSBTaGlydXIiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUFUWEFKeG9wWnNwTEFrQ29BMEk3c3V6UjRhSFFFN2Y0NTE2VTFFR3d3aHI9czk2LWMiLCJnaXZlbl9uYW1lIjoiU2FuY2hpdGEgIiwiZmFtaWx5X25hbWUiOiJTaGlydXIiLCJsb2NhbGUiOiJlbiIsImlhdCI6MTYzOTU2NDU2MSwiZXhwIjoxNjM5NTY4MTYxLCJqdGkiOiI4N2U0YzU4YTZhODA2YWM2MTg1YTRiZGNhMjVhNDQyODA5YmNkYWQ0In0.DDxeiauATHkyrnYtA3ykYTlnptZTFnOCWvXqW6mJWbD1JrPRyaZTl5V7yrnFGaCwj5x2bF91Tm6wTVGOHbtyvYp3B-A_ePiFDeHQLwaM-CMEiSSYpa_nQYLYsZmJnAmt6KGpus45KAVnD0zCNqjW1jJsjjeve7-E2CdiTIfeksbk6NM5vNIzaeKZWW-JtSWC_iy60TaIgJBo_2ABD7EJRZ8r7T9SF8IvLhpqRm5UPOMNRhCAo3sVr7szQUUOuqYl2c2eXnHioT4sfjV7roHGK-H0M9pQqT1bHPKVJMXB3CkybdAdXCYuN7WXJSs3Jxf_n3XaPSS0VRjfRolj8U4aHA",
-// 				role: "freelancer",
-// 			})
-// 			.expect(200)
-// 			.end(function (err, res) {
-// 				request
-// 					.post("/api/google-api/googleLogin")
-// 					.send({
-// 						tokenId:
-// 							"eyJhbGciOiJSUzI1NiIsImtpZCI6ImMxODkyZWI0OWQ3ZWY5YWRmOGIyZTE0YzA1Y2EwZDAzMjcxNGEyMzciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwiYXpwIjoiMzY1ODIxNjI0NzI1LWtlODlhYzVtY2trcnBnM251NzZjZWluMnZyc3MzM3RnLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiMzY1ODIxNjI0NzI1LWtlODlhYzVtY2trcnBnM251NzZjZWluMnZyc3MzM3RnLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA0NDIzNzA3MjQ3NzcxNDMwNzEyIiwiaGQiOiJvY3RhbG9vcC5jb20iLCJlbWFpbCI6InNhbmNoaXRhQG9jdGFsb29wLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiZUpNSFpjWm9PT0xFa0dtV2hHdjUzQSIsIm5hbWUiOiJTYW5jaGl0YSBTaGlydXIiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUFUWEFKeG9wWnNwTEFrQ29BMEk3c3V6UjRhSFFFN2Y0NTE2VTFFR3d3aHI9czk2LWMiLCJnaXZlbl9uYW1lIjoiU2FuY2hpdGEgIiwiZmFtaWx5X25hbWUiOiJTaGlydXIiLCJsb2NhbGUiOiJlbiIsImlhdCI6MTYzOTU2NDU2MSwiZXhwIjoxNjM5NTY4MTYxLCJqdGkiOiI4N2U0YzU4YTZhODA2YWM2MTg1YTRiZGNhMjVhNDQyODA5YmNkYWQ0In0.DDxeiauATHkyrnYtA3ykYTlnptZTFnOCWvXqW6mJWbD1JrPRyaZTl5V7yrnFGaCwj5x2bF91Tm6wTVGOHbtyvYp3B-A_ePiFDeHQLwaM-CMEiSSYpa_nQYLYsZmJnAmt6KGpus45KAVnD0zCNqjW1jJsjjeve7-E2CdiTIfeksbk6NM5vNIzaeKZWW-JtSWC_iy60TaIgJBo_2ABD7EJRZ8r7T9SF8IvLhpqRm5UPOMNRhCAo3sVr7szQUUOuqYl2c2eXnHioT4sfjV7roHGK-H0M9pQqT1bHPKVJMXB3CkybdAdXCYuN7WXJSs3Jxf_n3XaPSS0VRjfRolj8U4aHA",
-// 					})
-// 					.expect(202)
-// 					.end(function (err, res) {
-// 						const result = JSON.parse(res.text);
-// 						console.log(result);
-// 						done(err);
-// 					});
-// 			});
-// 	});
-// });
+describe("POST /googleSignUp and /googleLogin", function () {
+	it("Sign In Freelancer/Business", function (done) {
+		request
+			.post("/api/google-api/verifyEmailGoogleAuth")
+			.send({
+				tokenId:
+					"eyJhbGciOiJSUzI1NiIsImtpZCI6ImMxODkyZWI0OWQ3ZWY5YWRmOGIyZTE0YzA1Y2EwZDAzMjcxNGEyMzciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwiYXpwIjoiMzY1ODIxNjI0NzI1LWtlODlhYzVtY2trcnBnM251NzZjZWluMnZyc3MzM3RnLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiMzY1ODIxNjI0NzI1LWtlODlhYzVtY2trcnBnM251NzZjZWluMnZyc3MzM3RnLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA0NDIzNzA3MjQ3NzcxNDMwNzEyIiwiaGQiOiJvY3RhbG9vcC5jb20iLCJlbWFpbCI6InNhbmNoaXRhQG9jdGFsb29wLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiZUpNSFpjWm9PT0xFa0dtV2hHdjUzQSIsIm5hbWUiOiJTYW5jaGl0YSBTaGlydXIiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUFUWEFKeG9wWnNwTEFrQ29BMEk3c3V6UjRhSFFFN2Y0NTE2VTFFR3d3aHI9czk2LWMiLCJnaXZlbl9uYW1lIjoiU2FuY2hpdGEgIiwiZmFtaWx5X25hbWUiOiJTaGlydXIiLCJsb2NhbGUiOiJlbiIsImlhdCI6MTYzOTU2NDU2MSwiZXhwIjoxNjM5NTY4MTYxLCJqdGkiOiI4N2U0YzU4YTZhODA2YWM2MTg1YTRiZGNhMjVhNDQyODA5YmNkYWQ0In0.DDxeiauATHkyrnYtA3ykYTlnptZTFnOCWvXqW6mJWbD1JrPRyaZTl5V7yrnFGaCwj5x2bF91Tm6wTVGOHbtyvYp3B-A_ePiFDeHQLwaM-CMEiSSYpa_nQYLYsZmJnAmt6KGpus45KAVnD0zCNqjW1jJsjjeve7-E2CdiTIfeksbk6NM5vNIzaeKZWW-JtSWC_iy60TaIgJBo_2ABD7EJRZ8r7T9SF8IvLhpqRm5UPOMNRhCAo3sVr7szQUUOuqYl2c2eXnHioT4sfjV7roHGK-H0M9pQqT1bHPKVJMXB3CkybdAdXCYuN7WXJSs3Jxf_n3XaPSS0VRjfRolj8U4aHA",
+			})
+			.expect(200)
+			.end(function (err, res) {
+				request
+					.post("/api/google-api/googleSignup")
+					.send({
+						email: "sanchi.shirur4@gmail.com",
+						name: "Sanchita Shirur",
+					})
+					.expect(202)
+					.end(function (err, res) {
+						request
+							.post("/api/google-api/googleLogin")
+							.send({
+								tokenId:
+									"eyJhbGciOiJSUzI1NiIsImtpZCI6ImMxODkyZWI0OWQ3ZWY5YWRmOGIyZTE0YzA1Y2EwZDAzMjcxNGEyMzciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwiYXpwIjoiMzY1ODIxNjI0NzI1LWtlODlhYzVtY2trcnBnM251NzZjZWluMnZyc3MzM3RnLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiMzY1ODIxNjI0NzI1LWtlODlhYzVtY2trcnBnM251NzZjZWluMnZyc3MzM3RnLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA0NDIzNzA3MjQ3NzcxNDMwNzEyIiwiaGQiOiJvY3RhbG9vcC5jb20iLCJlbWFpbCI6InNhbmNoaXRhQG9jdGFsb29wLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiZUpNSFpjWm9PT0xFa0dtV2hHdjUzQSIsIm5hbWUiOiJTYW5jaGl0YSBTaGlydXIiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUFUWEFKeG9wWnNwTEFrQ29BMEk3c3V6UjRhSFFFN2Y0NTE2VTFFR3d3aHI9czk2LWMiLCJnaXZlbl9uYW1lIjoiU2FuY2hpdGEgIiwiZmFtaWx5X25hbWUiOiJTaGlydXIiLCJsb2NhbGUiOiJlbiIsImlhdCI6MTYzOTU2NDU2MSwiZXhwIjoxNjM5NTY4MTYxLCJqdGkiOiI4N2U0YzU4YTZhODA2YWM2MTg1YTRiZGNhMjVhNDQyODA5YmNkYWQ0In0.DDxeiauATHkyrnYtA3ykYTlnptZTFnOCWvXqW6mJWbD1JrPRyaZTl5V7yrnFGaCwj5x2bF91Tm6wTVGOHbtyvYp3B-A_ePiFDeHQLwaM-CMEiSSYpa_nQYLYsZmJnAmt6KGpus45KAVnD0zCNqjW1jJsjjeve7-E2CdiTIfeksbk6NM5vNIzaeKZWW-JtSWC_iy60TaIgJBo_2ABD7EJRZ8r7T9SF8IvLhpqRm5UPOMNRhCAo3sVr7szQUUOuqYl2c2eXnHioT4sfjV7roHGK-H0M9pQqT1bHPKVJMXB3CkybdAdXCYuN7WXJSs3Jxf_n3XaPSS0VRjfRolj8U4aHA",
+							})
+							.expect(202)
+							.end(function (err, res) {
+								const result = JSON.parse(res.text);
+								console.log(result);
+								done(err);
+							});
+					});
+			});
+	});
+});
 
 // Forgot and Reset Password
 describe("POST /forgotPassword and /reset Password", function () {

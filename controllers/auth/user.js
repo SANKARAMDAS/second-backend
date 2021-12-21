@@ -288,25 +288,25 @@ const refresh = (req, res) => {
 
 // Forgot Password
 const forgotPassword = async (req, res) => {
-	const { email } = req.body;
+	const { user_email } = req.body;
 	try {
-		const freelancer = await Freelancer.findOne({ email: email });
-		const business = await Business.findOne({ email: email });
+		const freelancer = await Freelancer.findOne({ email: user_email });
+		const business = await Business.findOne({ email: user_email });
 
-		let id;
+		let email;
 		let name;
 
 		if (freelancer === null && business === null) {
-			res.status(400).send({ msg: "Email is nor registered" });
+			res.status(400).send({ msg: "Email is not registered" });
 		} else {
 			if (freelancer) {
-				id = freelancer._id;
+				email = freelancer.email;
 				name = freelancer.name;
 			} else {
-				id = business._id;
+				email = business.email;
 				name = business.name;
 			}
-			const link = `localhost:3000/api/auth/passwordreset?id=${id}`;
+			const link = `localhost:3000/api/auth/passwordreset/${email}`;
 			console.log(link);
 
 			const emailBody = `<p> Hey ${name} <br/>
@@ -316,7 +316,7 @@ const forgotPassword = async (req, res) => {
 
 			res.status(200).send({
 				msg: "Password Reset Link sent successfully",
-				data: { link: link, id: id },
+				data: { link: link, email: email },
 			});
 		}
 	} catch (err) {
@@ -326,16 +326,22 @@ const forgotPassword = async (req, res) => {
 
 // Password Reset
 const passwordReset = async (req, res) => {
-	const { id, password } = req.body;
+	const { email, password } = req.body;
 	try {
-		const freelancer = await Freelancer.findOne({ _id: id });
-		const business = await Business.findOne({ _id: id });
+		const freelancer = await Freelancer.findOne({ email: email });
+		const business = await Business.findOne({ email: email });
 
 		if (freelancer) {
-			await Freelancer.findByIdAndUpdate({ _id: id }, { password: password });
+			await Freelancer.findByIdAndUpdate(
+				{ _id: freelancer._id },
+				{ password: password }
+			);
 			res.status(200).send({ msg: "Password reset was successful" });
 		} else if (business) {
-			await Business.findByIdAndUpdate({ _id: id }, { password: password });
+			await Business.findByIdAndUpdate(
+				{ _id: business._id },
+				{ password: password }
+			);
 			res.status(200).send({ msg: "Password reset was successful" });
 		} else {
 			res.status(400).send({ msg: "Email doesnot exist" });
