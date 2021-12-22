@@ -10,6 +10,10 @@ const value = {
 
 // Status Model
 (Invoice = new Schema({
+	status: {
+		type: String,
+		required: true,
+	},
 	invoiceId: {
 		type: String,
 		required: true,
@@ -36,7 +40,7 @@ const value = {
 			currency: String,
 			percentage: Number,
 			transferId: String,
-		}
+		},
 	],
 	// ETH: value,
 	// BTC: value,

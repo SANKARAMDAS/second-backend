@@ -19,7 +19,7 @@ const generateOTP = async (email, name, password) => {
 	const fullHash = `${hash}.${expires}`;
 
 	const emailBody = `
-	<div style="padding:10px;  color: black ;font-size:16px; line-height: normal;">
+	<div>
 		<p style="font-weight: bold;" >Hello ${name},</p>
 		<p>Your OTP to verify email is ${otp}</p>
 		<p>If you have not registered on the website, kindly ignore the email</p>
@@ -99,7 +99,7 @@ const sendOtp = async (req, res) => {
 // Signup user on Email verification 3/4
 const verifyOtp = async (req, res) => {
 	const { name, email, password, otp, hash } = req.body;
-	console.log(req.body)
+	console.log(req.body);
 
 	let [hashValue, expires] = hash.split(".");
 
@@ -332,13 +332,13 @@ const passwordReset = async (req, res) => {
 		const business = await Business.findOne({ email: email });
 
 		if (freelancer) {
-			await Freelancer.findByIdAndUpdate(
+			await Freelancer.findOneAndUpdate(
 				{ _id: freelancer._id },
 				{ password: password }
 			);
 			res.status(200).send({ msg: "Password reset was successful" });
 		} else if (business) {
-			await Business.findByIdAndUpdate(
+			await Business.findOneAndUpdate(
 				{ _id: business._id },
 				{ password: password }
 			);

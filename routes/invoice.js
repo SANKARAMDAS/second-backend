@@ -3,6 +3,7 @@ const {
 	invoiceCreation,
 	getInvoiceInfo,
 	getInvoices,
+	updateInvoiceStatus,
 } = require("../controllers/invoice");
 
 const { auth } = require("../middlewares/auth");
@@ -14,6 +15,8 @@ router.post("/invoiceCreation", invoiceCreation);
 router.post("/getInvoiceInfo", getInvoiceInfo);
 
 router.post("/getInvoices", getInvoices);
+
+router.post("/updateInvoiceStatus", updateInvoiceStatus);
 
 module.exports = {
 	route: router,

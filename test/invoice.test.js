@@ -21,8 +21,8 @@ describe("POST /invoiceCreation", function () {
 				item: [
 					{
 						description: "Product Description 1",
-						quantity: 5,
-						price: 80,
+						qty: 5,
+						unitPrice: 80,
 					},
 				],
 				memo: "Some general description",
@@ -44,6 +44,24 @@ describe("POST /getInvoices", function () {
 			.send({
 				email: "tarang.padia2@gmail.com",
 				role: "freelancer",
+			})
+			.expect(200)
+			.end(function (err, res) {
+				done(err);
+			});
+	});
+});
+
+// Get Invoices
+describe("POST /updateInvoiceStatus", function () {
+	it("Update invoice status", function (done) {
+		request
+			.post("/api/invoice/updateInvoiceStatus")
+			.send({
+				email: "sanchi.shirur4@gmail.com",
+				name: "Sanchita",
+				invoiceId: "0139c439-5e89-4049-ab63-5b3de1afe0a3",
+				status: "cancel", // cancel resolved paid pending
 			})
 			.expect(200)
 			.end(function (err, res) {

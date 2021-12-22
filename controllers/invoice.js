@@ -36,8 +36,8 @@ const invoiceCreation = async (req, res) => {
 
 		// Calculate total amount
 		for (let i = 0; i < item.length; i++) {
-			// console.log(item[i]);
-			const pdt = parseInt(item[i].quantity) * parseInt(item[i].price);
+			console.log(item[i]);
+			const pdt = parseInt(item[i].qty) * parseInt(item[i].unitPrice);
 			total = total + pdt;
 		}
 
@@ -45,6 +45,7 @@ const invoiceCreation = async (req, res) => {
 
 		// save in db
 		const invoice = new Invoice({
+			status: "pending",
 			invoiceId: invoiceId,
 			freelancerEmail: freelancerEmail,
 			businessEmail: businessEmail,
@@ -291,8 +292,58 @@ const getInvoices = async (req, res) => {
 	}
 };
 
+const updateInvoiceStatus = async (req, res) => {
+	const { email, name, status, invoiceId } = req.body;
+	if (status === "cancel") {
+		const emailBody = `
+	<div>
+		<p style="font-weight: bold;" >Hello ${name},</p>
+		<p>Your Invoice request has been cancelled for the Invoice ID ${invoiceId}</p>
+		<br/>
+		<p>Have a Nice Day!</p>            
+	</div>
+	`;
+		await sendEmail(
+			{ email: email },
+			emailBody,
+			`Invoice request cancelled for INvoice ID ${invoiceId}`
+		);
+	} else if (status === "resolved") {
+		const emailBody = `
+	<div>
+		<p style="font-weight: bold;" >Hello ${name},</p>
+		<p>Your Invoice request issue has been resolved for the Invoice ID ${invoiceId}</p>
+		<br/>
+		<p>Have a Nice Day!</p>            
+	</div>
+	`;
+		await sendEmail(
+			{ email: email },
+			emailBody,
+			`Invoice request issue resolved for invoice ID ${invoiceId}`
+		);
+	}
+
+	Invoice.findOneAndUpdate(
+		{ invoiceId: invoiceId },
+		{
+			$set: {
+				status: status,
+			},
+		},
+		async (err, data) => {
+			if (err) {
+				res.status(404).send({ msg: err });
+			} else {
+				res.status(200).send({ msg: `Status Updated to ${status}` });
+			}
+		}
+	);
+};
+
 module.exports = {
 	invoiceCreation,
 	getInvoiceInfo,
 	getInvoices,
+	updateInvoiceStatus,
 };
