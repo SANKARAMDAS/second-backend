@@ -16,6 +16,8 @@ const invoiceCreation = async (req, res) => {
 		memo,
 		creationDate,
 		dueDate,
+		fileName,
+		pdfFile,
 	} = req.body;
 
 	const invoiceId = uuidv4();
@@ -257,7 +259,14 @@ const invoiceCreation = async (req, res) => {
 
 	`;
 
-		await sendEmail({ email: businessEmail }, emailBody, "New Invoice Request");
+		await sendEmail(
+			{
+				email: businessEmail,
+				attachment: { fileName: fileName, pdfFile: pdfFile },
+			},
+			emailBody,
+			"New Invoice Request"
+		);
 		return res.status(200).send(encrypedClientId);
 	} else {
 		res.send("Proportions should add up to 100");
@@ -292,6 +301,7 @@ const getInvoices = async (req, res) => {
 	}
 };
 
+// Invoice status
 const updateInvoiceStatus = async (req, res) => {
 	const { email, name, status, invoiceId } = req.body;
 	if (status === "cancel") {
