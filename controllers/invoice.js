@@ -1,10 +1,10 @@
-const { v4: uuidv4 } = require("uuid");
 const CryptoJS = require("crypto-js");
 const Invoice = require("../models/invoice");
 const { sendEmail } = require("./sendEmail");
 
 const invoiceCreation = async (req, res) => {
 	const {
+		invoiceTitle,
 		businessEmail,
 		freelancerEmail,
 		businessName,
@@ -16,11 +16,11 @@ const invoiceCreation = async (req, res) => {
 		memo,
 		creationDate,
 		dueDate,
-		fileName,
 		pdfFile,
+		invoiceId,
 	} = req.body;
 
-	const invoiceId = uuidv4();
+	// console.log(req.body);
 
 	const encrypedClientId = encodeURIComponent(
 		CryptoJS.AES.encrypt(
@@ -30,6 +30,7 @@ const invoiceCreation = async (req, res) => {
 	);
 
 	const sum = ETH + BTC + FIAT;
+
 	const link = `http://localhost:3000/pay-invoice/${encrypedClientId}`;
 
 	if (sum === 100) {
@@ -39,7 +40,7 @@ const invoiceCreation = async (req, res) => {
 		// Calculate total amount
 		for (let i = 0; i < item.length; i++) {
 			console.log(item[i]);
-			const pdt = parseInt(item[i].qty) * parseInt(item[i].unitPrice);
+			const pdt = parseInt(item[i].quantity) * parseInt(item[i].price);
 			total = total + pdt;
 		}
 
@@ -47,6 +48,7 @@ const invoiceCreation = async (req, res) => {
 
 		// save in db
 		const invoice = new Invoice({
+			invoiceTitle: invoiceTitle,
 			status: "pending",
 			invoiceId: invoiceId,
 			freelancerEmail: freelancerEmail,
@@ -71,198 +73,199 @@ const invoiceCreation = async (req, res) => {
 
 		//send email
 		const emailBody = `
-		<html lang="en">
-		<head>
-			<style>
-			body {
-				background-color: #f2f4f6;
-			}
+			<html lang="en">
+			<head>
+				<style>
+				body {
+					background-color: #f2f4f6;
+				}
 
-			.wrapper {
-				height: 100%;
-				width: 50%;
-				margin: auto;
-				justify-content: center;
-				align-items: center;
-			}
-
-			.wrapper .invoice-content-header {
-				width: 100%;
-				height: 40%;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			}
-
-			.wrapper .invoice-content-header .logo {
-				margin-bottom: -60px;
-			}
-
-			.wrapper .invoice-content-body {
-				/* border: 3px solid green; */
-				background-color: #fff;
-				width: 100%;
-				height: 55%;
-				padding: 0px;
-				padding-top: 40px;
-				box-sizing: border-box;
-				/* display: flex; */
-				justify-content: start;
-			}
-
-			.wrapper .invoice-content-body button {
-				width: 50%;
-				height: 40px;
-				cursor: pointer;
-				background-color: #3869d4;
-				border: none;
-				color: #fff;
-				font-weight: 700;
-				border-radius: 5px;
-				margin-top: 10px;
-				margin-bottom: 15px;
-			}
-
-			.wrapper .invoice-content-body button:active {
-				background-color: #304c8a;
-			}
-
-			.wrapper .invoice-content-body p {
-				font-size: 0.9rem;
-				font-family: sans-serif;
-			}
-
-			.wrapper .invoice-content-body hr {
-				border: none;
-				height: 0.1px;
-				background: rgb(216, 214, 214);
-			}
-
-			.wrapper .invoice-content-body .body-footer {
-				margin-top: 20px;
-				font-size: 0.8rem;
-			}
-
-			.wrapper .invoice-content-footer {
-				width: 100%;
-				height: 10%;
-				font-family: sans-serif;
-				font-size: 0.8rem;
-				color: #6b6a6a;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			}
-
-			.submit-button{
-				background-color: #3246a8;
-				color: #ffffff;
-				border: none;
-				padding: 8px;
-				text-decoration: none;
-				font-size: 16px;
-				border-radius: 8px;
-			}
-
-			.center {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			  }
-
-			@media screen and (max-width: 992px) {
 				.wrapper {
-					width: 55%;
+					height: 100%;
+					width: 50%;
+					margin: auto;
+					justify-content: center;
+					align-items: center;
+				}
+
+				.wrapper .invoice-content-header {
+					width: 100%;
+					height: 40%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
 				}
 
 				.wrapper .invoice-content-header .logo {
-					margin-bottom: -80px;
-				}
-			}
-
-			@media screen and (max-width: 786px) {
-				.wrapper {
-					width: 70%;
+					margin-bottom: -60px;
 				}
 
 				.wrapper .invoice-content-body {
-					height: 60%;
-				}
-			}
-
-			@media screen and (max-width: 486px) {
-				.wrapper {
-					width: 70%;
-				}
-
-				.wrapper .invoice-content-body {
-					padding-top: 10px;
-					height: 100%;
+					/* border: 3px solid green; */
+					background-color: #fff;
+					width: 100%;
+					height: 55%;
+					padding: 0px;
+					padding-top: 40px;
+					box-sizing: border-box;
+					/* display: flex; */
+					justify-content: start;
 				}
 
 				.wrapper .invoice-content-body button {
-					width: 70%;
+					width: 50%;
+					height: 40px;
+					cursor: pointer;
 					background-color: #3869d4;
+					border: none;
+					color: #fff;
 					font-weight: 700;
+					border-radius: 5px;
+					margin-top: 10px;
+					margin-bottom: 15px;
 				}
 
-				.wrapper .invoice-content-header .logo {
-					margin-bottom: -10px;
+				.wrapper .invoice-content-body button:active {
+					background-color: #304c8a;
 				}
-			}
 
-			@media screen and (max-width: 320px) {
-				.wrapper {
+				.wrapper .invoice-content-body p {
+					font-size: 0.9rem;
+					font-family: sans-serif;
+				}
+
+				.wrapper .invoice-content-body hr {
+					border: none;
+					height: 0.1px;
+					background: rgb(216, 214, 214);
+				}
+
+				.wrapper .invoice-content-body .body-footer {
+					margin-top: 20px;
+					font-size: 0.8rem;
+				}
+
+				.wrapper .invoice-content-footer {
 					width: 100%;
+					height: 10%;
+					font-family: sans-serif;
+					font-size: 0.8rem;
+					color: #6b6a6a;
+					display: flex;
+					justify-content: center;
+					align-items: center;
 				}
-			}
-		</style>
-	</head>
 
-	<body>
-		<div class="wrapper">
-			<div class="invoice-content-header">
-				<img width="100%" src="https://i.postimg.cc/CKdd49nM/Whats-App-Image-2021-11-18-at-12-44-42-AM.jpg" />
-			</div>
-			<div class="invoice-content-body">
-				<p>
-					Hey ${businessName}!
+				.submit-button{
+					background-color: #3246a8;
+					color: #ffffff;
+					border: none;
+					padding: 8px;
+					text-decoration: none;
+					font-size: 16px;
+					border-radius: 8px;
+				}
+
+				.center {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				  }
+
+				@media screen and (max-width: 992px) {
+					.wrapper {
+						width: 55%;
+					}
+
+					.wrapper .invoice-content-header .logo {
+						margin-bottom: -80px;
+					}
+				}
+
+				@media screen and (max-width: 786px) {
+					.wrapper {
+						width: 70%;
+					}
+
+					.wrapper .invoice-content-body {
+						height: 60%;
+					}
+				}
+
+				@media screen and (max-width: 486px) {
+					.wrapper {
+						width: 70%;
+					}
+
+					.wrapper .invoice-content-body {
+						padding-top: 10px;
+						height: 100%;
+					}
+
+					.wrapper .invoice-content-body button {
+						width: 70%;
+						background-color: #3869d4;
+						font-weight: 700;
+					}
+
+					.wrapper .invoice-content-header .logo {
+						margin-bottom: -10px;
+					}
+				}
+
+				@media screen and (max-width: 320px) {
+					.wrapper {
+						width: 100%;
+					}
+				}
+			</style>
+		</head>
+
+		<body>
+			<div class="wrapper">
+				<div class="invoice-content-header">
+					<img width="100%" src="https://i.postimg.cc/CKdd49nM/Whats-App-Image-2021-11-18-at-12-44-42-AM.jpg" />
+				</div>
+				<div class="invoice-content-body">
+					<p>
+						Hey ${businessName}!
+						<br/>
+						You have received an invoice from <b>${freelancerName}</b> generated on ${creationDate} for
+						<b>${total} USD</b>
+					</p>
+					<p>Payment is due on <b>${dueDate}</b></p>
+					<form action="http://localhost:3000/pay-invoice/${encrypedClientId}">
+	    			<input type="submit" value="View my Invoice" class="submit-button center"/>
+					</form>
+					<p style="margin-bottom: 20px">
+						Cheers, <br />
+						The Polaris Team
+					</p>
+					<hr />
+					<p class="body-footer">
+						Want to get paid in crypto? <a href="#">Sign up</a> for free
+					</p>
+					<p class="body-footer">
+						If you have any questions about the invoice, simply reply to this
+						email or reach out to our <a href="#">support team</a> for help.
+					</p>
+				</div>
+				<div class="invoice-content-footer">
+					&copy; 2021. All rights reserved.
 					<br/>
-					You have received an invoice from <b>${freelancerName}</b> generated on ${creationDate} for
-					<b>${total} USD</b>
-				</p>
-				<p>Payment is due on <b>${dueDate}</b></p>
-				<form action="http://localhost:3000/pay-invoice/${encrypedClientId}">
-    			<input type="submit" value="View my Invoice" class="submit-button center"/>
-				</form>
-				<p style="margin-bottom: 20px">
-					Cheers, <br />
-					The Polaris Team
-				</p>
-				<hr />
-				<p class="body-footer">
-					Want to get paid in crypto? <a href="#">Sign up</a> for free
-				</p>
-				<p class="body-footer">
-					If you have any questions about the invoice, simply reply to this
-					email or reach out to our <a href="#">support team</a> for help.
-				</p>
+					Polaris
+				</div>
 			</div>
-			<div class="invoice-content-footer">
-				&copy; 2021. All rights reserved.
-				<br/>
-				Polaris
-			</div>
-		</div>
-		</body>
-</html>
+			</body>
+	</html>
 
-	`;
+		`;
 
 		await sendEmail(
 			{
 				email: businessEmail,
-				attachment: { fileName: fileName, pdfFile: pdfFile },
+				invoiceId: invoiceId,
+				attachment: { pdfFile: pdfFile, flag: true },
 			},
 			emailBody,
 			"New Invoice Request"

@@ -9,8 +9,8 @@ const mongoose = require("mongoose");
 const googleLoginRouter = require("./routes/auth/googleLogin");
 const invoiceRouter = require("./routes/invoice");
 const userRoute = require("./routes/auth/user");
-const wyreRoute = require("./routes/wyre/general")
-const transferRoute = require("./routes/wyre/transfer")
+const wyreRoute = require("./routes/wyre/general");
+const transferRoute = require("./routes/wyre/transfer");
 
 const app = express();
 
@@ -32,12 +32,10 @@ mongoose.connect(
 
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function () { });
+db.once("open", function () {});
 
 // Middlewares
 app.use(cors({ origin: process.env.FRONTEND_CORS_API, credentials: true }));
-app.use(express.json());
-app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(
 	session({
@@ -46,7 +44,9 @@ app.use(
 		saveUninitialized: true,
 	})
 );
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({ limit: "100mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
+app.use(express.json());
 
 app.get("/", (req, res) => {
 	res.send("Working!");
@@ -56,8 +56,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", userRoute.route);
 app.use("/api/google-api", googleLoginRouter.route);
 app.use("/api/invoice", invoiceRouter.route);
-app.use("/api/wyre-general", wyreRoute)
-app.use("/api/wyre-transfer", transferRoute)
+app.use("/api/wyre-general", wyreRoute);
+app.use("/api/wyre-transfer", transferRoute);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

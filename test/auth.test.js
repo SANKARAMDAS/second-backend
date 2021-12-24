@@ -24,8 +24,8 @@ describe("db", () => {
 			request
 				.post("/api/auth/emailverification")
 				.send({
-					name: "sanchita",
-					email: "sanchi.shirur4@gmail.com",
+					name: "Tarang",
+					email: "tarang.padia2@gmail.com",
 					password: "test@123",
 				})
 				.expect(200)
@@ -46,10 +46,10 @@ describe("db", () => {
 							request
 								.post("/api/auth/signup")
 								.send({
-									name: "Sanchita",
+									name: "Tarang",
 									password: "test@123",
-									email: "sanchi.shirur4@gmail.com",
-									role: "business",
+									email: "tarang.padia2@gmail.com",
+									role: "freelancer",
 								})
 								.expect(200)
 								.end(function (err, res) {
@@ -66,17 +66,17 @@ describe("db", () => {
 			request
 				.post("/api/auth/signup")
 				.send({
-					name: "Sanchita",
+					name: "Tarang",
 					password: "test@123",
-					email: "sanchi.shirur4@gmail.com",
-					role: "business",
+					email: "tarang.padia2@gmail.com",
+					role: "freelancer",
 				})
 				.expect(200)
 				.end(function (err, res) {
 					request
 						.post("/api/auth/signin")
 						.send({
-							email: "sanchi.shirur4@gmail.com",
+							email: "tarang.padia2@gmail.com",
 							password: "test@123",
 						})
 						.expect(202)
@@ -127,31 +127,31 @@ describe("db", () => {
 // 	});
 // });
 
-// // Forgot and Reset Password
-// describe("POST /forgotPassword and /reset Password", function () {
-// 	it("generates a link to reset password and updates the password", function (done) {
-// 		request
-// 			.post("/api/auth/forgotPassword")
-// 			.send({
-// 				email: "sanchi.shirur4@gmail.com",
-// 			})
-// 			.expect(200)
-// 			.end(function (err, res) {
-// 				const result = JSON.parse(res.text);
-// 				console.log(result);
-// 				request
-// 					.post("/api/auth/passwordreset")
-// 					.send({
-// 						id: result.data.id,
-// 						password: "newPassword",
-// 					})
-// 					.expect(200)
-// 					.end(function (err, res) {
-// 						done(err);
-// 					});
-// 			});
-// 	});
-// });
+// Forgot and Reset Password
+describe("POST /forgotPassword and /reset Password", function () {
+	it("generates a link to reset password and updates the password", function (done) {
+		request
+			.post("/api/auth/forgotPassword")
+			.send({
+				user_email: "tarang.padia2@gmail.com",
+			})
+			.expect(200)
+			.end(function (err, res) {
+				const result = JSON.parse(res.text);
+				console.log(result);
+				request
+					.post("/api/auth/passwordreset")
+					.send({
+						email: result.data.email,
+						password: "newPassword",
+					})
+					.expect(200)
+					.end(function (err, res) {
+						done(err);
+					});
+			});
+	});
+});
 
 // Update profile
 describe("POST /updateProfile", function () {
@@ -159,7 +159,7 @@ describe("POST /updateProfile", function () {
 		request
 			.post("/api/auth/updateProfile")
 			.send({
-				email: "sanchi.shirur4@gmail.com",
+				email: "tarang.padia2@gmail.com",
 				address: "1775 Rosemont Avenue",
 				city: "Maitland",
 				state: "Florida",
@@ -181,7 +181,7 @@ describe("POST /getuserProfile", function () {
 		request
 			.post("/api/auth/getuserProfile")
 			.send({
-				email: "sanchi.shirur4@gmail.com",
+				email: "tarang.padia2@gmail.com",
 			})
 			.expect(200)
 			.end(function (err, res) {
