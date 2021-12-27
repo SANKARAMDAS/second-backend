@@ -56,7 +56,7 @@ describe("POST /getInvoices", function () {
 	});
 });
 
-// Get Invoices
+// Update Invoice Status
 describe("POST /updateInvoiceStatus", function () {
 	it("Update invoice status", function (done) {
 		request
@@ -64,8 +64,35 @@ describe("POST /updateInvoiceStatus", function () {
 			.send({
 				email: "sanchi.shirur4@gmail.com",
 				name: "Sanchita",
-				invoiceId: "0139c439-5e89-4049-ab63-5b3de1afe0a3",
+				invoiceId: "1640334550",
 				status: "cancel", // cancel resolved paid pending
+			})
+			.expect(200)
+			.end(function (err, res) {
+				done(err);
+			});
+	});
+});
+
+// Update Invoice Particulars
+describe("POST /updateInvoiceParticulars", function () {
+	it("Update invoice status", function (done) {
+		request
+			.post("/api/invoice/updateInvoiceParticulars")
+			.send({
+				invoiceId: 1640334550,
+				item: [
+					{
+						description: "Product Description 1",
+						quantity: 5,
+						price: 80,
+					},
+					{
+						description: "Product Description 2",
+						quantity: 8,
+						price: 200,
+					},
+				],
 			})
 			.expect(200)
 			.end(function (err, res) {

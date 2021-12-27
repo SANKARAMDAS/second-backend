@@ -265,7 +265,7 @@ const invoiceCreation = async (req, res) => {
 			{
 				email: businessEmail,
 				invoiceId: invoiceId,
-				attachment: { pdfFile: pdfFile, flag: true },
+				attachment: { pdfFile: pdfFile },
 			},
 			emailBody,
 			"New Invoice Request"
@@ -354,9 +354,30 @@ const updateInvoiceStatus = async (req, res) => {
 	);
 };
 
+const updateInvoiceParticulars = async (req, res) => {
+	const { invoiceId, item } = req.body;
+
+	Invoice.findOneAndUpdate(
+		{ invoiceId: invoiceId },
+		{
+			$set: {
+				item: item,
+			},
+		},
+		async (err, data) => {
+			if (err) {
+				res.status(404).send({ msg: err });
+			} else {
+				res.status(200).send({ msg: `Invoice Updated` });
+			}
+		}
+	);
+};
+
 module.exports = {
 	invoiceCreation,
 	getInvoiceInfo,
 	getInvoices,
 	updateInvoiceStatus,
+	updateInvoiceParticulars,
 };

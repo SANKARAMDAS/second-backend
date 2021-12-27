@@ -35,20 +35,13 @@ const value = {
 	item: [
 		{
 			description: String,
-			qty: Number,
-			unitPrice: Number,
+			quantity: Number,
+			price: Number,
 		},
 	],
-	proportions: [
-		{
-			currency: String,
-			percentage: Number,
-			transferId: String,
-		},
-	],
-	// ETH: value,
-	// BTC: value,
-	// FIAT: value,
+	ETH: value,
+	BTC: value,
+	FIAT: value,
 	totalAmount: value,
 	memo: {
 		type: String,
