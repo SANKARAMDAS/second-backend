@@ -37,6 +37,11 @@ const value = {
 		trim: true,
 		required: true,
 	},
+	businessName: {
+		type: String,
+		trim: true,
+		required: true,
+	},
 	item: [
 		{
 			description: String,
