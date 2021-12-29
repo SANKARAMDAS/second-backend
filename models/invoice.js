@@ -32,6 +32,11 @@ const value = {
 		trim: true,
 		required: true,
 	},
+	freelancerName: {
+		type: String,
+		trim: true,
+		required: true,
+	},
 	item: [
 		{
 			description: String,
