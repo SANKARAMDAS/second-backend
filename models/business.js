@@ -1,6 +1,7 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 const validator = require("validator");
+const { wyre } = require("../controllers/wyre/boilerplate");
 
 const stringValue = {
 	type: String,
@@ -43,11 +44,32 @@ const businessSchema = new mongoose.Schema({
 	wyreWallet: {
 		type: String,
 	},
+	wyreAccount: {
+		type: String
+	},
 	isProfileComplete: {
 		type: Boolean,
 		default: false,
 	},
 });
+
+businessSchema.methods.createWallet = async function () {
+	const user = this;
+	let result;
+	try {
+		result = await wyre.post("/wallets", {
+			type: "DEFAULT",
+			name: user._id,
+		});
+	} catch (e) {
+		console.log(e)
+		throw new Error("there was an error creating wallet");
+	}
+
+	user.wyreWallet = result.id;
+	await user.save();
+	return result;
+};
 
 mongoose.pluralize(null);
 const Business = mongoose.model("Business", businessSchema);

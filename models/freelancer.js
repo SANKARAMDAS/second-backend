@@ -1,5 +1,6 @@
 var mongoose = require("mongoose");
 const validator = require("validator");
+const { wyre } = require("../controllers/wyre/boilerplate");
 
 const stringValue = {
 	type: String,
@@ -51,6 +52,23 @@ const freelancerSchema = new mongoose.Schema({
 		default: false,
 	},
 });
+
+freelancerSchema.methods.createWallet = async function () {
+	const user = this;
+	let result;
+	try {
+		result = await wyre.post("/wallets", {
+			type: "DEFAULT",
+			name: user._id,
+		});
+	} catch (e) {
+		throw new Error("there was an error creating wallet");
+	}
+
+	user.wyreWallet = result.id;
+	await user.save();
+	return result;
+};
 
 mongoose.pluralize(null);
 const Freelancer = mongoose.model("Freelancer", freelancerSchema);
