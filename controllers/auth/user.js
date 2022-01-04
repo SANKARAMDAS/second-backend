@@ -141,6 +141,7 @@ const signup = async (req, res) => {
 			isProfileComplete: false,
 		});
 		try {
+			await newFreelancer.createWallet()
 			const savedUser = await newFreelancer.save();
 			return res.status(200).send({
 				msg: "Freelancer Added Successfully",
@@ -164,6 +165,7 @@ const signup = async (req, res) => {
 			isProfileComplete: false,
 		});
 		try {
+			await newBusiness.createWallet()
 			const savedUser = await newBusiness.save();
 			return res.status(200).send({
 				msg: "Business Added Successfully",
