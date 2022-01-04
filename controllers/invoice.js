@@ -21,7 +21,7 @@ const invoiceCreation = async (req, res) => {
 	} = req.body;
 
 	// console.log(req.body);
-	console.log(businessName)
+	console.log(businessName);
 
 	const encrypedClientId = encodeURIComponent(
 		CryptoJS.AES.encrypt(
