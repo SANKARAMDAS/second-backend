@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/user")
 
 const auth = async (req, res, next) => {
 	const token = req.get("auth-token");
@@ -7,9 +8,9 @@ const auth = async (req, res, next) => {
 		return res.status(400).send({ error: "Access denied" });
 	} else {
 		try {
-			const payload = jwt.verify(token, process.env.VERIFY_AUTH_TOKEN);
+			const payload = await jwt.verify(token, process.env.VERIFY_AUTH_TOKEN);
 			req.role = payload.role;
-			req.email = payload.email;
+			req.user = await User.findOne({ email: payload.email });
 			console.log(role, email);
 			next();
 		} catch (e) {

@@ -49,9 +49,22 @@ const value = {
 			price: Number,
 		},
 	],
-	ETH: value,
-	BTC: value,
-	FIAT: value,
+	proportions: [
+		{
+			currency: String,
+			percentage: Number,
+			transferId: String,
+		}
+	],
+	reservationId: {
+		type: String
+	},
+	walletOrderId: {
+		type: String
+	},
+	ACHTransferId: {
+		type: String
+	},
 	totalAmount: value,
 	memo: {
 		type: String,

@@ -53,10 +53,13 @@ const submitAuthorization = async (req, res) => {
     let result
 
     try {
-
         const invoiceInfo = await Invoice.findOne({ invoiceId })
         if (!invoiceInfo.walletOrderId || !invoiceInfo.reservationId) {
             res.status(404).send()
+        }
+        const walletOrderPayload = await wyre.get(`/orders/${invoiceInfo.walletOrderId}`)
+        if (walletOrderPayload.status !== "RUNNING_CHECKS") {
+            res.status(400).send({ err: 'there was an error.' })
         }
         result = await wyre.post('/debitcard/authorize/partner', {
             type: 'SMS',
@@ -70,7 +73,7 @@ const submitAuthorization = async (req, res) => {
             res.status(400).send({ error: "there was an error." })
         }
     } catch (e) {
-        res.status(400).send({ error: "there was an error" })
+        res.status(400).send({ error: "there was an error", message: e })
     }
 }
 

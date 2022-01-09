@@ -11,6 +11,7 @@ const invoiceRouter = require("./routes/invoice");
 const userRoute = require("./routes/auth/user");
 const wyreRoute = require("./routes/wyre/general");
 const transferRoute = require("./routes/wyre/transfer");
+const paymentRoute = require("./routes/wyre/payment");
 
 const app = express();
 
@@ -32,7 +33,7 @@ mongoose.connect(
 
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function () {});
+db.once("open", function () { });
 
 // Middlewares
 app.use(cors({ origin: process.env.FRONTEND_CORS_API, credentials: true }));
@@ -58,6 +59,7 @@ app.use("/api/google-api", googleLoginRouter.route);
 app.use("/api/invoice", invoiceRouter.route);
 app.use("/api/wyre-general", wyreRoute);
 app.use("/api/wyre-transfer", transferRoute);
+app.use("/api/wyre-payment", paymentRoute);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

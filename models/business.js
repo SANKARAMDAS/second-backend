@@ -44,9 +44,13 @@ const businessSchema = new mongoose.Schema({
 	wyreWallet: {
 		type: String,
 	},
-	wyreAccount: {
-		type: String
-	},
+	fundWallet: [
+		{
+			amount: numericValue,
+			reservationId: stringValue,
+			walletOrderId: stringValue
+		}
+	],
 	isProfileComplete: {
 		type: Boolean,
 		default: false,
