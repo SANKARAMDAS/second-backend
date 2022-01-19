@@ -54,16 +54,16 @@ const value = {
 			currency: String,
 			percentage: Number,
 			transferId: String,
-		}
+		},
 	],
 	reservationId: {
-		type: String
+		type: String,
 	},
 	walletOrderId: {
-		type: String
+		type: String,
 	},
 	ACHTransferId: {
-		type: String
+		type: String,
 	},
 	totalAmount: value,
 	memo: {
