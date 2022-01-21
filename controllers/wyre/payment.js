@@ -157,11 +157,10 @@ const createPaymentMethodCO = async (req, res) => {
         })
         await business.paymentMethods.push(result.id)
         await business.save()
+        res.status(200).send(result)
     } catch (e) {
         res.status(400).send({ err: "There was an error" })
     }
-
-    res.status(200).send(result)
 }
 
 //upload bank document
@@ -183,11 +182,11 @@ const uploadBankDocument = async (req, res) => {
 
     try {
         result = await axios.request(options)
+        res.status(200).send({ success: "document uploaded" })
     } catch (e) {
         res.status(400).send({ err: "There was an error." })
     }
 
-    res.status(200).send({ success: "document uploaded" })
 
 }
 
@@ -203,10 +202,10 @@ const deletePaymentMethod = async (req, res) => {
             res.status(404).send()
         }
         await business.save()
+        res.status(200).send(business)
     } catch (e) {
         res.status(400).send({ err: "There was an error. Please try again later." })
     }
-    res.status(200).send(business)
 }
 
 //get list of payment methods
@@ -220,11 +219,11 @@ const getPaymentMethods = async (req, res) => {
             var res = await wyre.get('/paymentMethod/' + business.paymentMethods[i])
             data.push(res)
         }
+        res.status(200).send(data)
     } catch (e) {
         res.status(400).send({ err: "There was an error" })
     }
 
-    res.status(200).send(data)
 
 }
 
@@ -258,10 +257,11 @@ const ACHtransfer = async (req, res) => {
             invoiceInfo.ACHTransferId = result.id
             await invoiceInfo.save()
         }
+        res.status(200).send({ success: "Payment initiated", result })
     } catch (e) {
         res.status(400).send({ err: "There was an error." })
     }
-    res.status(200).send({ success: "Payment initiated", result })
+
 }
 
 

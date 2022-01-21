@@ -580,10 +580,30 @@ const updateInvoiceParticulars = async (req, res) => {
 	);
 };
 
+const getPreviousInvoiceProportions = async (req, res) => {
+	const { email, role } = req.body;
+	try {
+		if (role === "freelancer") {
+			const freelancer = await Invoice.find({ freelancerEmail: email });
+			res
+				.status(200)
+				.send({ proportions: freelancer[freelancer.length - 1].proportions });
+		} else {
+			const business = await Invoice.find({ businessEmail: email });
+			res
+				.status(200)
+				.send({ proportions: business[business.length - 1].proportions });
+		}
+	} catch (err) {
+		res.status(400).send({ msg: err });
+	}
+};
+
 module.exports = {
 	invoiceCreation,
 	getInvoiceInfo,
 	getInvoices,
 	updateInvoiceStatus,
 	updateInvoiceParticulars,
+	getPreviousInvoiceProportions,
 };

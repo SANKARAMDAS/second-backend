@@ -12,6 +12,7 @@ const userRoute = require("./routes/auth/user");
 const wyreRoute = require("./routes/wyre/general");
 const transferRoute = require("./routes/wyre/transfer");
 const paymentRoute = require("./routes/wyre/payment");
+const contactRoute = require("./routes/contact")
 
 const app = express();
 
@@ -50,7 +51,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-	res.send("Working!");
+	res.send("Working! 6");
 });
 
 // Base Routes
@@ -60,6 +61,7 @@ app.use("/api/invoice", invoiceRouter.route);
 app.use("/api/wyre-general", wyreRoute);
 app.use("/api/wyre-transfer", transferRoute);
 app.use("/api/wyre-payment", paymentRoute);
+app.use("/api/contact", contactRoute);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {
