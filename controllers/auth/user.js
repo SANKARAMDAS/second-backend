@@ -196,14 +196,12 @@ const signin = async (req, res) => {
 				if (freelancer.password === password) {
 					cookieEmail = freelancer.email;
 					cookieRole = "freelancer";
-					//set cookie
 				} else {
 					res.status(400).send({
 						msg: "Invalid Credentials",
 					});
 				}
 			} else {
-				// For Business
 				if (business) {
 					if (business.password === password) {
 						cookieEmail = business.email;
@@ -221,21 +219,20 @@ const signin = async (req, res) => {
 			}
 
 			const accessToken = jwt.sign(
-				{ email: cookieEmail, role: cookieRole },
+				{ data: { email: cookieEmail, role: cookieRole } },
 				process.env.VERIFY_AUTH_TOKEN,
 				{
 					expiresIn: "30s",
 				}
 			);
 			const refreshToken = jwt.sign(
-				{ email: cookieEmail, role: cookieRole },
+				{ data: { email: cookieEmail, role: cookieRole } },
 				process.env.VERIFY_REFRESH_TOKEN,
 				{
 					expiresIn: "3h",
 				}
 			);
 
-			console.log(cookieRole);
 			res
 				.status(202)
 				.cookie("accessToken", accessToken, {
@@ -243,13 +240,20 @@ const signin = async (req, res) => {
 					httpOnly: true,
 					sameSite: "strict",
 				})
+				.cookie("authSession", true, {
+					expires: new Date(new Date().getTime() + 30 * 1000),
+				})
 				.cookie("refreshToken", refreshToken, {
 					expires: new Date(new Date().getTime() + 3557600000),
 					httpOnly: true,
 					sameSite: "strict",
 				})
+				.cookie("refreshTokenID", true, {
+					expires: new Date(new Date().getTime() + 3557600000),
+				})
 				.send({
 					msg: "Logged in successfully",
+					email: cookieEmail,
 					role: cookieRole,
 				});
 		}
@@ -269,8 +273,8 @@ const refresh = (req, res) => {
 	try {
 		const payload = jwt.verify(refreshToken, process.env.VERIFY_REFRESH_TOKEN);
 		const accessToken = jwt.sign(
-			{ data: { email: payload.email, role: payload.role } },
-			process.env.VERIFY_REFRESH_TOKEN,
+			{ data: { email: payload.data.email, role: payload.data.role } },
+			process.env.VERIFY_AUTH_TOKEN,
 			{
 				expiresIn: "30s",
 			}
@@ -282,11 +286,29 @@ const refresh = (req, res) => {
 				sameSite: "strict",
 				httpOnly: true,
 			})
-			.send({ previousSessionExpiry: true, success: true });
+			.cookie("authSession", true, {
+				expires: new Date(new Date().getTime() + 30 * 1000)
+			})
+			.send({ email: payload.data.email, role: payload.data.role });
+	} catch (err) {
+		res.status(403).send({ msg: err, success: false });
+	}
+};
+
+const getUser = async (req, res) => {
+	const accessToken = req.cookies.accessToken;
+	if (!accessToken) {
+		return res.status(403).send({
+			msg: "Access Token Not Found",
+		});
+	}
+	try {
+		const payload = jwt.verify(accessToken, process.env.VERIFY_AUTH_TOKEN);
+		res.send({ email: payload.data.email, role: payload.data.role })
 	} catch (err) {
 		res.status(403).send({ msg: err });
 	}
-};
+}
 
 // Forgot Password
 const forgotPassword = async (req, res) => {
@@ -442,6 +464,14 @@ const logout = async (req, res) => {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
 			})
+			.cookie('authSession', 'none', {
+				expires: new Date(Date.now() + 5 * 1000),
+				httpOnly: true,
+			})
+			.cookie('refreshTokenID', 'none', {
+				expires: new Date(Date.now() + 5 * 1000),
+				httpOnly: true,
+			})
 			.send("User Logged Out");
 	} catch (e) {
 		console.log(e);
@@ -458,6 +488,7 @@ module.exports = {
 	passwordReset,
 	updateProfile,
 	getUserProfile,
+	getUser,
 	logout,
 	refresh,
 };

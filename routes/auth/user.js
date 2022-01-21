@@ -11,6 +11,7 @@ const {
 	forgotPassword,
 	passwordReset,
 	updateProfile,
+	getUser,
 	logout,
 } = require("../../controllers/auth/user");
 
@@ -22,7 +23,9 @@ router.post("/signup", signup);
 
 router.post("/signin", signin);
 
-router.get("/refresh", refresh);
+router.post("/refresh", refresh);
+
+router.post("/getuser", getUser);
 
 router.post("/forgotpassword", forgotPassword);
 
@@ -32,7 +35,7 @@ router.post("/getUserProfile", getUserProfile);
 
 router.post("/updateProfile", updateProfile);
 
-router.post("/logout", auth, logout);
+router.post("/logout", logout);
 
 module.exports = {
 	route: router,
