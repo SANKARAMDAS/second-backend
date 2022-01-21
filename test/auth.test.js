@@ -9,14 +9,14 @@ global.expect = chai.expect;
 global.request = supertest(app);
 
 describe("db", () => {
-	//empty the database
-	// beforeEach((done) => {
-	// 	Business.deleteMany({}, (err) => {
-	// 		Freelancer.deleteMany({}, (err) => {
-	// 			done();
-	// 		});
-	// 	});
-	// });
+	// empty the database
+	beforeEach((done) => {
+		Business.deleteOne({ email: "sanchi.shirur4@gmail.com" }, (err) => {
+			Freelancer.deleteOne({ email: "sanchi.shirur4@gmail.com" }, (err) => {
+				done();
+			});
+		});
+	});
 
 	// SignUp test --- 1
 	describe("POST /signup", function () {
@@ -24,8 +24,8 @@ describe("db", () => {
 			request
 				.post("/api/auth/emailverification")
 				.send({
-					name: "Tarang",
-					email: "tarang.padia2@gmail.com",
+					name: "Sanchita",
+					email: "sanchi.shirur4@gmail.com",
 					password: "test@123",
 				})
 				.expect(200)
@@ -46,9 +46,9 @@ describe("db", () => {
 							request
 								.post("/api/auth/signup")
 								.send({
-									name: "Tarang",
+									name: "Sanchita",
 									password: "test@123",
-									email: "tarang.padia2@gmail.com",
+									email: "sanchi.shirur4@gmail.com",
 									role: "freelancer",
 								})
 								.expect(200)
@@ -66,9 +66,9 @@ describe("db", () => {
 			request
 				.post("/api/auth/signup")
 				.send({
-					name: "Tarang",
+					name: "Sanchita",
 					password: "test@123",
-					email: "tarang.padia2@gmail.com",
+					email: "sanchi.shirur4@gmail.com",
 					role: "freelancer",
 				})
 				.expect(200)
@@ -76,7 +76,7 @@ describe("db", () => {
 					request
 						.post("/api/auth/signin")
 						.send({
-							email: "tarang.padia2@gmail.com",
+							email: "sanchi.shirur4@gmail.com",
 							password: "test@123",
 						})
 						.expect(202)
@@ -133,7 +133,7 @@ describe("POST /forgotPassword and /reset Password", function () {
 		request
 			.post("/api/auth/forgotPassword")
 			.send({
-				user_email: "tarang.padia2@gmail.com",
+				user_email: "sanchi.shirur4@gmail.com",
 			})
 			.expect(200)
 			.end(function (err, res) {
@@ -159,7 +159,7 @@ describe("POST /updateProfile", function () {
 		request
 			.post("/api/auth/updateProfile")
 			.send({
-				email: "tarang.padia2@gmail.com",
+				email: "sanchi.shirur4@gmail.com",
 				address: "1775 Rosemont Avenue",
 				city: "Maitland",
 				state: "Florida",
@@ -181,7 +181,7 @@ describe("POST /getuserProfile", function () {
 		request
 			.post("/api/auth/getuserProfile")
 			.send({
-				email: "tarang.padia2@gmail.com",
+				email: "sanchi.shirur4@gmail.com",
 			})
 			.expect(200)
 			.end(function (err, res) {
