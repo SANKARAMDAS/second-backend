@@ -57,9 +57,23 @@ const invoiceCreation = async (req, res) => {
 			businessEmail: businessEmail,
 			businessName: businessName,
 			item: item,
-			ETH: ETH,
-			BTC: BTC,
-			FIAT: FIAT,
+			proportions: [
+				{
+					currency: "BTC",
+					percentage: BTC,
+					transferId: "",
+				},
+				{
+					currency: "ETH",
+					percentage: ETH,
+					transferId: "",
+				},
+				{
+					currency: "FIAT",
+					percentage: FIAT,
+					transferId: "",
+				},
+			],
 			totalAmount: total,
 			memo: memo,
 			creationDate: creationDate,
