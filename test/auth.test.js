@@ -10,13 +10,13 @@ global.request = supertest(app);
 
 describe("db", () => {
 	//empty the database
-	beforeEach((done) => {
-		Business.deleteMany({}, (err) => {
-			Freelancer.deleteMany({}, (err) => {
-				done();
-			});
-		});
-	});
+	// beforeEach((done) => {
+	// 	Business.deleteMany({}, (err) => {
+	// 		Freelancer.deleteMany({}, (err) => {
+	// 			done();
+	// 		});
+	// 	});
+	// });
 
 	// SignUp test --- 1
 	describe("POST /signup", function () {
