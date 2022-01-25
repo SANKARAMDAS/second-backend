@@ -1,6 +1,7 @@
 const { wyre } = require("./boilerplate")
 const Invoice = require("../../models/invoice")
 const User = require("../../models/user")
+const Transaction = require("../../models/transaction")
 
 //transfer crypto from from wyre wallet to freelancer's external wallet
 const transferCrypto = async (req, res) => {
@@ -36,7 +37,7 @@ const transferCrypto = async (req, res) => {
         try {
             const prevTransferResult = await wyre.get(`/transfers/${user[transferId]}`)
             if (prevTransferResult.status == "PENDING" || prevTransferResult.status == "UNCONFIRMED") {
-                res.status(400).send({ failed: "transfer is being processed" })
+                res.status(400).send({ failed: "previous transfer is being processed" })
             }
         } catch (e) {
             res.status(400).send(e)
@@ -54,6 +55,18 @@ const transferCrypto = async (req, res) => {
             autoConfirm: true
         })
         user[transferId] = result.id
+        const newTransaction = new Transaction({
+            sender: user.email,
+            receiver: user.email,
+            method: "WYRE",
+            transferId: result.id,
+            source: "wallet:" + user.wyreWallet,
+            sourceCurrency: currCode,
+            destination: currency + ":" + user[currency],
+            destCurrency: currCode,
+            amount: data.balances[currCode]
+        });
+        await newTransaction.save()
         await user.save()
         return res.status(200).send({ success: "funds transferred", result })
     } catch (e) {

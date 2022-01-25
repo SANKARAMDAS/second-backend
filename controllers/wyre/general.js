@@ -45,6 +45,7 @@ const getFreelancerBalance = async (req, res) => {
 	}
 };
 
+
 module.exports = {
 	getWallet,
 	createWallet,

@@ -8,8 +8,8 @@ const {
 const { auth } = require("../../middlewares/auth");
 const router = express.Router();
 
-router.get("/getWallet", getWallet);
-router.post("/createWallet", createWallet);
-router.post("/getFreelancerBalance", getFreelancerBalance);
+router.get("/getWallet", auth, getWallet);
+router.post("/createWallet", auth, createWallet);
+router.post("/getFreelancerBalance", auth, getFreelancerBalance);
 
 module.exports = router;

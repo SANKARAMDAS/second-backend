@@ -13,6 +13,7 @@ const wyreRoute = require("./routes/wyre/general");
 const transferRoute = require("./routes/wyre/transfer");
 const paymentRoute = require("./routes/wyre/payment");
 const contactRoute = require("./routes/contact")
+const transactionRoute = require("./routes/wyre/transaction")
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.use("/api/invoice", invoiceRouter.route);
 app.use("/api/wyre-general", wyreRoute);
 app.use("/api/wyre-transfer", transferRoute);
 app.use("/api/wyre-payment", paymentRoute);
+app.use("/api/transactions", transactionRoute);
 app.use("/api/contact", contactRoute);
 
 const PORT = process.env.PORT || 4000;

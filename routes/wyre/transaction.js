@@ -1,12 +1,11 @@
 const express = require("express");
 const {
-    transferCrypto
-} = require("../../controllers/wyre/transfer");
+    getTransactionHistory, makeTransaction
+} = require("../../controllers/wyre/transaction");
 
 const { auth } = require("../../middlewares/auth");
 const router = express.Router();
 
-router.post("/externalTransfer", auth, transferCrypto);
-
+router.get("/", auth, getTransactionHistory);
 
 module.exports = router;

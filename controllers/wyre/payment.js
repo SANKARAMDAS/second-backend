@@ -38,8 +38,20 @@ const debitCardQuote = async (req, res) => {
             referenceId: process.env.WYRE_ACCOUNT_ID,
             address
         })
+        const newTransaction = new Transaction({
+            sender: invoiceInfo.businessEmail,
+            receiver: invoiceInfo.freelancerEmail,
+            method: "CARD",
+            transferId: result.transferId,
+            source: debitCard.number.substr(debitCard.number.length - 4),
+            sourceCurrency: 'USD',
+            destination: process.env.WYRE_ACCOUNT_ID,
+            destCurrency: 'USD',
+            amount: invoiceInfo.totalAmount
+        });
         invoiceInfo.walletOrderId = result.id
-        invoiceInfo.save()
+        await invoiceInfo.save()
+        await newTransaction.save()
         res.status(200).send(result)
     } catch (e) {
         res.status(400).send(e)
@@ -254,7 +266,19 @@ const ACHtransfer = async (req, res) => {
                 destCurrency: "USD",
                 autoConfirm: true
             })
+            const newTransaction = new Transaction({
+                sender: invoiceInfo.businessEmail,
+                receiver: invoiceInfo.freelancerEmail,
+                method: "ACH",
+                transferId: result.transferId,
+                source: 'paymentmethod:' + paymentMethodId,
+                sourceCurrency: 'USD',
+                destination: process.env.WYRE_ACCOUNT_ID,
+                destCurrency: 'USD',
+                amount: invoiceInfo.totalAmount
+            });
             invoiceInfo.ACHTransferId = result.id
+            await newTransaction.save()
             await invoiceInfo.save()
         }
         res.status(200).send({ success: "Payment initiated", result })
