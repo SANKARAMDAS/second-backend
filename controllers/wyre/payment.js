@@ -1,5 +1,6 @@
 const { wyre } = require("./boilerplate")
 const Invoice = require("../../models/invoice");
+const Transaction = require("../../models/transaction");
 
 //create wallet oreder reservation
 const debitCardQuote = async (req, res) => {
