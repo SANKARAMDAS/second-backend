@@ -51,6 +51,11 @@ const businessSchema = new mongoose.Schema({
 			walletOrderId: stringValue,
 		},
 	],
+	paymentMethods: [
+		{
+			paymentmethodId: stringValue
+		}
+	],
 	isProfileComplete: {
 		type: Boolean,
 		default: false,
