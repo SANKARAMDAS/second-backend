@@ -9,7 +9,7 @@ const stringValue = {
 };
 
 const numericValue = {
-	type: String,
+	type: Number,
 	trim: true,
 };
 
@@ -39,8 +39,8 @@ const businessSchema = new mongoose.Schema({
 	city: stringValue,
 	state: stringValue,
 	country: stringValue,
-	zipCode: numericValue,
-	taxId: numericValue,
+	zipCode: stringValue,
+	taxId: stringValue,
 	wyreWallet: {
 		type: String,
 	},
@@ -48,8 +48,8 @@ const businessSchema = new mongoose.Schema({
 		{
 			amount: numericValue,
 			reservationId: stringValue,
-			walletOrderId: stringValue
-		}
+			walletOrderId: stringValue,
+		},
 	],
 	isProfileComplete: {
 		type: Boolean,
@@ -66,7 +66,7 @@ businessSchema.methods.createWallet = async function () {
 			name: user._id,
 		});
 	} catch (e) {
-		console.log(e)
+		console.log(e);
 		throw new Error("there was an error creating wallet");
 	}
 

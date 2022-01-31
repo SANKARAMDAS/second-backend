@@ -8,7 +8,7 @@ const stringValue = {
 };
 
 const numericValue = {
-	type: String,
+	type: Number,
 	trim: true,
 };
 
@@ -38,8 +38,8 @@ const freelancerSchema = new mongoose.Schema({
 	city: stringValue,
 	state: stringValue,
 	country: stringValue,
-	zipCode: numericValue,
-	taxId: numericValue,
+	zipCode: stringValue,
+	taxId: stringValue,
 	bitcoin: stringValue,
 	ethereum: stringValue,
 	bitcoinTransferId: stringValue,
