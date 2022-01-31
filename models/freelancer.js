@@ -47,6 +47,11 @@ const freelancerSchema = new mongoose.Schema({
 	wyreWallet: {
 		type: String,
 	},
+	paymentMethods: [
+		{
+			paymentmethodId: stringValue
+		}
+	],
 	isProfileComplete: {
 		type: Boolean,
 		default: false,

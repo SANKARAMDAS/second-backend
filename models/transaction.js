@@ -51,6 +51,10 @@ const TransactionSchema = new mongoose.Schema({
     status: {
         type: String,
         trim: true,
+    },
+    invoiceId: {
+        type: String,
+        required: false
     }
 });
 

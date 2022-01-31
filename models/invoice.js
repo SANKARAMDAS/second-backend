@@ -59,11 +59,11 @@ const value = {
 	reservationId: {
 		type: String,
 	},
-	walletOrderId: {
+	transferId: {
 		type: String,
 	},
-	ACHTransferId: {
-		type: String,
+	walletOrderId: {
+		type: String
 	},
 	totalAmount: value,
 	memo: {
