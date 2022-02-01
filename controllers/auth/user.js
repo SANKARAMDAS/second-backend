@@ -135,13 +135,13 @@ const signup = async (req, res) => {
 			city: "",
 			state: "",
 			country: "",
-			zipCode: 0,
+			zipCode: "",
 			taxId: "",
 			wyreWallet: "",
 			isProfileComplete: false,
 		});
 		try {
-			await newFreelancer.createWallet()
+			await newFreelancer.createWallet();
 			const savedUser = await newFreelancer.save();
 			return res.status(200).send({
 				msg: "Freelancer Added Successfully",
@@ -159,13 +159,13 @@ const signup = async (req, res) => {
 			city: "",
 			state: "",
 			country: "",
-			zipCode: 0,
+			zipCode: "",
 			taxId: "",
 			wyreWallet: "",
 			isProfileComplete: false,
 		});
 		try {
-			await newBusiness.createWallet()
+			await newBusiness.createWallet();
 			const savedUser = await newBusiness.save();
 			return res.status(200).send({
 				msg: "Business Added Successfully",
@@ -287,7 +287,7 @@ const refresh = (req, res) => {
 				httpOnly: true,
 			})
 			.cookie("authSession", true, {
-				expires: new Date(new Date().getTime() + 30 * 1000)
+				expires: new Date(new Date().getTime() + 30 * 1000),
 			})
 			.send({ email: payload.data.email, role: payload.data.role });
 	} catch (err) {
@@ -304,11 +304,11 @@ const getUser = async (req, res) => {
 	}
 	try {
 		const payload = jwt.verify(accessToken, process.env.VERIFY_AUTH_TOKEN);
-		res.send({ email: payload.data.email, role: payload.data.role })
+		res.send({ email: payload.data.email, role: payload.data.role });
 	} catch (err) {
 		res.status(403).send({ msg: err });
 	}
-}
+};
 
 // Forgot Password
 const forgotPassword = async (req, res) => {
@@ -464,11 +464,11 @@ const logout = async (req, res) => {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
 			})
-			.cookie('authSession', 'none', {
+			.cookie("authSession", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
 			})
-			.cookie('refreshTokenID', 'none', {
+			.cookie("refreshTokenID", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
 			})
