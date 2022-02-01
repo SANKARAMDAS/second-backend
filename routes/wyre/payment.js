@@ -9,7 +9,10 @@ const {
     deletePaymentMethod,
     getPaymentMethods,
     ACHtransfer,
-    createSwiftPaymentMethod
+    createSwiftPaymentMethod,
+    fundwallet,
+    submitAuthorization2,
+    wyreWalletPayment
 } = require("../../controllers/wyre/payment");
 
 const { auth } = require("../../middlewares/auth");
@@ -40,7 +43,17 @@ router.get("/paymentMethods", auth, getPaymentMethods);
 router.post("/ACHtransfer", auth, ACHtransfer);
 
 //Wire Payout//
-router.post('/createSwiftPaymentMethod', createSwiftPaymentMethod);
+router.post('/createSwiftPaymentMethod', auth, createSwiftPaymentMethod);
+
+
+//pay using wallet//
+
+//fund wallet using debit card
+router.post('/fundWallet', auth, fundwallet);
+//submit otp
+router.post('/submitAuthFund', auth, submitAuthorization2)
+//make paymment
+router.post('/wyrePayment', auth, wyreWalletPayment)
 
 
 module.exports = router;

@@ -52,7 +52,6 @@ const debitCardQuote = async (req, res) => {
             amount: invoiceInfo.totalAmount,
             invoiceId
         });
-        invoiceInfo.transferId = result.transferId
         invoiceInfo.walletOrderId = result.id
         await invoiceInfo.save()
         await newTransaction.save()
@@ -406,7 +405,8 @@ const submitAuthorization2 = async (req, res) => {
 
 // wyre wallet payment
 const wyreWalletPayment = async (req, res) => {
-    const { invoiceId } = req.body
+    //currency USD or USDC
+    const { invoiceId, currency } = req.body
     const user = req.user
     let result
     try {
@@ -420,13 +420,13 @@ const wyreWalletPayment = async (req, res) => {
         } else {
             const walletpayload = await wyre.get('/wallet/' + user.wyreWallet)
 
-            if (walletpayload.balances["USD"] < invoiceInfo.totalAmount) {
+            if (walletpayload.balances[currency] < invoiceInfo.totalAmount) {
                 return res.status(400).send({ error: "insufficient balance!" })
             }
 
             result = await wyre.post('/transfers', {
                 source: 'wallet:' + user.wyreWallet,
-                sourceCurrency: "USD",
+                sourceCurrency: currency,
                 sourceAmount: invoiceInfo.totalAmount,
                 dest: 'account:' + process.env.WYRE_ACCOUNT_ID, //master account
                 destCurrency: "USD",
@@ -438,7 +438,7 @@ const wyreWalletPayment = async (req, res) => {
                 method: "WYRE PAYMENT",
                 transferId: result.transferId,
                 source: 'wallet:' + user.wyreWallet,
-                sourceCurrency: 'USD',
+                sourceCurrency: currency,
                 destination: 'account:' + process.env.WYRE_ACCOUNT_ID,
                 destCurrency: 'USD',
                 amount: invoiceInfo.totalAmount,
