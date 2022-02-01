@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /var/www/polaris/opt/back-end
+cd /var/www/polaris
 sudo npm install
