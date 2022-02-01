@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo pm2 restart 0
+/usr/bin/pm2 start server.js
