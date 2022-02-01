@@ -52,7 +52,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-	res.send("Working!");
+	res.send("Binamite API Working!");
 });
 
 // Base Routes
