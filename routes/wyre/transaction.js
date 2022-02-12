@@ -6,6 +6,6 @@ const {
 const { auth } = require("../../middlewares/auth");
 const router = express.Router();
 
-router.get("/", auth, getTransactionHistory);
+router.post("/getTransactions", getTransactionHistory);
 
 module.exports = router;
