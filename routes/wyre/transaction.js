@@ -6,12 +6,6 @@ const {
 const { auth } = require("../../middlewares/auth");
 const router = express.Router();
 
-//get transaction history
-router.get("/", auth, getTransactionHistory);
-//webhook
-router.post("/", getTransaction);
-//wallet order webhook
-router.post("/walletOrder", getWalletOrderStatus)
-
+router.post("/getTransactions", getTransactionHistory);
 
 module.exports = router;
