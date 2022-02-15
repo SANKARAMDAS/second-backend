@@ -25,12 +25,12 @@ router.post("/debitCardQuote", auth, debitCardQuote);
 //submit otp
 router.post("/submitAuthorization", auth, submitAuthorization);
 //get wallet order
-router.get("/walletOrder", auth, getWalletOrder);
+router.get("/walletOrder", getWalletOrder);
 
 //ACH payment//
 
 //add bank account - individual
-router.post("/createPaymentMethodIN", auth, createPaymentMethodIN);
+router.post("/createPaymentMethodIN", createPaymentMethodIN);
 //add bank account - corporate
 router.post("/createPaymentMethodCO", auth, createPaymentMethodCO);
 //upload bank statement

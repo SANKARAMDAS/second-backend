@@ -2,11 +2,19 @@ const { wyre } = require("./boilerplate");
 const Invoice = require("../../models/invoice");
 const User = require("../../models/user");
 const Transaction = require("../../models/transaction");
+const bcrypt = require("bcrypt")
 
 //transfer crypto from from wyre wallet to freelancer's external wallet
 const transferCrypto = async (req, res) => {
-    const { currency } = req.body;
+    const { currency, securityPin } = req.body;
     const user = req.user;
+
+    if (!securityPin) return res.status(400).send({ error: "Enter Security pin." })
+    if (!user.securityPin) return res.status(404).send({ error: "Set up new security pin in profile" })
+
+    const isValid = await bcrypt.compare(securityPin, user.securityPin)
+
+    if (!isValid) res.status(400).send({ error: "Incorrect security pin." })
 
     let result, data;
     try {

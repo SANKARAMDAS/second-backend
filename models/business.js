@@ -41,14 +41,25 @@ const businessSchema = new mongoose.Schema({
 	country: stringValue,
 	zipCode: stringValue,
 	taxId: stringValue,
-	wyreWallet: {
+	wyreWallet: stringValue,
+	securityPin: {
 		type: String,
+		trim: true,
+		validate(value) {
+			if (value.length != 6) {
+				throw new Error("not valid, string length not eaqual to 6");
+			} else if (value === "123456" || value === "000000") {
+				throw new Error("not valid, choose a less common pin");
+			}
+		}
 	},
+	resetPinToken: stringValue,
 	fundWallet: [
 		{
 			amount: numericValue,
 			reservationId: stringValue,
 			walletOrderId: stringValue,
+			transferId: stringValue
 		},
 	],
 	paymentMethods: [

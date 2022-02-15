@@ -145,8 +145,10 @@ const wirePayout = async (invoiceId) => {
 //webhook endpoint
 const getTransaction = async (req, res) => {
     const { id, status } = req.body
-
+    var trustedIps = ['x.x.x.x'];
+    var requestIP = req.connection.remoteAddress;
     try {
+        if (trustedIps.indexOf(requestIP) < 0) throw new Error("Invalid IP aaddress")
         const transaction = await Transaction.findOne({ transferId: id })
         transaction.status = status
         await transaction.save()
@@ -159,9 +161,43 @@ const getTransaction = async (req, res) => {
     } catch (e) {
         res.status(400).send(e)
     }
+
+}
+
+//card transaction webhook
+const getWalletOrderStatus = async (req, res) => {
+    const { id, status, transferId } = req.body
+    try {
+        const invoiceInfo = await Invoice.findOne({ walletOrderId: id })
+        if (transferId) {
+            const transactionInfo = await Transaction.findOne({ transferId })
+            if (!transactionInfo) {
+                const newTransaction = new Transaction({
+                    sender: invoiceInfo.businessEmail,
+                    receiver: invoiceInfo.freelancerEmail,
+                    method: "CARD",
+                    transferId,
+                    source: 'CARD',
+                    sourceCurrency: 'USD',
+                    destination: 'account:' + process.env.WYRE_ACCOUNT_ID,
+                    destCurrency: 'USD',
+                    amount: invoiceInfo.totalAmount,
+                    invoiceId: invoiceInfo.invoiceId,
+                    status
+                });
+                invoiceInfo.transferId = transferId;
+                await invoiceInfo.save();
+                await newTransaction.save();
+            }
+        }
+        res.status(200).send();
+    } catch (e) {
+        res.status(400).send();
+    }
 }
 
 module.exports = {
     getTransactionHistory,
-    getTransaction
+    getTransaction,
+    getWalletOrderStatus
 }

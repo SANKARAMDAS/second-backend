@@ -14,6 +14,8 @@ const transferRoute = require("./routes/wyre/transfer");
 const paymentRoute = require("./routes/wyre/payment");
 const contactRoute = require("./routes/contact")
 const transactionRoute = require("./routes/wyre/transaction")
+const securityPinRoute = require("./routes/securityPin")
+const plaidRoute = require("./routes/plaid")
 
 const app = express();
 
@@ -64,6 +66,8 @@ app.use("/api/wyre-transfer", transferRoute);
 app.use("/api/wyre-payment", paymentRoute);
 app.use("/api/transactions", transactionRoute);
 app.use("/api/contact", contactRoute);
+app.use("/api/securityPin", securityPinRoute);
+app.use("/api/plaid", plaidRoute)
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

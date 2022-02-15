@@ -1,6 +1,7 @@
 const { wyre } = require("./boilerplate")
 const Invoice = require("../../models/invoice");
 const Transaction = require("../../models/transaction");
+const Business = require("../../models/business");
 
 //create wallet oreder reservation
 const debitCardQuote = async (req, res) => {
@@ -12,50 +13,63 @@ const debitCardQuote = async (req, res) => {
     let result, invoiceInfo
     try {
         invoiceInfo = await Invoice.findOne({ invoiceId });
+
+        if (invoiceInfo.walletOrderId) {
+            const resultTemp = await wyre.get('/v3/orders/' + invoiceInfo.walletOrderId)
+            console.log(resultTemp)
+            if (resultTemp.status == "RUNNING_CHECKS") return res.status(400).send({ message: "previous transaction is being processed" })
+            if (resultTemp.transferId) {
+                const tresultTemp = await wyre.get('/v2/transfer/' + resultTemp.transferId + '/track')
+                const transferPrevStatus = tresultTemp.successTimeline.at(-1).state
+                if (transferPrevStatus == 'COMPLETE' || transferPrevStatus == 'PENDING' || transferPrevStatus == 'UNCONFIRMED') {
+                    return res.status(400).send({ message: `Previous transaction status - ${transferPrevStatus}` })
+                }
+            }
+        }
         if (invoiceInfo.transferId) {
-            const walletOrderPayload = await wyre.get(`/transfers/${invoiceInfo.transferId}`)
-            switch (walletOrderPayload.status) {
-                case "PENDING":
-                    return res.status(400).send({ error: "transfer is pending." })
-                case "COMPLETED":
-                    return res.status(400).send({ error: "transfer is already completed." })
-                case "UNCONFIRMED":
-                    return res.status(400).send({ error: "transfer is being processed." })
+            const transferPayload = await wyre.get(`/v3/transfers/${invoiceInfo.transferId}`)
+            if (transferPayload.status == 'COMPLETE' || transferPayload.status == 'PENDING' || transferPayload.status == 'UNCONFIRMED') {
+                return res.status(400).send({ message: `Previous transaction status - ${transferPayload.status}` })
             }
         }
 
-        result = await wyre.post('/debitcard/process/partner', {
+        const newWalletOrder = await wyre.post('/v3/orders/reserve', { referrerAccountId: process.env.WYRE_ACCOUNT_ID })
+
+        const amountinstring = invoiceInfo.totalAmount.toString()
+        result = await wyre.post('/v3/debitcard/process/partner', {
             debitCard,
-            reservationId: invoiceInfo.reservationId,
-            amount: invoiceInfo.totalAmount,
+            reservationId: newWalletOrder.reservation,
+            amount: amountinstring,
             sourceCurrency: currency,
-            destCurrency: 'USD',
+            destCurrency: 'BTC',
             dest: 'account:' + process.env.WYRE_ACCOUNT_ID,
             referrerAccountId: process.env.WYRE_ACCOUNT_ID,
             givenName,
             familyName,
-            email: invoiceInfo.clientEmail,
+            email: invoiceInfo.businessEmail,
             ipAddress,
             phone,
             referenceId: process.env.WYRE_ACCOUNT_ID,
             address
         })
-        const newTransaction = new Transaction({
-            sender: invoiceInfo.businessEmail,
-            receiver: invoiceInfo.freelancerEmail,
-            method: "CARD",
-            transferId: result.transferId,
-            source: debitCard.number.substr(debitCard.number.length - 4),
-            sourceCurrency: 'USD',
-            destination: 'account:' + process.env.WYRE_ACCOUNT_ID,
-            destCurrency: 'USD',
-            amount: invoiceInfo.totalAmount,
-            invoiceId
-        });
+        // const newTransaction = new Transaction({
+        //     sender: invoiceInfo.businessEmail,
+        //     receiver: invoiceInfo.freelancerEmail,
+        //     method: "CARD",
+        //     transferId: result.transferId,
+        //     source: debitCard.number.substr(debitCard.number.length - 4),
+        //     sourceCurrency: 'USD',
+        //     destination: 'account:' + process.env.WYRE_ACCOUNT_ID,
+        //     destCurrency: 'USD',
+        //     amount: invoiceInfo.totalAmount,
+        //     invoiceId
+        // });
+        const result2 = await wyre.get('/v3/debitcard/authorization/' + result.id)
         invoiceInfo.walletOrderId = result.id
+        invoiceInfo.reservationId = newWalletOrder.reservation
         await invoiceInfo.save()
-        await newTransaction.save()
-        res.status(200).send(result)
+        // await newTransaction.save()
+        res.status(200).send({ result: result2, reservation: newWalletOrder.reservation })
     } catch (e) {
         res.status(400).send(e)
     }
@@ -63,31 +77,52 @@ const debitCardQuote = async (req, res) => {
 
 //submit invoice authorization - otp
 const submitAuthorization = async (req, res) => {
-    const { invoiceId, otp } = req.body
+    const { invoiceId, otp, authCode } = req.body
     let result
 
     try {
         const invoiceInfo = await Invoice.findOne({ invoiceId })
         if (!invoiceInfo.walletOrderId || !invoiceInfo.reservationId) {
-            res.status(404).send()
+            return res.status(404).send({ message: "Wallet Order not found." })
         }
-        const walletOrderPayload = await wyre.get(`/orders/${invoiceInfo.walletOrderId}`)
+        const walletOrderPayload = await wyre.get(`/v3/orders/${invoiceInfo.walletOrderId}`)
+
         if (walletOrderPayload.status !== "RUNNING_CHECKS") {
-            res.status(400).send({ err: walletOrderPayload.status })
+            return res.status(400).send({ message: `Transaction status - ${walletOrderPayload.status}` })
         }
-        result = await wyre.post('/debitcard/authorize/partner', {
-            type: 'SMS',
-            walletOrderId: invoiceInfo.walletOrderId,
-            reservation: invoiceInfo.reservationId,
-            sms: otp,
-        })
-        if (result.success) {
-            res.status(200).send({ success: "transfer is in progress" })
+        const authPayload = await wyre.get('/v3/debitcard/authorization/' + invoiceInfo.walletOrderId)
+        if (authPayload.smsNeeded && otp == null || authPayload.card2faNeeded && authCode == null) {
+            return res.status(400).send({ message: "Insufficient details" })
+        }
+
+        if (authPayload.smsNeeded && authPayload.card2faNeeded) {
+            result = await wyre.post('/v3/debitcard/authorize/partner', {
+                type: 'ALL',
+                walletOrderId: invoiceInfo.walletOrderId,
+                reservation: invoiceInfo.reservationId,
+                sms: otp,
+                card2fa: authCode
+            })
+        } else if (authPayload.smsNeeded && !authPayload.card2faNeeded) {
+            result = await wyre.post('/v3/debitcard/authorize/partner', {
+                type: 'SMS',
+                walletOrderId: invoiceInfo.walletOrderId,
+                reservation: invoiceInfo.reservationId,
+                sms: otp,
+            })
         } else {
-            res.status(400).send({ error: "there was an error." })
+            result = await wyre.post('/v3/debitcard/authorize/partner', {
+                type: 'CARD2FA',
+                walletOrderId: invoiceInfo.walletOrderId,
+                reservation: invoiceInfo.reservationId,
+                card2fa: authCode,
+            })
         }
+
+        res.status(200).send(result)
+
     } catch (e) {
-        res.status(400).send({ error: "there was an error", message: e })
+        res.status(400).send(e)
     }
 }
 
@@ -110,11 +145,12 @@ const getWalletOrder = async (req, res) => {
 // US Individual account
 const createPaymentMethodIN = async (req, res) => {
     const { firstName, lastName, address, address2, city, postal, phone, state, day, month, year, accountNumber, accountType, routingNumber } = req.body
-    const business = req.user
+    // const business = req.user
+    const business = await Business.findOne({ email: "gitanshwadhwa0028@gmail.com" })
     let result
 
     try {
-        result = await wyre.post('/paymentMethods', {
+        result = await wyre.post('/v2/paymentMethods', {
             paymentMethodType: 'LOCAL_TRANSFER',
             paymentType: 'LOCAL_TRANSFER',
             currency: 'USD',
@@ -138,11 +174,11 @@ const createPaymentMethodIN = async (req, res) => {
         })
         await business.paymentMethods.push({ paymentMethodId: result.id })
         await business.save()
+        res.status(200).send(result)
     } catch (e) {
-        res.status(400).send({ err: "There was an error" })
+        res.status(400).send(e)
     }
 
-    res.status(200).send(result)
 }
 
 // US Corporate account
@@ -242,12 +278,26 @@ const ACHtransfer = async (req, res) => {
     const { invoiceId, paymentMethodId } = req.body
     let result
     try {
-
         const invoiceInfo = await Invoice.findOne({ invoiceId });
+        if (invoiceInfo.walletOrderId) {
+            const resultTemp = await wyre.get('/orders/' + invoiceInfo.walletOrderId)
+            if (resultTemp.status == "RUNNING_CHECKS") res.status(400).send({ error: "previous transaction is being processed" })
+            if (resultTemp.transferId) {
+                const tresultTemp = await wyre.get('/transfers/' + resultTemp.transferId)
+                if (tresultTemp.status == 'COMPLETE' || tresultTemp.status == 'PENDING' || tresultTemp.status == 'UNCONFIRMED') {
+                    return res.status(400).send({ error: "previous transaction is being processed" })
+                }
+            }
+        }
         if (invoiceInfo.transferId) {
-            const prevResult = await wyre.get('/transfers' + invoiceInfo.transferId)
-            if (prevResult.status == "PENDING" || prevResult.status == "COMPLETED" || prevResult.status == "UNCONFIRMED") {
-                return res.status(400).send({ err: "payment being processed" })
+            const transferPayload = await wyre.get(`/transfers/${invoiceInfo.transferId}`)
+            switch (transferPayload.status) {
+                case "PENDING":
+                    return res.status(400).send({ error: "transfer is pending." })
+                case "COMPLETED":
+                    return res.status(400).send({ error: "transfer is already completed." })
+                case "UNCONFIRMED":
+                    return res.status(400).send({ error: "transfer is being processed." })
             }
         } else {
             const PidStatus = await wyre.get('/paymentMethod/' + paymentMethodId)
@@ -324,12 +374,19 @@ const fundwallet = async (req, res) => {
 
         var n = user.fundWallet.length
         if (n != 0) {
-            const result = await wyre.get('/orders/' + user.fundWallet[n - 1].walletOrderId)
-            if (result.status == "RUNNING_CHECKS") res.status(400).send({ error: "previous transaction is being processed" })
-            if (result.transferId) {
-                const tresult = await wyre.get('/transfers/' + result.transferId)
-                if (tresult.status == 'COMPLETE' || tresult.status == 'PENDING' || tresult.status == 'UNCONFIRMED') {
-                    res.status(400).send({ error: "previous transaction is being processed" })
+            if (user.fundWallet[n - 1].walletOrderId) {
+                const result = await wyre.get('/orders/' + user.fundWallet[n - 1].walletOrderId)
+                if (result.status == "RUNNING_CHECKS") res.status(400).send({ error: "previous transaction is being processed" })
+                if (result.transferId) {
+                    const tresult = await wyre.get('/transfers/' + result.transferId)
+                    if (tresult.status == 'COMPLETE' || tresult.status == 'PENDING' || tresult.status == 'UNCONFIRMED') {
+                        return res.status(400).send({ error: "previous transaction is being processed" })
+                    }
+                }
+            } else {
+                const result = await wyre.get('/transfers/' + user.fundWallet[n - 1].transferId)
+                if (result.status == 'COMPLETE' || result.status == 'PENDING' || result.status == 'UNCONFIRMED') {
+                    return res.status(400).send({ error: "previous transaction is being processed" })
                 }
             }
         }
@@ -352,9 +409,10 @@ const fundwallet = async (req, res) => {
             address
         })
 
-        user.fundWallet.push({ amount, reservationId: reservationResult.id, walletOrderId: walletorderresult.id });
+        const result2 = await wyre.get('/debitcard/authorization/' + walletorderresult.id)
+        await user.fundWallet.push({ amount, reservationId: reservationResult.id, walletOrderId: walletorderresult.id });
         await user.save();
-        res.status(200).send({ amount, reservationId: reservationResult.id, walletOrderId: walletorderresult.id })
+        res.status(200).send({ amount, reservationId: reservationResult.id, walletOrderId: walletorderresult.id, result: result2 })
         // const newTransaction = new Transaction({
         //     sender: user.email,
         //     receiver: user.email,
@@ -374,7 +432,7 @@ const fundwallet = async (req, res) => {
 
 // submit authorization 2
 const submitAuthorization2 = async (req, res) => {
-    const { reservationId, walletOrderId, otp } = req.body
+    const { reservationId, walletOrderId, otp, authCode } = req.body
     const user = req.user;
 
     var n = user.fundWallet.length
@@ -386,12 +444,34 @@ const submitAuthorization2 = async (req, res) => {
         const walletorderresult = await wyre.get('/orders/' + walletOrderId)
         if (walletorderresult.status !== "RUNNING_CHECKS") return res.status(400).send({ error: walletorderresult.status });
 
-        result = await wyre.post('/debitcard/authorize/partner', {
-            type: 'SMS',
-            walletOrderId: invoiceInfo.walletOrderId,
-            reservation: invoiceInfo.reservationId,
-            sms: otp,
-        })
+        const authPayload = await wyre.get('/debitcard/authorization/' + walletOrderId)
+        if (authPayload.smsNeeded && otp == null || card2faNeeded && authCode == null) {
+            res.status(400).send({ message: "insufficient details" })
+        }
+        let result;
+        if (smsNeeded && card2faNeeded) {
+            result = await wyre.post('/debitcard/authorize/partner', {
+                type: 'ALL',
+                walletOrderId: invoiceInfo.walletOrderId,
+                reservation: invoiceInfo.reservationId,
+                sms: otp,
+                card2fa: authCode
+            })
+        } else if (smsNeeded && !card2faNeeded) {
+            result = await wyre.post('/debitcard/authorize/partner', {
+                type: 'SMS',
+                walletOrderId: invoiceInfo.walletOrderId,
+                reservation: invoiceInfo.reservationId,
+                sms: otp,
+            })
+        } else {
+            result = await wyre.post('/debitcard/authorize/partner', {
+                type: 'CARD2FA',
+                walletOrderId: invoiceInfo.walletOrderId,
+                reservation: invoiceInfo.reservationId,
+                card2fa: authCode,
+            })
+        }
         if (result.success) {
             return res.status(200).send({ success: "transfer is in progress" })
         } else {
@@ -403,14 +483,69 @@ const submitAuthorization2 = async (req, res) => {
 
 }
 
+//fund walleet ACH
+const fundWalletACH = async (req, res) => {
+    const { paymentMethodId, amount } = req.body
+    const user = req.user
+    try {
+        var n = user.fundWallet.length
+        if (n != 0) {
+            if (user.fundWallet[n - 1].walletOrderId) {
+                const result = await wyre.get('/orders/' + user.fundWallet[n - 1].walletOrderId)
+                if (result.status == "RUNNING_CHECKS") res.status(400).send({ error: "previous transaction is being processed" })
+                if (result.transferId) {
+                    const tresult = await wyre.get('/transfers/' + result.transferId)
+                    if (tresult.status == 'COMPLETE' || tresult.status == 'PENDING' || tresult.status == 'UNCONFIRMED') {
+                        return res.status(400).send({ error: "previous transaction is being processed" })
+                    }
+                }
+            } else {
+                const result = await wyre.get('/transfers/' + user.fundWallet[n - 1].transferId)
+                if (result.status == 'COMPLETE' || result.status == 'PENDING' || result.status == 'UNCONFIRMED') {
+                    return res.status(400).send({ error: "previous transaction is being processed" })
+                }
+            }
+        }
+
+        const PidStatus = await wyre.get('/paymentMethod/' + paymentMethodId)
+
+        if (PidStatus.status !== 'ACTIVE') {
+            return res.status(400).send({ error: "Payment Method not verified." })
+        }
+
+        const transferResult = await wyre.post('/transfers', {
+            source: 'paymentmethod:' + paymentMethodId,
+            sourceCurrency: "USD",
+            sourceAmount: amount,
+            dest: 'wallet:' + user.wyreWallet, //master account
+            destCurrency: "USD",
+            autoConfirm: true
+        })
+
+        await user.fundWallet.push({ amount, transferId: transferResult.id })
+        await user.save()
+
+        res.status(200).send(transferResult)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+
+}
+
 // wyre wallet payment
 const wyreWalletPayment = async (req, res) => {
     //currency USD or USDC
-    const { invoiceId, currency } = req.body
+    const { invoiceId, currency, securityPin } = req.body
     const user = req.user
     let result
     try {
+        if (!securityPin) return res.status(400).send({ error: "Enter Security pin." })
+        if (!user.securityPin) return res.status(404).send({ error: "Set up new security pin in profile" })
 
+        const isValid = await bcrypt.compare(securityPin, user.securityPin)
+
+        if (!isValid) res.status(400).send({ error: "Incorrect security pin." })
         const invoiceInfo = await Invoice.findOne({ invoiceId });
         if (invoiceInfo.transferId) {
             const prevResult = await wyre.get('/transfers' + invoiceInfo.transferId)

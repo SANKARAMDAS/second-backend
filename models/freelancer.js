@@ -52,6 +52,18 @@ const freelancerSchema = new mongoose.Schema({
 			paymentmethodId: stringValue
 		}
 	],
+	securityPin: {
+		type: String,
+		trim: true,
+		validate(value) {
+			if (value.length != 6) {
+				throw new Error("not valid, string length not eaqual to 6");
+			} else if (value === "123456" || value === "000000") {
+				throw new Error("not valid, choose a less common pin");
+			}
+		}
+	},
+	resetPinToken: stringValue,
 	isProfileComplete: {
 		type: Boolean,
 		default: false,
