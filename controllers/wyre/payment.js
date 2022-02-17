@@ -280,17 +280,17 @@ const ACHtransfer = async (req, res) => {
     try {
         const invoiceInfo = await Invoice.findOne({ invoiceId });
         if (invoiceInfo.walletOrderId) {
-            const resultTemp = await wyre.get('/orders/' + invoiceInfo.walletOrderId)
+            const resultTemp = await wyre.get('/v3/orders/' + invoiceInfo.walletOrderId)
             if (resultTemp.status == "RUNNING_CHECKS") res.status(400).send({ error: "previous transaction is being processed" })
             if (resultTemp.transferId) {
-                const tresultTemp = await wyre.get('/transfers/' + resultTemp.transferId)
+                const tresultTemp = await wyre.get('/v2/transfers/' + resultTemp.transferId + '/track')
                 if (tresultTemp.status == 'COMPLETE' || tresultTemp.status == 'PENDING' || tresultTemp.status == 'UNCONFIRMED') {
                     return res.status(400).send({ error: "previous transaction is being processed" })
                 }
             }
         }
         if (invoiceInfo.transferId) {
-            const transferPayload = await wyre.get(`/transfers/${invoiceInfo.transferId}`)
+            const transferPayload = await wyre.get(`/v3/transfers/${invoiceInfo.transferId}`)
             switch (transferPayload.status) {
                 case "PENDING":
                     return res.status(400).send({ error: "transfer is pending." })
@@ -300,13 +300,13 @@ const ACHtransfer = async (req, res) => {
                     return res.status(400).send({ error: "transfer is being processed." })
             }
         } else {
-            const PidStatus = await wyre.get('/paymentMethod/' + paymentMethodId)
+            const PidStatus = await wyre.get('/v3/paymentMethod/' + paymentMethodId)
 
             if (PidStatus.status !== 'ACTIVE') {
                 return res.status(400).send({ error: "Payment Method not verified." })
             }
 
-            result = await wyre.post('/transfers', {
+            result = await wyre.post('/v3/transfers', {
                 source: 'paymentmethod:' + paymentMethodId,
                 sourceCurrency: "USD",
                 sourceAmount: invoiceInfo.totalAmount,

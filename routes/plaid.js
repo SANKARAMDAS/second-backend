@@ -7,7 +7,7 @@ const {
 const { auth } = require("../middlewares/auth");
 const router = express.Router();
 
-router.post("/createLinkToken", auth, createLinkToken);
-router.post("/exchangePublicToken", auth, exchangePublicToken)
+router.post("/createLinkToken", createLinkToken);
+router.post("/exchangePublicToken", exchangePublicToken)
 
 module.exports = router;

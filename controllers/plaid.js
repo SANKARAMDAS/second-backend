@@ -19,13 +19,14 @@ const createLinkToken = async (req, res) => {
     try {
         const tokenResponse = await plaidClient.linkTokenCreate({
             user: {
-                client_user_id: 'Gitansh22',
+                client_user_id: 'Gitansh292',
             },
             client_name: 'Binamite',
             products: [Products.Auth, Products.Identity],
             country_codes: ['US'],
             language: 'en',
             // webhook: 'https://webhook.site/0125021f',
+            redirect_uri: 'https://127.0.0.1:5500/index.html',
         });
         console.log(tokenResponse)
         res.status(200).send(tokenResponse.data);
@@ -59,8 +60,8 @@ const exchangePublicToken = async (req, res) => {
             country: 'US'
         })
         console.log(paymentMethodResult)
-        await user.paymentMethods.push({ paymentMethodId: paymentMethodResult.id })
-        await user.save();
+        // await user.paymentMethods.push({ paymentMethodId: paymentMethodResult.id })
+        // await user.save();
         res.status(200).send(paymentMethodResult);
     } catch (err) {
         console.log(err)
