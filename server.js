@@ -40,7 +40,18 @@ db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function () { });
 
 // Middlewares
-app.use(cors({ origin: 'https://rdx.binamite.com', credentials: true }));
+var allowedDomains = ['http://localhost:3006', 'https://rdx.binamite.com'];
+app.use(cors({
+	origin: function (origin, callback) {
+		if (!origin) return callback(null, true);
+
+		if (allowedDomains.indexOf(origin) === -1) {
+			var msg = `This site ${origin} does not have an access. Only specific domains are allowed to access it.`;
+			return callback(new Error(msg), false);
+		}
+		return callback(null, true);
+	}, credentials: true
+}));
 app.use(cookieParser());
 app.use(
 	session({
@@ -54,7 +65,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-	res.send("Binamite API 22.02");
+	res.send("Binamite Octaloop API 22.02");
 });
 
 // Base Routes
