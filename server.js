@@ -40,7 +40,7 @@ db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function () { });
 
 // Middlewares
-app.use(cors({ origin: process.env.FRONTEND_CORS_API, credentials: true }));
+app.use(cors({ origin: 'https://rdx.binamite.com', credentials: true }));
 app.use(cookieParser());
 app.use(
 	session({
@@ -54,7 +54,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-	res.send("Binamite API Working!");
+	res.send("Binamite API 22.02");
 });
 
 // Base Routes

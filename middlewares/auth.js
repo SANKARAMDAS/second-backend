@@ -19,7 +19,7 @@ const auth = async (req, res, next) => {
 			} else if (e.name === "JsonWebTokenError") {
 				return res.status(400).send({ e: "Invalid token" });
 			} else {
-				return res.status(400).send({ e: "abc" });
+				return res.status(400).send({ e: "Unknown error" });
 			}
 		}
 	}

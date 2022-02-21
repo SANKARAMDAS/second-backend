@@ -188,7 +188,7 @@ const signin = async (req, res) => {
 		const business = await Business.findOne({ email: email });
 
 		if (freelancer === null && business === null) {
-			res.status(404).send({
+			return res.status(404).send({
 				msg: "This email is not Registered ",
 			});
 		} else {
@@ -197,7 +197,7 @@ const signin = async (req, res) => {
 					cookieEmail = freelancer.email;
 					cookieRole = "freelancer";
 				} else {
-					res.status(400).send({
+					return res.status(400).send({
 						msg: "Invalid Credentials",
 					});
 				}
@@ -207,12 +207,12 @@ const signin = async (req, res) => {
 						cookieEmail = business.email;
 						cookieRole = "business";
 					} else {
-						res.status(400).send({
+						return res.status(400).send({
 							msg: "Invalid Credentials",
 						});
 					}
 				} else {
-					res.status(400).send({
+					return res.status(400).send({
 						msg: "Invalid Credentials",
 					});
 				}
