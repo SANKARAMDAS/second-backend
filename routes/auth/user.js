@@ -8,6 +8,7 @@ const {
 	verifyOtp,
 	getUserProfile,
 	refresh,
+	validate2fa,
 	forgotPassword,
 	passwordReset,
 	updateProfile,
@@ -28,6 +29,8 @@ router.post("/refresh", refresh);
 router.post("/getuser", getUser);
 
 router.post("/forgotpassword", forgotPassword);
+
+router.post("/validate2fa", validate2fa)
 
 router.post("/passwordreset", passwordReset);
 

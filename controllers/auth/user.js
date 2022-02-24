@@ -1,9 +1,11 @@
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 var ObjectId = require("mongoose").Types.ObjectId;
+const speakEasy = require("speakeasy")
 const Business = require("../../models/business");
 const Freelancer = require("../../models/freelancer");
 const { sendEmail } = require("../sendEmail");
+const speakeasy = require("speakeasy")
 
 // Generate OTP and Send on Email 1/4
 const generateOTP = async (email, name, password) => {
@@ -218,6 +220,12 @@ const signin = async (req, res) => {
 				}
 			}
 
+
+			if ((cookieRole === "business" && business.is2faenabled === true) || (cookieRole === "freelancer" && freelancer.is2faenabled === true)) {
+				return res.status(200).send({ cookieEmail, cookieRole })
+			}
+
+
 			const accessToken = jwt.sign(
 				{ data: { email: cookieEmail, role: cookieRole } },
 				process.env.VERIFY_AUTH_TOKEN,
@@ -261,6 +269,84 @@ const signin = async (req, res) => {
 		res.send({ msg: err });
 	}
 };
+
+//validate2fa
+const validate2fa = async (req, res) => {
+	const { cookieEmail, cookieRole, token } = req.body
+
+	try {
+
+		let user
+		if (cookieRole === "freelancer") {
+			user = await Freelancer.findOne({ email: cookieEmail })
+		} else {
+			user = await Business.findOne({ email: cookieEmail })
+		}
+
+		if (!user || !user.tempSecret || !user.is2faenabled) {
+			return res.status(40).send()
+		}
+
+		const secret = user.tempSecret;
+
+		const tokenValidate = speakeasy.totp.verify({
+			secret,
+			encoding: "base32",
+			token,
+			window: 1
+		});
+
+		if (tokenValidate) {
+
+			const accessToken = jwt.sign(
+				{ data: { email: cookieEmail, role: cookieRole } },
+				process.env.VERIFY_AUTH_TOKEN,
+				{
+					expiresIn: "30s",
+				}
+			);
+			const refreshToken = jwt.sign(
+				{ data: { email: cookieEmail, role: cookieRole } },
+				process.env.VERIFY_REFRESH_TOKEN,
+				{
+					expiresIn: "3h",
+				}
+			);
+
+			return res
+				.status(202)
+				.cookie("accessToken", accessToken, {
+					expires: new Date(new Date().getTime() + 30 * 1000),
+					httpOnly: true,
+					sameSite: "strict",
+				})
+				.cookie("authSession", true, {
+					expires: new Date(new Date().getTime() + 30 * 1000),
+				})
+				.cookie("refreshToken", refreshToken, {
+					expires: new Date(new Date().getTime() + 3557600000),
+					httpOnly: true,
+					sameSite: "strict",
+				})
+				.cookie("refreshTokenID", true, {
+					expires: new Date(new Date().getTime() + 3557600000),
+				})
+				.send({
+					msg: "Logged in successfully",
+					email: cookieEmail,
+					role: cookieRole,
+				});
+
+		} else {
+			return res.status(400).send()
+		}
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({
+			message: "Error validating and finding user",
+		});
+	}
+}
 
 // Refresh Route
 const refresh = (req, res) => {
@@ -491,4 +577,5 @@ module.exports = {
 	getUser,
 	logout,
 	refresh,
+	validate2fa
 };

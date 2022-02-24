@@ -54,6 +54,12 @@ const businessSchema = new mongoose.Schema({
 		}
 	},
 	resetPinToken: stringValue,
+	tempSecret: stringValue,
+	qrUrl: stringValue,
+	is2faenabled: {
+		type: Boolean,
+		default: false,
+	},
 	fundWallet: [
 		{
 			amount: numericValue,

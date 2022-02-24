@@ -63,11 +63,13 @@ const freelancerSchema = new mongoose.Schema({
 			}
 		}
 	},
-	resetPinToken: stringValue,
-	isProfileComplete: {
+	tempSecret: stringValue,
+	qrUrl: stringValue,
+	is2faenabled: {
 		type: Boolean,
 		default: false,
 	},
+	resetPinToken: stringValue,
 });
 
 freelancerSchema.methods.createWallet = async function () {

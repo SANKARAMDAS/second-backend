@@ -34,7 +34,9 @@
 		"nodemailer-smtp-transport": "^2.7.4",
 		"nodemon": "^2.0.15",
 		"plaid": "^9.10.1",
+		"qrcode": "^1.5.0",
 		"sendgrid": "^5.2.3",
+		"speakeasy": "^2.0.0",
 		"supertest": "^6.1.6",
 		"uuid": "^8.3.2",
 		"validator": "^13.7.0"
