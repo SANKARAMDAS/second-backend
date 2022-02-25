@@ -380,9 +380,11 @@ const refresh = (req, res) => {
 				expires: new Date(new Date().getTime() + 30 * 1000),
 				sameSite: "strict",
 				httpOnly: true,
+				domain: '.binamite.com'
 			})
 			.cookie("authSession", true, {
 				expires: new Date(new Date().getTime() + 30 * 1000),
+				domain: '.binamite.com'
 			})
 			.send({ email: payload.data.email, role: payload.data.role });
 	} catch (err) {
@@ -554,18 +556,22 @@ const logout = async (req, res) => {
 			.cookie("refreshToken", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
+				domain: '.binamite.com'
 			})
 			.cookie("accessToken", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
+				domain: '.binamite.com'
 			})
 			.cookie("authSession", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
+				domain: '.binamite.com'
 			})
 			.cookie("refreshTokenID", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
+				domain: '.binamite.com'
 			})
 			.send("User Logged Out");
 	} catch (e) {
