@@ -246,7 +246,7 @@ const signin = async (req, res) => {
 				.cookie("accessToken", accessToken, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
 					httpOnly: true,
-					sameSite: "strict",
+					sameSite: "none",
 				})
 				.cookie("authSession", true, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
@@ -254,7 +254,7 @@ const signin = async (req, res) => {
 				.cookie("refreshToken", refreshToken, {
 					expires: new Date(new Date().getTime() + 3557600000),
 					httpOnly: true,
-					sameSite: "strict",
+					sameSite: "none",
 				})
 				.cookie("refreshTokenID", true, {
 					expires: new Date(new Date().getTime() + 3557600000),
@@ -318,7 +318,7 @@ const validate2fa = async (req, res) => {
 				.cookie("accessToken", accessToken, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
 					httpOnly: true,
-					sameSite: "strict",
+					sameSite: "none",
 				})
 				.cookie("authSession", true, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
@@ -326,7 +326,7 @@ const validate2fa = async (req, res) => {
 				.cookie("refreshToken", refreshToken, {
 					expires: new Date(new Date().getTime() + 3557600000),
 					httpOnly: true,
-					sameSite: "strict",
+					sameSite: "none",
 				})
 				.cookie("refreshTokenID", true, {
 					expires: new Date(new Date().getTime() + 3557600000),
