@@ -5,22 +5,21 @@ const Invoice = require("../../models/invoice")
 //get user's transaction history
 const getTransactionHistory = async (req, res) => {
 
+    const { startTime, endTime } = req.body
+    if (!startTime) startTime = 0;
+    const date = new Date()
+    if (!endTime) endTime = date.getTime()
     const user = req.user
-    let result
+    let result;
+    var finResult = []
     try {
         result = await Transaction.find({ $or: [{ sender: user.email }, { receiver: user.email }] })
         for (var i = 0; i < result.length; i++) {
-            if (result[i].status == "EXPIRED" || result[i].status == "FAILED" || result[i].status == "COMPLETED") {
-                continue
+            if (result[i].createdAt >= startTime && result[i].createdAt <= endTime) {
+                finResult.push(result[i]);
             }
-            const transferResult = await wyre.get(`/transfers/${result[i].transferId}`)
-            result[i].status = transferResult.status
-            await Freelancer.findOneAndUpdate(
-                { transferId: result[i].transferId },
-                { status: transferResult.status }
-            );
         }
-        res.status(200).send(result)
+        res.status(200).send(finResult)
     } catch (e) {
         res.status(400).send(e)
     }

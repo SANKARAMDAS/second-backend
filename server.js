@@ -57,6 +57,7 @@ app.use(cookieParser());
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,
+		cookie: { domain: '.binamite.com' },
 		resave: false,
 		saveUninitialized: true,
 	})

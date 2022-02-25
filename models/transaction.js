@@ -52,6 +52,9 @@ const TransactionSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    createdAt: {
+        type: Number
+    },
     invoiceId: {
         type: String,
         required: false
