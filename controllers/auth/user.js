@@ -246,23 +246,28 @@ const signin = async (req, res) => {
 				.cookie("accessToken", accessToken, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
 					httpOnly: true,
-					sameSite: "none",
+					sameSite: "strict",
+					domain: '.binamite.com'
 				})
 				.cookie("authSession", true, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
+					domain: '.binamite.com'
 				})
 				.cookie("refreshToken", refreshToken, {
 					expires: new Date(new Date().getTime() + 3557600000),
 					httpOnly: true,
-					sameSite: "none",
+					sameSite: "strict",
+					domain: '.binamite.com'
 				})
 				.cookie("refreshTokenID", true, {
 					expires: new Date(new Date().getTime() + 3557600000),
+					domain: '.binamite.com'
 				})
 				.send({
 					msg: "Logged in successfully",
 					email: cookieEmail,
 					role: cookieRole,
+					domain: '.binamite.com'
 				});
 		}
 	} catch (err) {
@@ -318,18 +323,22 @@ const validate2fa = async (req, res) => {
 				.cookie("accessToken", accessToken, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
 					httpOnly: true,
-					sameSite: "none",
+					sameSite: "strict",
+					domain: '.binamite.com'
 				})
 				.cookie("authSession", true, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
+					domain: '.binamite.com'
 				})
 				.cookie("refreshToken", refreshToken, {
 					expires: new Date(new Date().getTime() + 3557600000),
 					httpOnly: true,
-					sameSite: "none",
+					sameSite: "strict",
+					domain: '.binamite.com'
 				})
 				.cookie("refreshTokenID", true, {
 					expires: new Date(new Date().getTime() + 3557600000),
+					domain: '.binamite.com'
 				})
 				.send({
 					msg: "Logged in successfully",

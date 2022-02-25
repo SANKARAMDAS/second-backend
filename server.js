@@ -41,7 +41,7 @@ db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function () { });
 
 // Middlewares
-var allowedDomains = ['http://localhost:3006', 'https://rdx.binamite.com'];
+var allowedDomains = ['http://localhost:3001', 'https://rdx.binamite.com'];
 app.use(cors({
 	origin: function (origin, callback) {
 		if (!origin) return callback(null, true);
@@ -57,7 +57,7 @@ app.use(cookieParser());
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,
-		cookie: { domain: '.binamite.com' },
+		// cookie: { domain: '.binamite.com' },
 		resave: false,
 		saveUninitialized: true,
 	})
