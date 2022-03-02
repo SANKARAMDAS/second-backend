@@ -17,6 +17,7 @@ const transactionRoute = require("./routes/wyre/transaction")
 const securityPinRoute = require("./routes/securityPin")
 const plaidRoute = require("./routes/plaid")
 const twofaRoute = require("./routes/2fa")
+const subRoute = require("./routes/subscribe")
 
 const app = express();
 
@@ -82,6 +83,7 @@ app.use("/api/contact", contactRoute);
 app.use("/api/securityPin", securityPinRoute);
 app.use("/api/plaid", plaidRoute)
 app.use("/api/2fa", twofaRoute)
+app.use("/api/subscribe", subRoute)
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

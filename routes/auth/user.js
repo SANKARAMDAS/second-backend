@@ -2,10 +2,12 @@ const express = require("express");
 const { auth } = require("../../middlewares/auth");
 const router = express.Router();
 const {
-	sendOtp,
+	// sendOtp,
+	emailVerify,
+	resendEmail,
 	signup,
 	signin,
-	verifyOtp,
+	// verifyOtp,
 	getUserProfile,
 	refresh,
 	validate2fa,
@@ -16,9 +18,13 @@ const {
 	logout,
 } = require("../../controllers/auth/user");
 
-router.post("/emailverification", sendOtp);
+// router.post("/emailverification", sendOtp);
 
-router.post("/verifyOtp", verifyOtp);
+// router.post("/verifyOtp", verifyOtp);
+
+router.post("/verifyEmail", emailVerify)
+
+router.post("/resendEmail", resendEmail)
 
 router.post("/signup", signup);
 

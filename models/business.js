@@ -73,9 +73,14 @@ const businessSchema = new mongoose.Schema({
 			paymentmethodId: stringValue
 		}
 	],
-	isProfileComplete: {
-		type: Boolean,
-		default: false,
+	status: {
+		type: String,
+		enum: ['Pending', 'Active'],
+		default: 'Pending'
+	},
+	confirmationCode: {
+		type: String,
+		unique: true
 	},
 });
 

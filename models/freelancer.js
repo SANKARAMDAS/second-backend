@@ -70,6 +70,15 @@ const freelancerSchema = new mongoose.Schema({
 		default: false,
 	},
 	resetPinToken: stringValue,
+	status: {
+		type: String,
+		enum: ['Pending', 'Active'],
+		default: 'Pending'
+	},
+	confirmationCode: {
+		type: String,
+		unique: true
+	},
 });
 
 freelancerSchema.methods.createWallet = async function () {
