@@ -4,9 +4,12 @@ const list_id = process.env.LIST_ID
 const mailchimp = new Mailchimp(mc_api_key)
 
 const addMember = async (req, res) => {
-    const email = req.body.email
+    const { email, fullName } = req.body
     mailchimp.post(`/lists/${list_id}/members/`, {
         email_address: email,
+        merge_fields: {
+            FNAME: fullName
+        },
         status: "pending",
     }).then((result) => {
         res.send({
