@@ -79,6 +79,11 @@ const freelancerSchema = new mongoose.Schema({
 		type: String,
 		unique: true
 	},
+	connections: [
+		{
+			email: stringValue
+		}
+	]
 });
 
 freelancerSchema.methods.createWallet = async function () {

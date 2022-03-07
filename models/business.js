@@ -82,6 +82,11 @@ const businessSchema = new mongoose.Schema({
 		type: String,
 		unique: true
 	},
+	connections: [
+		{
+			email: stringValue
+		}
+	]
 });
 
 businessSchema.methods.createWallet = async function () {

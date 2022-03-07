@@ -309,7 +309,7 @@ const resendEmail = async (req, res) => {
 		const emailBody = `
 	<div>
 		<p style="font-weight: bold;" >Hello ${userf.name},</p>
-		<p>You have one more step remaining to activate your MEGA account. <br>Click on the Link to verify your email address: <a href=${link}>Link</a></p>
+		<p>You have one more step remaining to activate your Binamite account. <br>Click on the Link to verify your email address: <a href=${link}>Link</a></p>
 		<p>If you have not registered on the website, kindly ignore the email</p>
 		<br/>
 		<p>Have a Nice Day!</p>            

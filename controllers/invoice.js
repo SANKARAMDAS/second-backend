@@ -1,6 +1,7 @@
 const CryptoJS = require("crypto-js");
 const Invoice = require("../models/invoice");
 const { sendEmail } = require("./sendEmail");
+const Invitation = require("../models/invitation")
 
 const invoiceCreation = async (req, res) => {
 	const {
@@ -19,6 +20,7 @@ const invoiceCreation = async (req, res) => {
 		pdfFile,
 		invoiceId,
 	} = req.body;
+	const user = req.user
 
 	// console.log(req.body);
 	console.log(businessName);
@@ -81,8 +83,16 @@ const invoiceCreation = async (req, res) => {
 			link: link,
 		});
 
+		const newInvitation = new Invitation({
+			from: user.email,
+			to: businessEmail,
+		})
+
 		try {
 			savedInvoice = await invoice.save();
+			if (!user.connections.includes({ email: businessEmail })) {
+				await newInvitation.save()
+			}
 		} catch (err) {
 			console.log(err);
 			return res.status(400).send(err);
