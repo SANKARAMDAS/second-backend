@@ -4,25 +4,25 @@ const list_id = process.env.LIST_ID
 const mailchimp = new Mailchimp(mc_api_key)
 
 const addMember = async (req, res) => {
-    const { email, fName, lname } = req.body
-    mailchimp.post(`/lists/${list_id}/members/`, {
-        email_address: email,
-        merge_fields: {
-            FNAME: fName,
-            LNAME: lname
-        },
-        status: "pending",
-    }).then((result) => {
-        res.send({
-            result,
-            msg: "SUCCESS"
-        });
-    }).catch((err) => {
-        res.send({
-            err,
-            msg: "FAIL"
-        });
-    })
+    const { email, fname, lname } = req.body
+    try {
+        const result = await mailchimp.post(`/lists/${list_id}/members/`, {
+            email_address: email,
+            merge_fields: {
+                FNAME: fname,
+                LNAME: lname
+            },
+            status: "pending",
+        })
+        const response = await mailchimp.post(`/lists/${list_id}/members/${result.id}/tags/`,
+            {
+                tags: [{ name: "Binamite", status: "active" }]
+            }
+        );
+        res.status(200).send(response)
+    } catch (e) {
+        res.status(400).send({ message: e.message })
+    }
 };
 
 

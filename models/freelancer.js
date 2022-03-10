@@ -83,6 +83,11 @@ const freelancerSchema = new mongoose.Schema({
 		{
 			email: stringValue
 		}
+	],
+	skills: [
+		{
+			name: stringValue
+		}
 	]
 });
 

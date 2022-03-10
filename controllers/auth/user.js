@@ -239,7 +239,7 @@ const signup = async (req, res) => {
 		const emailBody = `
 	<div>
 		<p style="font-weight: bold;" >Hello ${name},</p>
-		<p>You have one more step remaining to activate your MEGA account. <br>Click on the Link to verify your email address: <a href=${link}>Link</a></p>
+		<p>You have one more step remaining to activate your Binamite account. <br>Click on the Link to verify your email address: <a href=${link}>Link</a></p>
 		<p>If you have not registered on the website, kindly ignore the email</p>
 		<br/>
 		<p>Have a Nice Day!</p>            
@@ -662,6 +662,7 @@ const updateProfile = async (req, res) => {
 		taxId,
 		bitcoin,
 		ethereum,
+		skills
 	} = req.body;
 	try {
 		const freelancer = await Freelancer.findOne({ email: email });
@@ -677,9 +678,9 @@ const updateProfile = async (req, res) => {
 						zipCode: zipCode,
 						country: country,
 						taxId: taxId,
-						isProfileComplete: true,
 						bitcoin,
 						ethereum,
+						skills
 					},
 				}
 			);
@@ -695,7 +696,6 @@ const updateProfile = async (req, res) => {
 						zipCode: zipCode,
 						country: country,
 						taxId: taxId,
-						isProfileComplete: true,
 						bitcoin,
 						ethereum,
 					},

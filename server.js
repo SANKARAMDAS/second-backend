@@ -19,6 +19,8 @@ const plaidRoute = require("./routes/plaid")
 const twofaRoute = require("./routes/2fa")
 const subRoute = require("./routes/subscribe")
 const connectionRoute = require("./routes/connections")
+const adminRoute = require("./routes/admin/auth")
+const adminRoute2 = require("./routes/admin/general")
 
 const app = express();
 
@@ -86,6 +88,8 @@ app.use("/api/plaid", plaidRoute)
 app.use("/api/2fa", twofaRoute)
 app.use("/api/subscribe", subRoute)
 app.use("/api/connection", connectionRoute)
+app.use("/api/admin/auth", adminRoute)
+app.use("/api/admin", adminRoute2)
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {
