@@ -132,6 +132,41 @@ const signin = async (req, res) => {
     }
 };
 
+
+const refresh = (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+        return res.status(403).send({
+            msg: "Refresh Token Not Found, Please Login Again",
+        });
+    }
+    try {
+        const payload = jwt.verify(refreshToken, process.env.VERIFY_REFRESH_TOKEN);
+        const accessToken = jwt.sign(
+            { data: { email: payload.data.email, role: payload.data.role } },
+            process.env.VERIFY_AUTH_TOKEN,
+            {
+                expiresIn: "30s",
+            }
+        );
+        res
+            .status(202)
+            .cookie("accessToken", accessToken, {
+                expires: new Date(new Date().getTime() + 30 * 1000),
+                sameSite: "strict",
+                httpOnly: true,
+                domain: '.binamite.com'
+            })
+            .cookie("authSession", true, {
+                expires: new Date(new Date().getTime() + 30 * 1000),
+                domain: '.binamite.com'
+            })
+            .send({ email: payload.data.email, role: payload.data.role });
+    } catch (err) {
+        res.status(403).send({ msg: err, success: false });
+    }
+};
+
 module.exports = {
     addUser,
     signin

@@ -18,9 +18,11 @@ const securityPinRoute = require("./routes/securityPin")
 const plaidRoute = require("./routes/plaid")
 const twofaRoute = require("./routes/2fa")
 const subRoute = require("./routes/subscribe")
+const notificationRoute = require("./routes/notification")
 const connectionRoute = require("./routes/connections")
 const adminRoute = require("./routes/admin/auth")
 const adminRoute2 = require("./routes/admin/general")
+const reinitiateTransaction = require("./routes/admin/reinitiate")
 
 const app = express();
 
@@ -88,8 +90,10 @@ app.use("/api/plaid", plaidRoute)
 app.use("/api/2fa", twofaRoute)
 app.use("/api/subscribe", subRoute)
 app.use("/api/connection", connectionRoute)
+app.use("/api/notifications", notificationRoute)
 app.use("/api/admin/auth", adminRoute)
 app.use("/api/admin", adminRoute2)
+app.use("/api/admin/reinitiate", reinitiateTransaction)
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

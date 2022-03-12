@@ -406,27 +406,26 @@ const signin = async (req, res) => {
 					expires: new Date(new Date().getTime() + 30 * 1000),
 					httpOnly: true,
 					sameSite: "strict",
-					domain: '.binamite.com'
+					// domain: process.env.DOMAIN
 				})
 				.cookie("authSession", true, {
 					expires: new Date(new Date().getTime() + 30 * 1000),
-					domain: '.binamite.com'
+					// domain: process.env.DOMAIN
 				})
 				.cookie("refreshToken", refreshToken, {
 					expires: new Date(new Date().getTime() + 3557600000),
 					httpOnly: true,
 					sameSite: "strict",
-					domain: '.binamite.com'
+					// domain: process.env.DOMAIN
 				})
 				.cookie("refreshTokenID", true, {
 					expires: new Date(new Date().getTime() + 3557600000),
-					domain: '.binamite.com'
+					// domain: process.env.DOMAIN
 				})
 				.send({
 					msg: "Logged in successfully",
 					email: cookieEmail,
 					role: cookieRole,
-					domain: '.binamite.com'
 				});
 		}
 	} catch (err) {
@@ -539,11 +538,11 @@ const refresh = (req, res) => {
 				expires: new Date(new Date().getTime() + 30 * 1000),
 				sameSite: "strict",
 				httpOnly: true,
-				domain: '.binamite.com'
+				// domain: '.binamite.com'
 			})
 			.cookie("authSession", true, {
 				expires: new Date(new Date().getTime() + 30 * 1000),
-				domain: '.binamite.com'
+				// domain: '.binamite.com'
 			})
 			.send({ email: payload.data.email, role: payload.data.role });
 	} catch (err) {
@@ -633,20 +632,12 @@ const passwordReset = async (req, res) => {
 
 // Get user Profile
 const getUserProfile = async (req, res) => {
-	const { email } = req.body;
+	const user = req.user
 
 	try {
-		const freelancer = await Freelancer.findOne({ email: email });
-		const business = await Business.findOne({ email: email });
-		if (freelancer) {
-			res.status(200).send({ data: freelancer });
-		} else if (business) {
-			res.status(200).send({ data: business });
-		} else {
-			res.status(404).send({ msg: "User not found" });
-		}
+		res.status(200).send({ data: user });
 	} catch (err) {
-		res.send(400).send({ msg: err });
+		res.send(400).send({ message: err.message });
 	}
 };
 
@@ -678,6 +669,7 @@ const updateProfile = async (req, res) => {
 						zipCode: zipCode,
 						country: country,
 						taxId: taxId,
+
 						bitcoin,
 						ethereum,
 						skills
@@ -715,22 +707,22 @@ const logout = async (req, res) => {
 			.cookie("refreshToken", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
-				domain: '.binamite.com'
+				// domain: '.binamite.com'
 			})
 			.cookie("accessToken", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
-				domain: '.binamite.com'
+				// domain: '.binamite.com'
 			})
 			.cookie("authSession", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
-				domain: '.binamite.com'
+				// domain: '.binamite.com'
 			})
 			.cookie("refreshTokenID", "none", {
 				expires: new Date(Date.now() + 5 * 1000),
 				httpOnly: true,
-				domain: '.binamite.com'
+				// domain: '.binamite.com'
 			})
 			.send("User Logged Out");
 	} catch (e) {

@@ -18,6 +18,8 @@ const {
 	logout,
 } = require("../../controllers/auth/user");
 
+
+
 // router.post("/emailverification", sendOtp);
 
 // router.post("/verifyOtp", verifyOtp);
@@ -40,7 +42,7 @@ router.post("/validate2fa", validate2fa)
 
 router.post("/passwordreset", passwordReset);
 
-router.post("/getUserProfile", getUserProfile);
+router.get("/getUserProfile", auth, getUserProfile);
 
 router.post("/updateProfile", updateProfile);
 

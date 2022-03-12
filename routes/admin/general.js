@@ -1,14 +1,16 @@
 const express = require("express");
 const {
-    getUsers, getAccount
+    getUsers, getAccount, getTotalTransfer, getTransactions
 } = require("../../controllers/admin/general");
 
 const router = express.Router();
 
-// const { auth } = require("../middlewares/auth");
+const { adminAuth } = require("../../middlewares/admin");
 
-router.get("/getUsers", getUsers)
-router.get("/getAccount", getAccount)
+router.get("/getUsers", adminAuth, getUsers)
+router.get("/getAccount", adminAuth, getAccount)
+router.get('/totalTransfer', adminAuth, getTotalTransfer)
+router.get('/transactions', adminAuth, getTransactions)
 
 
 module.exports = router;

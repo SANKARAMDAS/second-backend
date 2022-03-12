@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user")
+const Freelancer = require("../models/freelancer")
+const Business = require("../models/business")
 
 const auth = async (req, res, next) => {
 	const token = req.get("auth-token");
@@ -9,9 +10,13 @@ const auth = async (req, res, next) => {
 	} else {
 		try {
 			const payload = await jwt.verify(token, process.env.VERIFY_AUTH_TOKEN);
-			req.role = payload.role;
-			req.user = await User.findOne({ email: payload.email });
-			console.log(role, email);
+			req.role = payload.data.role;
+			if (req.role == 'freelancer') {
+				req.user = await Freelancer.findOne({ email: payload.data.email })
+			} else {
+				req.user = await Business.findOne({ email: payload.data.email })
+			}
+			console.log(req.user, req.role)
 			next();
 		} catch (e) {
 			if (e.name === "TokenExpiredError") {

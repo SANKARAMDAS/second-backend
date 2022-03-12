@@ -152,7 +152,7 @@ const getTransaction = async (req, res) => {
         transaction.status = status
         await transaction.save()
 
-        if (transaction.method == "CARD" || transaction.method == "ACH" || transaction.method == "WYRE PAYMENT" && status == "COMPLETED") {
+        if ((transaction.method == "CARD" || transaction.method == "ACH" || transaction.method == "WYRE PAYMENT") && status == "COMPLETED") {
             await wyreTransfer(transaction.invoiceId)
             await wirePayout(transaction.invoiceId)
         }

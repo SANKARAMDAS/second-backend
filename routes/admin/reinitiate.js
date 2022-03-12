@@ -1,15 +1,12 @@
 const express = require("express");
 const {
-    addUser,
-    signin
-} = require("../../controllers/admin/auth");
+    reinitialise
+} = require("../../controllers/admin/reinitiate");
 
 const router = express.Router();
 
 const { adminAuth } = require("../../middlewares/admin");
 
-router.post("/addUser", adminAuth, addUser);
-router.post("/signin", signin);
-
+router.post("/", adminAuth, reinitialise)
 
 module.exports = router;
