@@ -2,6 +2,22 @@ const { wyre } = require("./boilerplate")
 const Invoice = require("../../models/invoice");
 const Transaction = require("../../models/transaction");
 const Business = require("../../models/business");
+var spreedly = require('spreedly-api')(process.env.SPREEDLY_API_KEY, process.env.SPREEDLY_SECRET);
+
+const deliverSpreedly = async (buyRequest, paymentMethodToken) => {
+    const url = "https://api.testwyre.com/v3/debitcard/process/partner";
+    const requestBody = {
+        delivery: {
+            payment_method_token: paymentMethodToken,
+            url,
+            headers: `Content-Type: application/json\nAuthorization: Bearer ${process.env.WYRE_SECRET_KEY}`,
+            body: JSON.stringify(buyRequest)
+        }
+    };
+
+    const delivery = await spreedly.receivers.deliver(Environment.spreedly.wyreToken, requestBody);
+    return delivery;
+}
 
 //create wallet oreder reservation
 const debitCardQuote = async (req, res) => {
@@ -9,10 +25,10 @@ const debitCardQuote = async (req, res) => {
     //debitcard format - {number: '4111111111111111', year: '2023', month: '01', cvv: '123'}
     //address format - {street1: '1234 Test Ave', city: 'Los Angeles', state: 'CA', postalCode: '91423', country: 'US'}
 
-    const { invoiceId, debitCard, currency, givenName, familyName, ipAddress, phone, address } = req.body
-    let result, invoiceInfo
+    const { invoiceId, paymentMethodToken, currency, givenName, familyName, ipAddress, phone, address } = req.body
+
     try {
-        invoiceInfo = await Invoice.findOne({ invoiceId });
+        const invoiceInfo = await Invoice.findOne({ invoiceId });
 
         if (invoiceInfo.walletOrderId) {
             const resultTemp = await wyre.get('/v3/orders/' + invoiceInfo.walletOrderId)
@@ -36,8 +52,16 @@ const debitCardQuote = async (req, res) => {
         const newWalletOrder = await wyre.post('/v3/orders/reserve', { referrerAccountId: process.env.WYRE_ACCOUNT_ID })
 
         const amountinstring = invoiceInfo.totalAmount.toString()
-        result = await wyre.post('/v3/debitcard/process/partner', {
-            debitCard,
+
+        const userDebitCard = {
+            number: "{{ credit_card_number }}",
+            year: "{{ credit_card_year }}",
+            month: "{{#format_date}}%m,{{ credit_card_expiration_date }}{{/format_date}}",
+            cvv: "{{ credit_card_verification_value }}"
+        };
+
+        const buyRequest = {
+            userDebitCard,
             reservationId: newWalletOrder.reservation,
             amount: amountinstring,
             sourceCurrency: currency,
@@ -51,14 +75,19 @@ const debitCardQuote = async (req, res) => {
             phone,
             referenceId: process.env.WYRE_ACCOUNT_ID,
             address
-        })
-        const result2 = await wyre.get('/v3/debitcard/authorization/' + result.id)
+        };
+
+        const result = await deliverSpreedly(buyRequest, paymentMethodToken)
+
+        console.log(result)
+
         invoiceInfo.walletOrderId = result.id
         invoiceInfo.reservationId = newWalletOrder.reservation
         await invoiceInfo.save()
         // await newTransaction.save()
         res.status(200).send({ result: result2, reservation: newWalletOrder.reservation })
     } catch (e) {
+        console.log(e)
         res.status(400).send(e)
     }
 }
@@ -353,7 +382,7 @@ const createSwiftPaymentMethod = async (req, res) => {
 // fund wallet using debit card
 const fundwallet = async (req, res) => {
     const user = req.user;
-    const { amount, debitCard, givenName, familyName, ipAddress, phone, address } = req.body
+    const { amount, paymentMethodToken, givenName, familyName, ipAddress, phone, address } = req.body
 
     try {
 
@@ -377,8 +406,17 @@ const fundwallet = async (req, res) => {
         }
 
         const reservationResult = await wyre.post('/v3/orders/reserve', { referrerAccountId: process.env.WYRE_ACCOUNT_ID })
-        const walletorderresult = await wyre.post('/v3/debitcard/process/partner', {
-            debitCard,
+
+
+        const userDebitCard = {
+            number: "{{ credit_card_number }}",
+            year: "{{ credit_card_year }}",
+            month: "{{#format_date}}%m,{{ credit_card_expiration_date }}{{/format_date}}",
+            cvv: "{{ credit_card_verification_value }}"
+        };
+
+        const buyRequest = {
+            userDebitCard,
             reservationId: reservationResult.id,
             amount,
             sourceCurrency: 'USD',
@@ -392,14 +430,29 @@ const fundwallet = async (req, res) => {
             phone,
             referenceId: process.env.WYRE_ACCOUNT_ID,
             address
-        })
+        };
 
-        const result2 = await wyre.get('/v3/debitcard/authorization/' + walletorderresult.id)
+        const result = await deliverSpreedly(buyRequest, paymentMethodToken)
+
+        console.log(result)
+
+
+        // const result2 = await wyre.get('/v3/debitcard/authorization/' + walletorderresult.id)
         await user.fundWallet.push({ amount, reservationId: reservationResult.id, walletOrderId: walletorderresult.id });
         await user.save();
-        res.status(200).send({ amount, reservationId: reservationResult.id, walletOrderId: walletorderresult.id, result: result2 })
+        res.status(200).send({ amount, walletOrderId: walletorderresult.id })
     } catch (e) {
         res.status(400).send({ message: e.message });
+    }
+}
+
+const getAuthorization = async (req, res) => {
+    const { walletOrderId } = req.body
+    try {
+        const result = await wyre.get('/v3/debitcard/authorization/' + walletOrderId)
+        res.status(200).send(result)
+    } catch (e) {
+        res.status(400).send({ message: e.message })
     }
 }
 

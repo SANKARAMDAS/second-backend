@@ -2,6 +2,7 @@ const CryptoJS = require("crypto-js");
 const Invoice = require("../models/invoice");
 const { sendEmail } = require("./sendEmail");
 const Invitation = require("../models/invitation")
+const Business = require("../models/business")
 
 const invoiceCreation = async (req, res) => {
 	const {
@@ -21,6 +22,13 @@ const invoiceCreation = async (req, res) => {
 		invoiceId,
 	} = req.body;
 	const user = req.user
+	// let user
+	// try {
+	// 	user = await Business.findOne({ email: "nikhil@octaloop.com" })
+	// } catch (e) {
+	// 	console.log(e)
+	// 	return res.status(400).send({ message: e.message })
+	// }
 
 	// console.log(req.body);
 	console.log(businessName);
@@ -34,7 +42,7 @@ const invoiceCreation = async (req, res) => {
 
 	const sum = ETH + BTC + FIAT;
 
-	const link = `http://localhost:3000/pay-invoice/${encrypedClientId}`;
+	const link = `https://rdx.binamite.com/pay-invoice/${encrypedClientId}`;
 
 	if (sum === 100) {
 		let total = 0;
@@ -261,7 +269,7 @@ const invoiceCreation = async (req, res) => {
 						<b>${total} USD</b>
 					</p>
 					<p>Payment is due on <b>${dueDate}</b></p>
-					<form action="http://localhost:3000/pay-invoice/${encrypedClientId}">
+					<form action="https://rdx.binamite.com/pay-invoice/${encrypedClientId}">
 	    			<input type="submit" value="View my Invoice" class="submit-button center"/>
 					</form>
 					<p style="margin-bottom: 20px">

@@ -12,17 +12,17 @@ const { auth } = require("../middlewares/auth");
 const router = express.Router();
 
 //Add member to mailing list
-router.post("/invoiceCreation", invoiceCreation);
+router.post("/invoiceCreation", auth, invoiceCreation);
 
-router.post("/getInvoiceInfo", getInvoiceInfo);
+router.post("/getInvoiceInfo", auth, getInvoiceInfo);
 
-router.post("/getInvoices", getInvoices);
+router.post("/getInvoices", auth, getInvoices);
 
-router.post("/updateInvoiceStatus", updateInvoiceStatus);
+router.post("/updateInvoiceStatus", auth, updateInvoiceStatus);
 
-router.post("/updateInvoiceParticulars", updateInvoiceParticulars);
+router.post("/updateInvoiceParticulars", auth, updateInvoiceParticulars);
 
-router.post("/getPreviousInvoiceProportions", getPreviousInvoiceProportions);
+router.post("/getPreviousInvoiceProportions", auth, getPreviousInvoiceProportions);
 
 module.exports = {
 	route: router,

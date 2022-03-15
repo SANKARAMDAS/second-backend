@@ -73,7 +73,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-	res.send("Binamite Octaloop API 22.02");
+	res.send("Binamite Octaloop API 22.03");
 });
 
 // Base Routes

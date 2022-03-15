@@ -21,7 +21,7 @@ const router = express.Router();
 //card payment//
 
 //initiate card payment
-router.post("/debitCardQuote", auth, debitCardQuote);
+router.post("/debitCardQuote", debitCardQuote);
 //submit otp
 router.post("/submitAuthorization", auth, submitAuthorization);
 //get wallet order
