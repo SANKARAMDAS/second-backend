@@ -42,7 +42,7 @@ router.post("/validate2fa", validate2fa)
 
 router.post("/passwordreset", passwordReset);
 
-router.get("/getUserProfile", auth, getUserProfile);
+router.post("/getUserProfile", auth, getUserProfile);
 
 router.post("/updateProfile", updateProfile);
 

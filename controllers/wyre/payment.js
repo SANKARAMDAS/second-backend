@@ -3,6 +3,16 @@ const Invoice = require("../../models/invoice");
 const Transaction = require("../../models/transaction");
 const Business = require("../../models/business");
 var spreedly = require('spreedly-api')(process.env.SPREEDLY_API_KEY, process.env.SPREEDLY_SECRET);
+const axios = require("axios")
+
+const instance = axios.create({
+    baseURL: 'https://core.spreedly.com',
+    headers: {
+        'Authorization': 'Basic ' + process.env.SPREEDLY_SECRET,
+        'Content-type': 'application/json',
+        'Host': 'core.spreedly.com',
+    }
+});
 
 const deliverSpreedly = async (buyRequest, paymentMethodToken) => {
     const url = "https://api.testwyre.com/v3/debitcard/process/partner";
@@ -15,9 +25,101 @@ const deliverSpreedly = async (buyRequest, paymentMethodToken) => {
         }
     };
 
-    const delivery = await spreedly.receivers.deliver(Environment.spreedly.wyreToken, requestBody);
+    const delivery = await spreedly.receivers.deliver('8fWHdaQzyjHRIqrVSFLga3XaaLa', requestBody);
     return delivery;
 }
+
+const createCreditCard = async (req, res) => {
+    try {
+        const result = await spreedly.payment.create({
+            "payment_method": {
+                "credit_card": {
+                    "first_name": "Joe",
+                    "last_name": "Jones",
+                    "number": "5555555555554444",
+                    "verification_value": "423",
+                    "month": "3",
+                    "year": "2029",
+                    "company": "Acme Inc.",
+                    "address1": "33 Lane Road",
+                    "address2": "Apartment 4",
+                    "city": "Wanaque",
+                    "state": "NJ",
+                    "zip": "31331",
+                    "country": "US",
+                    "phone_number": "919.331.3313",
+                    "shipping_address1": "33 Lane Road",
+                    "shipping_address2": "Apartment 4",
+                    "shipping_city": "Wanaque",
+                    "shipping_state": "NJ",
+                    "shipping_zip": "31331",
+                    "shipping_country": "US",
+                    "shipping_phone_number": "919.331.3313"
+                },
+                "email": "joey@example.com",
+                "metadata": {
+                    "key": "string value",
+                    "another_key": 123,
+                    "final_key": true
+                }
+            }
+        });
+
+        // const result2 = await spreedly.payment.verify({
+        //     "transaction": {
+        //         "payment_method_token": "56wyNnSmuA6CWYP7w0MiYCVIbW6",
+        //         "retain_on_success": true
+        //     }
+        // })
+
+        res.status(200).send(result)
+    } catch (e) {
+        console.log(e);
+        res.stauts(400).send()
+    }
+}
+
+const createReceiver = async (req, res) => {
+    try {
+        const result = await instance.post('/v1/receivers.json', {
+            "receiver": {
+                "receiver_type": "send_wyre",
+                "hostnames": "https://api.testwyre.com",
+                "credentials": [
+                    {
+                        "name": "app-id",
+                        "value": 1234,
+                        "safe": true
+                    },
+                    {
+                        "name": "app-secret",
+                        "value": 5678
+                    }
+                ]
+            }
+        })
+        res.status(200).send(result)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send({ message: e.message })
+    }
+}
+
+const verifyCreditCard = async (req, res) => {
+    try {
+        const result = await instance.post(`/v1/gateways/${process.env.GATEWAY_TOKEN}/verify.json`, {
+            "transaction": {
+                "payment_method_token": "1JKtjshdgf9ThB9EQws46Ef59BK",
+                "retain_on_success": true
+            }
+        })
+        res.status(200).send(result)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send({ message: e.message })
+    }
+}
+
 
 //create wallet oreder reservation
 const debitCardQuote = async (req, res) => {
@@ -652,5 +754,8 @@ module.exports = {
     createSwiftPaymentMethod,
     fundwallet,
     submitAuthorization2,
-    wyreWalletPayment
+    wyreWalletPayment,
+    createCreditCard,
+    createReceiver,
+    verifyCreditCard
 }

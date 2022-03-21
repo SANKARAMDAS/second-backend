@@ -12,13 +12,19 @@ const {
     createSwiftPaymentMethod,
     fundwallet,
     submitAuthorization2,
-    wyreWalletPayment
+    wyreWalletPayment,
+    createCreditCard,
+    createReceiver,
+    verifyCreditCard
 } = require("../../controllers/wyre/payment");
 
 const { auth } = require("../../middlewares/auth");
 const router = express.Router();
 
 //card payment//
+router.post("/createCreditCard", createCreditCard)
+router.post("/createReceiver", createReceiver)
+router.post("/verifyCard", verifyCreditCard)
 
 //initiate card payment
 router.post("/debitCardQuote", debitCardQuote);

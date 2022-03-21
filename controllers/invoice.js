@@ -33,81 +33,83 @@ const invoiceCreation = async (req, res) => {
 	// console.log(req.body);
 	console.log(businessName);
 
-	const encrypedClientId = encodeURIComponent(
-		CryptoJS.AES.encrypt(
-			JSON.stringify({ invoiceId }),
-			process.env.ENCRYPTION_SECRET
-		).toString()
-	);
+	try {
 
-	const sum = ETH + BTC + FIAT;
+		const encrypedClientId = encodeURIComponent(
+			CryptoJS.AES.encrypt(
+				JSON.stringify({ invoiceId }),
+				process.env.ENCRYPTION_SECRET
+			).toString()
+		);
 
-	const link = `https://rdx.binamite.com/pay-invoice/${encrypedClientId}`;
+		const sum = ETH + BTC + FIAT;
 
-	if (sum === 100) {
-		let total = 0;
-		let savedInvoice;
+		const link = `https://rdx.binamite.com/pay-invoice/${encrypedClientId}`;
 
-		// Calculate total amount
-		for (let i = 0; i < item.length; i++) {
-			console.log(item[i]);
-			const pdt = parseInt(item[i].quantity) * parseInt(item[i].price);
-			total = total + pdt;
-		}
+		if (sum === 100) {
+			let total = 0;
+			let savedInvoice;
 
-		console.log(total);
+			// Calculate total amount
+			for (let i = 0; i < item.length; i++) {
+				console.log(item[i]);
+				const pdt = parseInt(item[i].quantity) * parseInt(item[i].price);
+				total = total + pdt;
+			}
 
-		// save in db
-		const invoice = new Invoice({
-			invoiceTitle: invoiceTitle,
-			status: "pending",
-			invoiceId: invoiceId,
-			freelancerEmail: freelancerEmail,
-			freelancerName: freelancerName,
-			businessEmail: businessEmail,
-			businessName: businessName,
-			item: item,
-			proportions: [
-				{
-					currency: "BTC",
-					percentage: BTC,
-					transferId: "",
-				},
-				{
-					currency: "ETH",
-					percentage: ETH,
-					transferId: "",
-				},
-				{
-					currency: "FIAT",
-					percentage: FIAT,
-					transferId: "",
-				},
-			],
-			totalAmount: total,
-			memo: memo,
-			creationDate: creationDate,
-			dueDate: dueDate,
-			link: link,
-		});
+			// if (total === 0) {
+			// 	console.log("total 0")
+			// 	return res.status(400).send({ message: "Total amount can not be 0." })
+			// }
 
-		const newInvitation = new Invitation({
-			from: user.email,
-			to: businessEmail,
-		})
+			// save in db
+			const invoice = new Invoice({
+				invoiceTitle: invoiceTitle,
+				status: "pending",
+				invoiceId: invoiceId,
+				freelancerEmail: freelancerEmail,
+				freelancerName: freelancerName,
+				businessEmail: businessEmail,
+				businessName: businessName,
+				item: item,
+				proportions: [
+					{
+						currency: "BTC",
+						percentage: BTC,
+						transferId: "",
+					},
+					{
+						currency: "ETH",
+						percentage: ETH,
+						transferId: "",
+					},
+					{
+						currency: "FIAT",
+						percentage: FIAT,
+						transferId: "",
+					},
+				],
+				totalAmount: total,
+				memo: memo,
+				creationDate: creationDate,
+				dueDate: dueDate,
+				link: link,
+			});
 
-		try {
+
+
 			savedInvoice = await invoice.save();
 			if (!user.connections.includes({ email: businessEmail })) {
+				const newInvitation = new Invitation({
+					from: user.email,
+					to: businessEmail,
+				})
 				await newInvitation.save()
 			}
-		} catch (err) {
-			console.log(err);
-			return res.status(400).send(err);
-		}
 
-		//send email
-		const emailBody = `
+
+			//send email
+			const emailBody = `
 			<html lang="en">
 			<head>
 				<style>
@@ -296,19 +298,25 @@ const invoiceCreation = async (req, res) => {
 
 		`;
 
-		await sendEmail(
-			{
-				email: businessEmail,
-				invoiceId: invoiceId,
-				attachment: { pdfFile: pdfFile },
-			},
-			emailBody,
-			"New Invoice Request"
-		);
-		return res.status(200).send(encrypedClientId);
-	} else {
-		res.send("Proportions should add up to 100");
+			await sendEmail(
+				{
+					email: businessEmail,
+					invoiceId: invoiceId,
+					attachment: { pdfFile: pdfFile },
+				},
+				emailBody,
+				"New Invoice Request"
+			);
+			console.log({ result: ".....................invoice created...................." })
+			return res.status(200).send(encrypedClientId);
+		} else {
+			return res.send({ message: "Proportions should add up to 100" });
+		}
+	} catch (err) {
+		console.log(err);
+		res.status(400).send({ message: err.message });
 	}
+
 };
 
 // Get Invoice info

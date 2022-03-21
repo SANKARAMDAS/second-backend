@@ -632,12 +632,13 @@ const passwordReset = async (req, res) => {
 
 // Get user Profile
 const getUserProfile = async (req, res) => {
-	const user = req.user
 
+	const user = req.user
 	try {
-		res.status(200).send({ data: user });
+		res.send({ data: user });
 	} catch (err) {
-		res.send(400).send({ message: err.message });
+		console.log(err)
+		res.status(403).send({ msg: err });
 	}
 };
 
