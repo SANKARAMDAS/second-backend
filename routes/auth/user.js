@@ -14,6 +14,7 @@ const {
 	forgotPassword,
 	passwordReset,
 	updateProfile,
+	uploadDocument,
 	getUser,
 	logout,
 } = require("../../controllers/auth/user");
@@ -45,6 +46,8 @@ router.post("/passwordreset", passwordReset);
 router.post("/getUserProfile", auth, getUserProfile);
 
 router.post("/updateProfile", updateProfile);
+
+router.post("/upload", uploadDocument);
 
 router.post("/logout", logout);
 

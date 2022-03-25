@@ -75,6 +75,15 @@ const freelancerSchema = new mongoose.Schema({
 		enum: ['Pending', 'Active'],
 		default: 'Pending'
 	},
+	kycStatus: {
+		type: String,
+		enum: ['Incomplete', 'Pending', 'Active'],
+		default: 'Incomplete'
+	},
+	document: {
+		type: String,
+		trim: true
+	},
 	confirmationCode: {
 		type: String,
 		unique: true

@@ -23,6 +23,7 @@ const connectionRoute = require("./routes/connections")
 const adminRoute = require("./routes/admin/auth")
 const adminRoute2 = require("./routes/admin/general")
 const reinitiateTransaction = require("./routes/admin/reinitiate")
+const kycRoute = require("./routes/admin/kyc")
 
 const app = express();
 
@@ -68,9 +69,12 @@ app.use(
 		saveUninitialized: true,
 	})
 );
-app.use(bodyParser.json({ limit: "100mb" }));
-app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
+// app.use(bodyParser.json({ limit: "100mb" }));
+// app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
 app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 
 app.get("/", (req, res) => {
 	res.send("Binamite Octaloop API 22.03");
@@ -94,6 +98,7 @@ app.use("/api/notifications", notificationRoute)
 app.use("/api/admin/auth", adminRoute)
 app.use("/api/admin", adminRoute2)
 app.use("/api/admin/reinitiate", reinitiateTransaction)
+app.use("/api/kyc", kycRoute)
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

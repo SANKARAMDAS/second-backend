@@ -9,12 +9,16 @@ const transferCrypto = async (req, res) => {
     const { currency, securityPin } = req.body;
     const user = req.user;
 
-    if (!securityPin) return res.status(400).send({ error: "Enter Security pin." })
-    if (!user.securityPin) return res.status(404).send({ error: "Set up new security pin in profile" })
+    if (user.kycStatus !== 'Active') {
+        return res.status(400).send({ message: "KYC status: " + user.kycStatus })
+    }
+
+    if (!securityPin) return res.status(400).send({ message: "Enter Security pin." })
+    if (!user.securityPin) return res.status(404).send({ message: "Set up new security pin in profile" })
 
     const isValid = await bcrypt.compare(securityPin, user.securityPin)
 
-    if (!isValid) res.status(400).send({ error: "Incorrect security pin." })
+    if (!isValid) res.status(400).send({ message: "Incorrect security pin." })
 
     let result, data;
     try {
@@ -39,7 +43,7 @@ const transferCrypto = async (req, res) => {
 
     if (!user[currency]) {
         // ask user to add external wallet address in profile
-        return res.status(404).send({ failure: "wallet address does not exist" });
+        return res.status(404).send({ message: "wallet address does not exist" });
     }
 
     const transferId = currency + "TransferId";

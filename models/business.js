@@ -82,6 +82,15 @@ const businessSchema = new mongoose.Schema({
 		type: String,
 		unique: true
 	},
+	kycStatus: {
+		type: String,
+		enum: ['Incomplete', 'Pending', 'Active'],
+		default: 'Incomplete'
+	},
+	document: {
+		type: String,
+		trim: true
+	},
 	connections: [
 		{
 			email: stringValue

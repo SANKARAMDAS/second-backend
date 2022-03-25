@@ -6,9 +6,9 @@ var spreedly = require('spreedly-api')(process.env.SPREEDLY_API_KEY, process.env
 const axios = require("axios")
 
 const instance = axios.create({
-    baseURL: 'https://core.spreedly.com',
+
     headers: {
-        'Authorization': 'Basic ' + process.env.SPREEDLY_SECRET,
+        'Authorization': `Basic ${process.env.SPREEDLY_SECRET}`,
         'Content-type': 'application/json',
         'Host': 'core.spreedly.com',
     }
@@ -31,7 +31,7 @@ const deliverSpreedly = async (buyRequest, paymentMethodToken) => {
 
 const createCreditCard = async (req, res) => {
     try {
-        const result = await spreedly.payment.create({
+        const result = await axios.post('https://core.spreedly.com/v1/payment_methods.json', {
             "payment_method": {
                 "credit_card": {
                     "first_name": "Joe",
@@ -75,7 +75,7 @@ const createCreditCard = async (req, res) => {
         res.status(200).send(result)
     } catch (e) {
         console.log(e);
-        res.stauts(400).send()
+        res.status(400).send()
     }
 }
 

@@ -6,6 +6,13 @@ const Business = require("../../models/business");
 const Freelancer = require("../../models/freelancer");
 const { sendEmail } = require("../sendEmail");
 const speakeasy = require("speakeasy")
+const multer = require("multer")
+const sharp = require("sharp")
+const formidable = require("formidable")
+const util = require("util")
+const fs = require("fs")
+const path = require("path")
+const uploadFile = require("../../middlewares/upload");
 
 // Generate OTP and Send on Email 1/4
 // const generateOTP = async (email, name, password) => {
@@ -677,7 +684,7 @@ const updateProfile = async (req, res) => {
 					},
 				}
 			);
-			res.status(200).send({ msg: "Profile Updated Successfully" });
+			return res.status(200).send({ msg: "Profile Updated Successfully" });
 		} else if (business) {
 			await Business.findOneAndUpdate(
 				{ email: email },
@@ -694,10 +701,44 @@ const updateProfile = async (req, res) => {
 					},
 				}
 			);
-			res.status(200).send({ msg: "Profile Updated Successfully" });
+			return res.status(200).send({ msg: "Profile Updated Successfully" });
+		} else {
+			return res.status(400).send({ message: "error" })
 		}
 	} catch (err) {
 		res.status(400).send({ msg: err });
+	}
+};
+
+const uploadDocument = async (req, res) => {
+
+	try {
+		const user = req.user
+		if (user.kycStatus === 'Active' || user.kycStatus === 'Pending') {
+			return res.status(400).send({ message: "KYC status: " + user.kycStatus });
+		}
+		await uploadFile(req, res);
+		if (req.file == undefined) {
+			return res.status(400).send({ message: "Please upload a file!" });
+		}
+
+		user.document = req.file.filename
+		user.kycStatus = 'Pending'
+		await user.save()
+
+
+		res.status(200).send({
+			message: "Uploaded the file successfully: " + req.file.originalname,
+		});
+	} catch (err) {
+		if (err.message === "Upload .png, .jpg or .jpeg") {
+			return res.status(400).send({
+				message: err.message
+			});
+		}
+		res.status(500).send({
+			message: `Could not upload the file: ${req.file.originalname}. ${err}`,
+		});
 	}
 };
 
@@ -746,5 +787,6 @@ module.exports = {
 	getUser,
 	logout,
 	refresh,
-	validate2fa
+	validate2fa,
+	uploadDocument
 };
