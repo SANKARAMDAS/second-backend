@@ -72,7 +72,7 @@ const googleSignup = async (req, res) => {
 // Google Login
 const googleLogin = async (req, res) => {
 	const { payload } = await googleAuth(req.body.tokenId);
-
+	console.log(payload)
 	if (payload["email_verified"]) {
 		const business = await Business.findOne({ email: payload["email"] });
 		const freelancer = await Freelancer.findOne({ email: payload["email"] });
@@ -86,37 +86,51 @@ const googleLogin = async (req, res) => {
 			cookieEmail = business.email;
 			cookieRole = "business";
 		} else {
-			res.status(400).send({
+			return res.status(400).send({
 				msg: "This email is not registered",
 			});
 		}
 
 		const accessToken = jwt.sign(
-			{ email: cookieEmail, role: cookieRole },
+			{ data: { email: cookieEmail, role: cookieRole } },
 			process.env.VERIFY_AUTH_TOKEN,
 			{
 				expiresIn: "30s",
 			}
 		);
 		const refreshToken = jwt.sign(
-			{ email: cookieEmail, role: cookieRole },
+			{ data: { email: cookieEmail, role: cookieRole } },
 			process.env.VERIFY_REFRESH_TOKEN,
 			{
 				expiresIn: "3h",
 			}
 		);
 
-		console.log(cookieRole);
-		res
+		return res
 			.status(202)
 			.cookie("accessToken", accessToken, {
 				expires: new Date(new Date().getTime() + 30 * 1000),
+				httpOnly: true,
+				sameSite: "strict",
+				domain: process.env.DOMAIN
+			})
+			.cookie("authSession", true, {
+				expires: new Date(new Date().getTime() + 30 * 1000),
+				domain: process.env.DOMAIN
 			})
 			.cookie("refreshToken", refreshToken, {
 				expires: new Date(new Date().getTime() + 3557600000),
+				httpOnly: true,
+				sameSite: "strict",
+				domain: process.env.DOMAIN
+			})
+			.cookie("refreshTokenID", true, {
+				expires: new Date(new Date().getTime() + 3557600000),
+				domain: process.env.DOMAIN
 			})
 			.send({
 				msg: "Logged in successfully",
+				email: cookieEmail,
 				role: cookieRole,
 			});
 	} else {

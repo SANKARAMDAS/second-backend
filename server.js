@@ -48,7 +48,7 @@ db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function () { });
 
 // Middlewares
-var allowedDomains = ['https://binamite.com', 'https://rdx.binamite.com', 'http://localhost:3001'];
+var allowedDomains = ['https://binamite.com', 'https://rdx.binamite.com', 'http://localhost:3000'];
 app.use(cors({
 	origin: function (origin, callback) {
 		if (!origin) return callback(null, true);
