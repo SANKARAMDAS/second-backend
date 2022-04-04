@@ -39,7 +39,16 @@ const freelancerSchema = new mongoose.Schema({
 	state: stringValue,
 	country: stringValue,
 	zipCode: stringValue,
-	taxId: stringValue,
+	taxPayerName: stringValue,
+	panNumber: stringValue,
+	gstin: stringValue,
+	isus: {
+		type: Boolean,
+		default: false,
+	},
+	taxClassification: stringValue,
+	ssn: stringValue,
+	ein: stringValue,
 	bitcoin: stringValue,
 	ethereum: stringValue,
 	bitcoinTransferId: stringValue,
@@ -57,9 +66,9 @@ const freelancerSchema = new mongoose.Schema({
 		trim: true,
 		validate(value) {
 			if (value.length != 6) {
-				throw new Error("not valid, string length not eaqual to 6");
+				throw new Error("not valid, string length not eaqual to 6.");
 			} else if (value === "123456" || value === "000000") {
-				throw new Error("not valid, choose a less common pin");
+				throw new Error("not valid, choose a less common pin.");
 			}
 		}
 	},

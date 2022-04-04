@@ -652,13 +652,20 @@ const getUserProfile = async (req, res) => {
 // Update Profile
 const updateProfile = async (req, res) => {
 	const {
+		name,
 		email,
 		address,
 		city,
 		state,
 		zipCode,
 		country,
-		taxId,
+		taxPayerName,
+		panNumber,
+		gstin,
+		isus,
+		taxClassification,
+		ssn,
+		ein,
 		bitcoin,
 		ethereum,
 		skills
@@ -667,35 +674,49 @@ const updateProfile = async (req, res) => {
 		const freelancer = await Freelancer.findOne({ email: email });
 		const business = await Business.findOne({ email: email });
 		if (freelancer) {
-			await Freelancer.findOneAndUpdate(
+			const result = await Freelancer.findOneAndUpdate(
 				{ email: email },
 				{
 					$set: {
+						name,
 						address: address,
 						city: city,
 						state: state,
 						zipCode: zipCode,
 						country: country,
-						taxId: taxId,
-
+						taxPayerName,
+						panNumber,
+						gstin,
+						isus,
+						taxClassification,
+						ssn,
+						ein,
 						bitcoin,
 						ethereum,
 						skills
 					},
 				}
 			);
+			console.log(result)
 			return res.status(200).send({ msg: "Profile Updated Successfully" });
 		} else if (business) {
 			await Business.findOneAndUpdate(
 				{ email: email },
 				{
 					$set: {
+						name,
 						address: address,
 						city: city,
 						state: state,
 						zipCode: zipCode,
 						country: country,
-						taxId: taxId,
+						taxPayerName,
+						panNumber,
+						gstin,
+						isus,
+						taxClassification,
+						ssn,
+						ein,
 						bitcoin,
 						ethereum,
 					},
@@ -703,9 +724,11 @@ const updateProfile = async (req, res) => {
 			);
 			return res.status(200).send({ msg: "Profile Updated Successfully" });
 		} else {
+
 			return res.status(400).send({ message: "error" })
 		}
 	} catch (err) {
+		console.log(err)
 		res.status(400).send({ msg: err });
 	}
 };

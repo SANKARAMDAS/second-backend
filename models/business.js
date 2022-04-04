@@ -40,7 +40,16 @@ const businessSchema = new mongoose.Schema({
 	state: stringValue,
 	country: stringValue,
 	zipCode: stringValue,
-	taxId: stringValue,
+	taxPayerName: stringValue,
+	panNumber: stringValue,
+	gstin: stringValue,
+	isus: {
+		type: Boolean,
+		default: false,
+	},
+	taxClassification: stringValue,
+	ssn: stringValue,
+	ein: stringValue,
 	wyreWallet: stringValue,
 	securityPin: {
 		type: String,
