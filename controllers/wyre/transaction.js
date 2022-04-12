@@ -165,9 +165,9 @@ const getTransaction = async (req, res) => {
 
 //card transaction webhook
 const getWalletOrderStatus = async (req, res) => {
-    const { id, status, transferId } = req.body
+    const { orderId, orderStatus, transferId } = req.body
     try {
-        const invoiceInfo = await Invoice.findOne({ walletOrderId: id })
+        const invoiceInfo = await Invoice.findOne({ walletOrderId: orderId })
         if (transferId) {
             const transactionInfo = await Transaction.findOne({ transferId })
             if (!transactionInfo) {
@@ -182,7 +182,7 @@ const getWalletOrderStatus = async (req, res) => {
                     destCurrency: 'USD',
                     amount: invoiceInfo.totalAmount,
                     invoiceId: invoiceInfo.invoiceId,
-                    status
+                    status: orderStatus
                 });
                 invoiceInfo.transferId = transferId;
                 await invoiceInfo.save();
@@ -195,8 +195,23 @@ const getWalletOrderStatus = async (req, res) => {
     }
 }
 
+const enableorder = async (req, res) => {
+    const { owner, webhook } = req.body
+
+    try {
+        const result = await wyre.post('/v2/digitalwallet/webhook', {
+            owner, webhook
+        })
+        res.send(result)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+
+}
+
 module.exports = {
     getTransactionHistory,
     getTransaction,
-    getWalletOrderStatus
+    getWalletOrderStatus,
+    enableorder
 }
