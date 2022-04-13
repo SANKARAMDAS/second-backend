@@ -1,6 +1,7 @@
 const { wyre } = require("./boilerplate")
 const Transaction = require("../../models/transaction")
 const Invoice = require("../../models/invoice")
+const Freelancer = require("../../models/freelancer")
 
 //get user's transaction history
 const getTransactionHistory = async (req, res) => {
@@ -28,32 +29,33 @@ const getTransactionHistory = async (req, res) => {
 //transfer crypto between wyre wallets
 const wyreTransfer = async (invoiceId) => {
 
-    const invoiceInfo = await Invoice.findOne({ invoiceId });
-
-    let exchangeResult, user
-
     try {
-        exchangeResult = await wyre.get('/rates?as=multiplier')
-        user = await User.findOne({ email: invoiceInfo.freelancerEmail })
-    } catch (e) {
-        throw new Error(e)
-    }
 
-    if (!user.wyreWallet) {
-        throw new Error({ message: "wyre wallet does not exist." })
-    }
+        const invoiceInfo = await Invoice.findOne({ invoiceId });
 
-    var finalResult = []
+        if (!invoiceInfo) {
+            return new Error("invalid invoice id.")
+        }
+
+        const exchangeResult = await wyre.get('/v3/rates?as=multiplier')
+
+        const user = await Freelancer.findOne({ email: invoiceInfo.freelancerEmail })
+
+        console.log(user, exchangeResult, invoiceInfo)
 
 
-    for (var i = 0; i < invoiceInfo.proportions.length; i++) {
-        if (invoiceInfo.proportions[i].currency == "FIAT") continue;
-        const currency = invoiceInfo.proportions[i].currency
+        if (!user.wyreWallet) {
+            return new Error({ message: "wyre wallet does not exist." })
+        }
 
-        if (invoiceInfo.proportions[i].transferId) {
-            let transferResult
-            try {
-                transferResult = await wyre.get(`/transfers/${invoiceInfo.proportions[i].transferId}`)
+        for (var i = 0; i < invoiceInfo.proportions.length; i++) {
+            if (invoiceInfo.proportions[i].currency == "FIAT") continue;
+            const currency = invoiceInfo.proportions[i].currency
+
+            if (invoiceInfo.proportions[i].transferId) {
+                let transferResult
+
+                transferResult = await wyre.get(`/v3/transfers/${invoiceInfo.proportions[i].transferId}`)
                 switch (transferResult.status) {
                     case "PENDING":
                         finalResult.push({ currency: "pending" })
@@ -65,42 +67,41 @@ const wyreTransfer = async (invoiceId) => {
                         finalResult.push({ currency: "transfer being processed" })
                         continue
                 }
-            } catch (e) {
-                throw new Error()
+
             }
-        }
 
-        let currCode
-        switch (currency) {
-            case "bitcoin":
-                currCode = "BTC"
-                break
-            case "ethereum":
-                currCode = "ETH"
-                break
-        }
+            let currCode
+            switch (currency) {
+                case "bitcoin":
+                    currCode = "BTC"
+                    break
+                case "ethereum":
+                    currCode = "ETH"
+                    break
+            }
 
-        let result
-        const amount = (invoiceInfo.proportions[i].percentage / 100) * invoiceInfo.totalAmount
-        const sourceAmount = amount * exchangeResult["USD" + currCode]
+            let result
+            const amount = (invoiceInfo.proportions[i].percentage / 100) * invoiceInfo.totalAmount
+            const sourceAmount = amount * exchangeResult["USD" + currCode]
 
-        try {
-            result = await wyre.post('/transfers', {
+            result = await wyre.post('/v3/transfers', {
                 //source - wyre master account
                 source: 'account:' + process.env.WYRE_ACCOUNT_ID,
-                sourceCurrency: "USD",
+                sourceCurrency: "USDC",
                 sourceAmount,
-                dest: user.wyreWallet,
+                dest: 'wallet:' + user.wyreWallet,
                 destCurrency: currCode,
                 autoConfirm: true
             })
+
             invoiceInfo.proportions[i].transferId = result.id
-            await invoiceInfo.save()
-            return invoiceInfo
-        } catch (e) {
-            throw new Error(e)
+
         }
 
+        await invoiceInfo.save()
+
+    } catch (e) {
+        return new Error(e.message)
     }
 
 }
@@ -143,19 +144,20 @@ const wirePayout = async (invoiceId) => {
 
 //webhook endpoint
 const getTransaction = async (req, res) => {
-    const { id, status } = req.body
+    const { id, status, invoiceId } = req.body
     var trustedIps = ['x.x.x.x'];
     var requestIP = req.connection.remoteAddress;
     try {
-        if (trustedIps.indexOf(requestIP) < 0) throw new Error("Invalid IP aaddress")
-        const transaction = await Transaction.findOne({ transferId: id })
-        transaction.status = status
-        await transaction.save()
+        // if (trustedIps.indexOf(requestIP) < 0) throw new Error("Invalid IP aaddress")
+        // const transaction = await Transaction.findOne({ transferId: id })
+        // transaction.status = status
+        // await transaction.save()
 
-        if ((transaction.method == "CARD" || transaction.method == "ACH" || transaction.method == "WYRE PAYMENT") && status == "COMPLETED") {
-            await wyreTransfer(transaction.invoiceId)
-            await wirePayout(transaction.invoiceId)
-        }
+        // if ((transaction.method == "CARD" || transaction.method == "ACH" || transaction.method == "WYRE PAYMENT") && status == "COMPLETED") {
+        // await wyreTransfer(transaction.invoiceId)
+        // await wirePayout(transaction.invoiceId)
+        // }
+        await wyreTransfer(invoiceId)
         res.status(200).send()
     } catch (e) {
         res.status(400).send(e)
@@ -179,7 +181,7 @@ const getWalletOrderStatus = async (req, res) => {
                     source: 'CARD',
                     sourceCurrency: 'USD',
                     destination: 'account:' + process.env.WYRE_ACCOUNT_ID,
-                    destCurrency: 'USD',
+                    destinationCurrency: 'USD',
                     amount: invoiceInfo.totalAmount,
                     invoiceId: invoiceInfo.invoiceId,
                     status: orderStatus
@@ -191,7 +193,8 @@ const getWalletOrderStatus = async (req, res) => {
         }
         res.status(200).send();
     } catch (e) {
-        res.status(400).send();
+        console.log(e)
+        res.status(400).send(e);
     }
 }
 
