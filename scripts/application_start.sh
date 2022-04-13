@@ -1,2 +1,2 @@
 #!/bin/bash
-pm2 restart 0
+sudo pm2 restart 0
