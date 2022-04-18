@@ -48,18 +48,18 @@ db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function () { });
 
 // Middlewares
-// var allowedDomains = ['https://binamite.com', 'https://rdx.binamite.com', 'http://localhost:3003'];
-// app.use(cors({
-// 	origin: function (origin, callback) {
-// 		if (!origin) return callback(null, true);
-// 
-// 		if (allowedDomains.indexOf(origin) === -1) {
-// 			var msg = `This site ${origin} does not have an access. Only specific domains are allowed to access it.`;
-// 			return callback(new Error(msg), false);
-// 		}
-// 		return callback(null, true);
-// 	}, credentials: true
-// }));
+var allowedDomains = ['https://binamite.com', 'https://rdx.binamite.com', 'http://localhost:3003'];
+app.use(cors({
+	origin: function (origin, callback) {
+		if (!origin) return callback(null, true);
+
+		if (allowedDomains.indexOf(origin) === -1) {
+			var msg = `This site ${origin} does not have an access. Only specific domains are allowed to access it.`;
+			return callback(new Error(msg), false);
+		}
+		return callback(null, true);
+	}, credentials: true
+}));
 app.use(cookieParser());
 app.use(
 	session({
