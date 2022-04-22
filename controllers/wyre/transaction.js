@@ -46,8 +46,21 @@ const wyreTransfer = async (invoiceId) => {
         }
 
         var finalResult = {}
+        var count = 0
+
 
         for (var i = 0; i < invoiceInfo.proportions.length; i++) {
+
+            if (invoiceInfo.proportions[i].currency == "FIAT") {
+                if (invoiceInfo.proportions[i].transferId) {
+                    let transferResultx
+                    transferResultx = await wyre.get(`/v3/transfers/${invoiceInfo.proportions[i].transferId}`)
+                    if (transferResultx.status == "COMPLETED") {
+                        count++;
+                        continue
+                    }
+                }
+            }
 
 
             if (invoiceInfo.proportions[i].currency == "FIAT" || invoiceInfo.proportions[i].percentage == 0) continue;
@@ -62,6 +75,7 @@ const wyreTransfer = async (invoiceId) => {
                         finalResult[currency] = "transfer pending"
                         continue
                     case "COMPLETED":
+                        count++;
                         finalResult[currency] = "transfer completed"
                         continue
                     case "UNCONFIRMED":

@@ -24,6 +24,7 @@
 		"dotenv": "^10.0.0",
 		"express": "^4.17.1",
 		"express-session": "^1.17.2",
+		"form-data": "^4.0.0",
 		"formidable": "^2.0.1",
 		"google-auth-library": "^7.10.2",
 		"javascript-time-ago": "^2.3.13",

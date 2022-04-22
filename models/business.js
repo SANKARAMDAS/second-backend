@@ -79,7 +79,7 @@ const businessSchema = new mongoose.Schema({
 	],
 	paymentMethods: [
 		{
-			paymentmethodId: stringValue
+			paymentMethodId: stringValue
 		}
 	],
 	status: {

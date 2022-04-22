@@ -4,7 +4,7 @@ var fs = require("fs");
 
 const sendEmail = async (data, emailBody, subject) => {
 	var mail = new helper.Mail();
-	var email = new helper.Email("octalooppolaristest@gmail.com", "Polaris");
+	var email = new helper.Email("octalooppolaristest@gmail.com", "Binamite");
 	mail.setFrom(email);
 
 	mail.setSubject(subject);

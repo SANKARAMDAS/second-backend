@@ -58,7 +58,7 @@ const freelancerSchema = new mongoose.Schema({
 	},
 	paymentMethods: [
 		{
-			paymentmethodId: stringValue
+			paymentMethodId: stringValue
 		}
 	],
 	securityPin: {
