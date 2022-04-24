@@ -23,7 +23,8 @@ const connectionRoute = require("./routes/connections")
 const adminRoute = require("./routes/admin/auth")
 const adminRoute2 = require("./routes/admin/general")
 const reinitiateTransaction = require("./routes/admin/reinitiate")
-const kycRoute = require("./routes/admin/kyc")
+const kycRoute = require("./routes/admin/kyc");
+const payoutAuth = require("./routes/payoutAuth");
 
 const app = express();
 
@@ -99,6 +100,7 @@ app.use("/api/admin/auth", adminRoute)
 app.use("/api/admin", adminRoute2)
 app.use("/api/admin/reinitiate", reinitiateTransaction)
 app.use("/api/kyc", kycRoute)
+app.use("/api/payoutAuth", payoutAuth)
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

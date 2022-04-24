@@ -1,12 +1,15 @@
 const express = require("express");
 const {
-    transferCrypto
+    transferCrypto, transferInitiate
 } = require("../../controllers/wyre/transfer");
 
 const { auth } = require("../../middlewares/auth");
 const router = express.Router();
 
-router.post("/externalTransfer", auth, transferCrypto);
+//send otp
+router.post("/transferInitiate", transferInitiate);
+//transfer initiate
+router.post("/externalTransfer", transferCrypto);
 
 
 module.exports = router;

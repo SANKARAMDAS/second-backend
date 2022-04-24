@@ -85,14 +85,16 @@ const wyreTransfer = async (invoiceId) => {
 
             }
 
-            const amount = (invoiceInfo.proportions[i].percentage / 100) * invoiceInfo.totalAmount
-            const sourceAmount = amount * exchangeResult["USDC" + currency]
+
+            var amount = (invoiceInfo.proportions[i].percentage / 100) * invoiceInfo.totalAmount
+            amount = amount * exchangeResult["USDUSDC"]
+            // const sourceAmount = amount * exchangeResult["USDC" + currency]
 
             const result = await wyre.post('/v3/transfers', {
                 //source - wyre master account
                 source: 'account:' + process.env.WYRE_ACCOUNT_ID,
                 sourceCurrency: "USDC",
-                sourceAmount,
+                sourceAmount: amount,
                 dest: 'wallet:' + user.wyreWallet,
                 destCurrency: currency,
                 autoConfirm: true
@@ -177,9 +179,9 @@ const getWalletOrderStatus = async (req, res) => {
     try {
         const invoiceInfo = await Invoice.findOne({ walletOrderId: orderId })
 
-        await wyreTransfer(invoiceInfo.invoiceId)
+        const finres = await wyreTransfer(invoiceInfo.invoiceId)
 
-        res.status(200).send();
+        res.status(200).send(finres);
     } catch (e) {
         console.log(e)
         res.status(400).send(e);

@@ -106,7 +106,14 @@ const freelancerSchema = new mongoose.Schema({
 		{
 			name: stringValue
 		}
-	]
+	],
+	tempSecretPayout: stringValue,
+	qrUrlPayout: stringValue,
+	is2faenabledPayout: {
+		type: Boolean,
+		default: false,
+	},
+	payoutOTP: stringValue
 });
 
 freelancerSchema.methods.createWallet = async function () {
