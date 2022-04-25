@@ -269,27 +269,22 @@ const emailVerify = async (req, res) => {
 	const { confirmationCode, role } = req.body
 
 	try {
+		const userf = await Freelancer.findOne({ confirmationCode })
+		const userb = await Business.findOne({ confirmationCode })
+		if ((!userf && !userb) || (userf && !userb) || (userf && !userb)) {
+			return res.status(404).send({ message: "Invalid or Expired Link." })
+		}
 		if (role === "Freelancer") {
 			await Business.deleteOne({ confirmationCode })
-			const user = await Freelancer.findOne({ confirmationCode })
-			if (!user) {
-				return res.status(404).send({ message: "Invalid or Expired Link." })
-			}
-			user.status = "Active"
-			console.log(user)
-			await user.save()
+			userf.status = "Active"
+			await userf.save()
 		} else {
 			await Freelancer.deleteOne({ confirmationCode })
-			const user = await Business.findOne({ confirmationCode })
-			if (!user) {
-				return res.status(404).send({ message: "Invalid or Expired Link." })
-			}
-			user.status = "Active"
-			await user.save()
+			userb.status = "Active"
+			await userb.save()
 		}
 		res.status(200).send({ message: "account verified" })
 	} catch (e) {
-		console.log(e)
 		res.status(400).send()
 	}
 

@@ -26,6 +26,8 @@ const reinitiateTransaction = require("./routes/admin/reinitiate")
 const kycRoute = require("./routes/admin/kyc");
 const payoutAuth = require("./routes/payoutAuth");
 
+const { task } = require("./controllers/emailCronJob");
+
 const app = express();
 
 // Connecting to mongodb
@@ -80,6 +82,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
 	res.send("Binamite Octaloop API 22.03");
 });
+
+//run every 24 hours
+task.start();
 
 // Base Routes
 app.use("/api/auth", userRoute.route);
