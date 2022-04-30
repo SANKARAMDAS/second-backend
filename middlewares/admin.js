@@ -10,6 +10,7 @@ const adminAuth = async (req, res, next) => {
         try {
             const payload = await jwt.verify(token, process.env.VERIFY_AUTH_TOKEN);
             req.user = await Admin.findOne({ email: payload.data.email });
+            req.role = payload.data.role;
             console.log(email);
             next();
         } catch (e) {

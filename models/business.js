@@ -40,6 +40,7 @@ const businessSchema = new mongoose.Schema({
 	state: stringValue,
 	country: stringValue,
 	zipCode: stringValue,
+
 	taxPayerName: stringValue,
 	panNumber: stringValue,
 	gstin: stringValue,
@@ -50,6 +51,21 @@ const businessSchema = new mongoose.Schema({
 	taxClassification: stringValue,
 	ssn: stringValue,
 	ein: stringValue,
+
+	// - 
+	//kyb start
+
+	kybStatus: {
+		type: String,
+		enum: ['Incomplete', 'Pending', 'Active'],
+		default: 'Incomplete'
+	},
+	businessName: stringValue,
+	taxId: stringValue,
+	registrationNumber: stringValue,
+
+
+	// -
 	wyreWallet: stringValue,
 	securityPin: {
 		type: String,

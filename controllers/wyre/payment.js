@@ -138,6 +138,19 @@ const debitCardQuote2 = async (req, res) => {
         invoiceInfo.walletOrderId = result.data.transaction.response.body.id
         invoiceInfo.reservationId = newWalletOrder.reservation
         await invoiceInfo.save()
+        const newTransaction = new Transaction({
+            sender: invoiceInfo.businessEmail,
+            receiver: invoiceInfo.freelancerEmail,
+            method: "CARD",
+            walletOrderId: result.data.transaction.response.body.id,
+            source: 'card',
+            sourceCurrency: 'USD',
+            destination: 'account:' + process.env.WYRE_ACCOUNT_ID,
+            destinationCurrency: 'USDC',
+            amount: invoiceInfo.totalAmount,
+            invoiceId
+        });
+        await newTransaction.save()
         // await newTransaction.save()
         res.status(200).send({ result: result.data.transaction.response.body, reservation: newWalletOrder.reservation })
     } catch (e) {
@@ -201,7 +214,19 @@ const debitCardQuote = async (req, res) => {
         invoiceInfo.walletOrderId = result.id
         invoiceInfo.reservationId = newWalletOrder.reservation
         await invoiceInfo.save()
-        // await newTransaction.save()
+        const newTransaction = new Transaction({
+            sender: invoiceInfo.businessEmail,
+            receiver: invoiceInfo.freelancerEmail,
+            method: "CARD",
+            walletOrderId: result.id,
+            source: 'card',
+            sourceCurrency: 'USD',
+            destination: 'account:' + process.env.WYRE_ACCOUNT_ID,
+            destinationCurrency: 'USDC',
+            amount: invoiceInfo.totalAmount,
+            invoiceId
+        });
+        await newTransaction.save()
         res.status(200).send({ result, reservation: newWalletOrder.reservation })
     } catch (e) {
         console.log(e)

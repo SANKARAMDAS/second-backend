@@ -732,13 +732,12 @@ const uploadDocument = async (req, res) => {
 
 	try {
 		const user = req.user
-		if (user.kycStatus === 'Active' || user.kycStatus === 'Pending') {
-			return res.status(400).send({ message: "KYC status: " + user.kycStatus });
-		}
-		await uploadFile(req, res);
+
 		if (req.file == undefined) {
 			return res.status(400).send({ message: "Please upload a file!" });
 		}
+
+		// await uploadFile(req);
 
 		user.document = req.file.filename
 		user.kycStatus = 'Pending'
@@ -759,6 +758,27 @@ const uploadDocument = async (req, res) => {
 		});
 	}
 };
+
+const completeKyb = async (req, res) => {
+	const { businessName, taxId, registrationNumber } = req.body
+	// const user = req.user
+	try {
+		const user = await Business.findOne({ _id: "626da3475b405b1768c05e2d" })
+
+		console.log(req.body);
+		console.log(req.files);
+
+		user.businessName = businessName
+		user.taxId = taxId
+		user.registrationNumber = registrationNumber
+
+		await user.save()
+		res.status(200).send({ message: "kyb process initiated" })
+
+	} catch (e) {
+		res.status(400).send({ message: "there was some error." })
+	}
+}
 
 // Logout User
 const logout = async (req, res) => {
@@ -806,5 +826,6 @@ module.exports = {
 	logout,
 	refresh,
 	validate2fa,
-	uploadDocument
+	uploadDocument,
+	completeKyb
 };

@@ -83,7 +83,7 @@ app.get("/", (req, res) => {
 	res.send("Binamite Octaloop API 22.03");
 });
 
-//run every 24 hours
+//runs every 24 hours
 task.start();
 
 // Base Routes

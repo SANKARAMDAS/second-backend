@@ -169,5 +169,5 @@ const refresh = (req, res) => {
 
 module.exports = {
     addUser,
-    signin
+    signin, refresh
 }

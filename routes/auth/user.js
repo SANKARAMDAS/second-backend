@@ -1,5 +1,8 @@
 const express = require("express");
 const { auth } = require("../../middlewares/auth");
+const { upload } = require("../../middlewares/upload")
+const { uploadKyb } = require("../../middlewares/kyb")
+const { checkstatus } = require("../../middlewares/checkStatus")
 const router = express.Router();
 const {
 	// sendOtp,
@@ -17,7 +20,9 @@ const {
 	uploadDocument,
 	getUser,
 	logout,
+	completeKyb
 } = require("../../controllers/auth/user");
+
 
 
 
@@ -47,7 +52,9 @@ router.post("/getUserProfile", auth, getUserProfile);
 
 router.post("/updateProfile", updateProfile);
 
-router.post("/upload", uploadDocument);
+router.post("/upload", auth, checkstatus, upload.single("document"), uploadDocument);
+
+router.post("/completeKyb", auth, checkstatus, uploadKyb.array("documents", 2), completeKyb);
 
 router.post("/logout", logout);
 

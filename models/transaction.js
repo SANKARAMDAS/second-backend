@@ -20,7 +20,6 @@ const TransactionSchema = new mongoose.Schema({
     transferId: {
         type: String,
         trim: true,
-        required: true,
     },
     source: {
         type: String,
@@ -56,6 +55,10 @@ const TransactionSchema = new mongoose.Schema({
         type: Number
     },
     invoiceId: {
+        type: String,
+        required: false
+    },
+    walletOrderId: {
         type: String,
         required: false
     }

@@ -2,6 +2,7 @@ const { wyre } = require("./boilerplate")
 const Transaction = require("../../models/transaction")
 const Invoice = require("../../models/invoice")
 const Freelancer = require("../../models/freelancer")
+const uuid = require("uuid")
 
 //get user's transaction history
 const getTransactionHistory = async (req, res) => {
@@ -85,19 +86,20 @@ const wyreTransfer = async (invoiceId) => {
 
             }
 
-
             var amount = (invoiceInfo.proportions[i].percentage / 100) * invoiceInfo.totalAmount
-            amount = amount * exchangeResult["USDUSDC"]
-            // const sourceAmount = amount * exchangeResult["USDC" + currency]
+            // amount = amount * exchangeResult["USDC"]
+            const sourceAmount = amount * exchangeResult["USDC" + currency]
 
             const result = await wyre.post('/v3/transfers', {
                 //source - wyre master account
                 source: 'account:' + process.env.WYRE_ACCOUNT_ID,
                 sourceCurrency: "USDC",
-                sourceAmount: amount,
+                sourceAmount,
                 dest: 'wallet:' + user.wyreWallet,
                 destCurrency: currency,
-                autoConfirm: true
+                notifyUrl: 'https://backend.binamite.com/api/transactions/getTransferStatus',
+                autoConfirm: true,
+                customId: invoiceId + '.' + uuid.v4()
             })
 
             invoiceInfo.proportions[i].transferId = result.id
@@ -177,11 +179,50 @@ const getTransaction = async (req, res) => {
 const getWalletOrderStatus = async (req, res) => {
     const { orderId, orderStatus, transferId } = req.body
     try {
-        const invoiceInfo = await Invoice.findOne({ walletOrderId: orderId })
-
-        const finres = await wyreTransfer(invoiceInfo.invoiceId)
-
+        const transaction = await Transaction.findOne({ walletOrderId: orderId })
+        if (!transaction) return res.status(400).send()
+        transaction.status = orderStatus;
+        await transaction.save()
+        let finres
+        if (orderStatus === 'COMPLETE') {
+            const invoiceInfo = await Invoice.findOne({ walletOrderId: orderId })
+            finres = await wyreTransfer(invoiceInfo.invoiceId)
+        }
         res.status(200).send(finres);
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e);
+    }
+}
+
+const getTransferStatus = async (req, res) => {
+    var { id, status, customId, sourceCurrency, destCurrency, dest, sourceAmount } = req.body
+    try {
+        const transaction = await Transaction.findOne({ transferId: id })
+        if (!transaction) {
+            customId = customId.substring(0, customId.length - 37);
+            console.log(customId)
+            const invoiceInfo = await Invoice.findOne({ invoiceId: customId })
+            if (!invoiceInfo) return res.status(400).send()
+            const newTransaction = new Transaction({
+                sender: invoiceInfo.businessEmail,
+                receiver: invoiceInfo.freelancerEmail,
+                method: "WYRE",
+                transferId: id,
+                source: 'account',
+                sourceCurrency: sourceCurrency,
+                destination: dest,
+                destinationCurrency: destCurrency,
+                amount: sourceAmount,
+                invoiceId: customId,
+                status
+            });
+            await newTransaction.save()
+        } else {
+            transaction.status = status
+            await transaction.save()
+        }
+        res.status(200).send();
     } catch (e) {
         console.log(e)
         res.status(400).send(e);
@@ -206,5 +247,6 @@ module.exports = {
     getTransactionHistory,
     getTransaction,
     getWalletOrderStatus,
-    enableorder
+    enableorder,
+    getTransferStatus
 }
