@@ -31,8 +31,7 @@ const deliverSpreedly = async (buyRequest, paymentMethodToken) => {
             body: JSON.stringify(buyRequest)
         }
     };
-
-    const delivery = await spreedly.receivers.deliver(process.env.SPREEDLY_RECEIVER, requestBody);
+    const delivery = await instance.post(`https://core.spreedly.com/v1/receivers/${process.env.SPREEDLY_RECEIVER}/deliver.json`, requestBody)
     return delivery;
 }
 
@@ -78,7 +77,7 @@ const debitCardQuote2 = async (req, res) => {
     const { invoiceId, paymentMethodToken, currency, givenName, familyName, ipAddress, phone, address, saveCard } = req.body
 
     try {
-
+        const user = req.user
 
         const resulttemp = await instance.post(`https://core.spreedly.com/v1/gateways/${process.env.GATEWAY_TOKEN}/verify.json`, {
             "transaction": {
@@ -86,6 +85,8 @@ const debitCardQuote2 = async (req, res) => {
                 "retain_on_success": true
             }
         })
+
+        console.log(resulttemp)
 
 
         const invoiceInfo = await Invoice.findOne({ invoiceId });
@@ -173,26 +174,34 @@ const getSavedCards = async (req, res) => {
     const user = req.user
     try {
 
+
         if (req.role == 'freelancer') {
             return res.status(400).send({ message: "invalid request" })
         }
 
         const savedCards = user.paymentMethods
 
-        var finalresult = []
+        if (!savedCards.length) {
+            return res.status(400).send({ message: "no payment methods found." })
+        }
 
-        savedCards.forEach(async (card) => {
+        var finalresult = new Array(savedCards.length)
 
-            const result = await instance.get(`https://core.spreedly.com/v1/payment_methods/${card.paymentMethodId}.json`)
+        for (var i = 0; i < savedCards.length; i++) {
 
-            finalresult.push({
-                number: result.number,
-                token: reult.token,
-                card_type: result.card_type
-            })
-        });
+            const result = await instance.get(`https://core.spreedly.com/v1/payment_methods/${savedCards[i].paymentMethodId}.json`)
 
-        res.status(200).send(finalresult)
+            finalresult[i] = {
+                "number": result.data.payment_method.number,
+                "token": result.data.payment_method.token,
+                "card_type": result.data.payment_method.card_type
+            }
+
+        }
+
+        console.log(finalresult)
+
+        res.status(200).send({ result: finalresult })
 
     } catch (e) {
         res.status(400).send({ message: e.message })
@@ -238,7 +247,7 @@ const debitCardQuote = async (req, res) => {
             reservationId: newWalletOrder.reservation,
             amount: amountinstring,
             sourceCurrency: currency,
-            destCurrency: 'USDC',
+            destCurrency: 'USD',
             dest: "account:" + process.env.WYRE_ACCOUNT_ID,
             referrerAccountId: process.env.WYRE_ACCOUNT_ID,
             givenName,
