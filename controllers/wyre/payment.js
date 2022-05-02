@@ -75,7 +75,7 @@ const debitCardQuote2 = async (req, res) => {
     //debitcard format - {number: '4111111111111111', year: '2023', month: '01', cvv: '123'}
     //address format - {street1: '1234 Test Ave', city: 'Los Angeles', state: 'CA', postalCode: '91423', country: 'US'}
 
-    const { invoiceId, paymentMethodToken, currency, givenName, familyName, ipAddress, phone, address } = req.body
+    const { invoiceId, paymentMethodToken, currency, givenName, familyName, ipAddress, phone, address, saveCard } = req.body
 
     try {
 
@@ -135,6 +135,15 @@ const debitCardQuote2 = async (req, res) => {
 
         console.log(result.data.transaction.response.body)
 
+        if (!result.data.transaction.response.body.id) {
+            return res.status(500).send(result.data.transaction.response.body)
+        }
+
+        if (saveCard == 1) {
+            user.paymentMethods.push({ paymentMethodId: paymentMethodToken })
+            await user.save()
+        }
+
         invoiceInfo.walletOrderId = result.data.transaction.response.body.id
         invoiceInfo.reservationId = newWalletOrder.reservation
         await invoiceInfo.save()
@@ -153,9 +162,40 @@ const debitCardQuote2 = async (req, res) => {
         await newTransaction.save()
         // await newTransaction.save()
         res.status(200).send({ result: result.data.transaction.response.body, reservation: newWalletOrder.reservation })
+
     } catch (e) {
         console.log(e)
         res.status(400).send(e)
+    }
+}
+
+const getSavedCards = async (req, res) => {
+    const user = req.user
+    try {
+
+        if (req.role == 'freelancer') {
+            return res.status(400).send({ message: "invalid request" })
+        }
+
+        const savedCards = user.paymentMethods
+
+        var finalresult = []
+
+        savedCards.forEach(async (card) => {
+
+            const result = await instance.get(`https://core.spreedly.com/v1/payment_methods/${card.paymentMethodId}.json`)
+
+            finalresult.push({
+                number: result.number,
+                token: reult.token,
+                card_type: result.card_type
+            })
+        });
+
+        res.status(200).send(finalresult)
+
+    } catch (e) {
+        res.status(400).send({ message: e.message })
     }
 }
 
@@ -815,6 +855,8 @@ module.exports = {
     wyreWalletPayment,
     // createCreditCard,
     createReceiver,
-    debitCardQuote2
+    debitCardQuote2,
+    getSavedCards,
+    getAuthorization
     // verifyCreditCard
 }
