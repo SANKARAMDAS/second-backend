@@ -24,14 +24,15 @@ const instance = axios.create({
 const deliverSpreedly = async (buyRequest, paymentMethodToken) => {
     const url = "https://api.testwyre.com/v3/debitcard/process/partner";
     const requestBody = {
-        delivery: {
-            payment_method_token: paymentMethodToken,
-            url,
-            headers: `Content-Type: application/json\nAuthorization: Bearer ${process.env.WYRE_SECRET_KEY}`,
-            body: JSON.stringify(buyRequest)
+        "delivery": {
+            "payment_method_token": paymentMethodToken,
+            "url": url,
+            "headers": `Content-Type: application/json\nAuthorization: Bearer ${process.env.WYRE_SECRET_KEY}`,
+            "body": "{ \"product_id\": \"916598\", \"card_number\": \"{{credit_card_number}}\" }"
         }
     };
     const delivery = await instance.post(`https://core.spreedly.com/v1/receivers/${process.env.SPREEDLY_RECEIVER}/deliver.json`, requestBody)
+    console.log(delivery.data)
     return delivery;
 }
 
@@ -77,17 +78,19 @@ const debitCardQuote2 = async (req, res) => {
     const { invoiceId, paymentMethodToken, currency, givenName, familyName, ipAddress, phone, address, saveCard } = req.body
 
     try {
-        const user = req.user
+        // const user = req.user
+        const user = await Business.findById("626da3475b405b1768c05e2d")
 
         const resulttemp = await instance.post(`https://core.spreedly.com/v1/gateways/${process.env.GATEWAY_TOKEN}/verify.json`, {
             "transaction": {
                 "payment_method_token": paymentMethodToken,
+                "currency": "usd",
+                "description": "Software development services",
                 "retain_on_success": true
             }
         })
 
-        console.log(resulttemp)
-
+        // console.log(resulttemp)
 
         const invoiceInfo = await Invoice.findOne({ invoiceId });
 
@@ -116,11 +119,11 @@ const debitCardQuote2 = async (req, res) => {
         };
 
         const buyRequest = {
-            userDebitCard,
+            debitCard: userDebitCard,
             reservationId: newWalletOrder.reservation,
             amount: amountinstring,
             sourceCurrency: currency,
-            destCurrency: 'USDC',
+            destCurrency: 'ETH',
             dest: 'account:' + process.env.WYRE_ACCOUNT_ID,
             referrerAccountId: process.env.WYRE_ACCOUNT_ID,
             givenName,
@@ -132,9 +135,8 @@ const debitCardQuote2 = async (req, res) => {
             address
         };
 
-        const result = await deliverSpreedly(buyRequest, paymentMethodToken)
 
-        console.log(result.data.transaction.response.body)
+        const result = await deliverSpreedly(buyRequest, paymentMethodToken)
 
         if (!result.data.transaction.response.body.id) {
             return res.status(500).send(result.data.transaction.response.body)
@@ -161,8 +163,9 @@ const debitCardQuote2 = async (req, res) => {
             invoiceId
         });
         await newTransaction.save()
-        // await newTransaction.save()
+
         res.status(200).send({ result: result.data.transaction.response.body, reservation: newWalletOrder.reservation })
+        res.send(result)
 
     } catch (e) {
         console.log(e)
@@ -209,7 +212,6 @@ const getSavedCards = async (req, res) => {
 }
 
 //submit invoice authorization - otp
-
 
 const debitCardQuote = async (req, res) => {
     //debitcard format - {number: '4111111111111111', year: '2023', month: '01', cvv: '123'}

@@ -34,6 +34,7 @@ const freelancerSchema = new mongoose.Schema({
 		trim: true,
 		required: true,
 	},
+	passwordReset: stringValue,
 	address: stringValue,
 	city: stringValue,
 	state: stringValue,

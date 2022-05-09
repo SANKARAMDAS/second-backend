@@ -13,6 +13,7 @@ const util = require("util")
 const fs = require("fs")
 const path = require("path")
 const uploadFile = require("../../middlewares/upload");
+const bcrypt = require('bcryptjs')
 
 // Generate OTP and Send on Email 1/4
 // const generateOTP = async (email, name, password) => {
@@ -574,61 +575,78 @@ const forgotPassword = async (req, res) => {
 		const freelancer = await Freelancer.findOne({ email: user_email });
 		const business = await Business.findOne({ email: user_email });
 
-		let email;
-		let name;
+		let user;
 
 		if (freelancer === null && business === null) {
 			res.status(400).send({ msg: "Email is not registered" });
 		} else {
 			if (freelancer) {
-				email = freelancer.email;
-				name = freelancer.name;
+				user = freelancer
 			} else {
-				email = business.email;
-				name = business.name;
+				user = business
 			}
-			const link = `localhost:3000/api/auth/passwordreset/${email}`;
+
+			const jwtoken = jwt.sign({
+				id: user._id
+			}, process.env.JWT_VERIFY, { expiresIn: 60 * 60 });
+
+
+			user.passwordReset = await bcrypt.hash(jwtoken, 7)
+			await user.save()
+
+			const link = `https://rdx.binamite.com/passwordreset/${jwtoken}/${user._id}`;
 			console.log(link);
 
-			const emailBody = `<p> Hey ${name} <br/>
+
+			const emailBody = `<p> Hey ${user.name} <br/>
 								Your reset password link is: <br/>
-								<a href=${link}>${link}</a></p>`;
-			await sendEmail({ email: email }, emailBody, "Password Reset");
+								<a href=${link}>link</a></p>`;
+			await sendEmail({ email: user.email }, emailBody, "Password Reset");
 
 			res.status(200).send({
 				msg: "Password Reset Link sent successfully",
-				data: { link: link, email: email },
+				data: { link: link, email: user.email },
 			});
 		}
 	} catch (err) {
-		res.status(400).send({ msg: err });
+		res.status(400).send({ msg: err.message });
 	}
 };
 
 // Password Reset
 const passwordReset = async (req, res) => {
-	const { email, password } = req.body;
+	const { password, token, id } = req.body;
 	try {
-		const freelancer = await Freelancer.findOne({ email: email });
-		const business = await Business.findOne({ email: email });
+		const freelancer = await Freelancer.findOne({ _id: id });
+		const business = await Business.findOne({ _id: id });
+
+		let user;
 
 		if (freelancer) {
-			await Freelancer.findOneAndUpdate(
-				{ _id: freelancer._id },
-				{ password: password }
-			);
-			res.status(200).send({ msg: "Password reset was successful" });
+			user = freelancer
 		} else if (business) {
-			await Business.findOneAndUpdate(
-				{ _id: business._id },
-				{ password: password }
-			);
-			res.status(200).send({ msg: "Password reset was successful" });
+			user = business
 		} else {
-			res.status(400).send({ msg: "Email doesnot exist" });
+			return res.status(400).send({ msg: "Account does not exist." });
 		}
+
+		const isValid = await bcrypt.compare(token, user.passwordReset)
+
+		if (!isValid) return res.status(400).send({ message: "invalid or expired link." })
+
+		const decoded = jwt.verify(token, process.env.JWT_VERIFY);
+
+		if (decoded.id !== id) {
+			return res.status(400).send({ message: "invalid or expired link." })
+		}
+
+		user.password = password
+		await user.save()
+
+		res.status(400).send({ message: "password changed successfully" })
+
 	} catch (err) {
-		res.status(400).send({ msg: err });
+		res.status(400).send({ msg: err.message });
 	}
 };
 
