@@ -13,7 +13,7 @@ const verifyEmailGoogleAuth = async (req, res) => {
 		const freelancer = await Freelancer.findOne({ email: payload["email"] });
 
 		if (business || freelancer) {
-			res.status(400).send({ msg: "This email is already registered" });
+			return res.status(400).send({ msg: "This email is already registered" });
 		} else {
 			res.status(200).send({
 				data: {
@@ -44,13 +44,14 @@ const googleSignup = async (req, res) => {
 				taxId: "",
 				wyreWallet: "",
 				isProfileComplete: false,
+				status: "Active"
 			});
 			const savedFreelancer = await newFreelancer.save();
 			res.status(200).send({ msg: "Freelancer Registered" });
 		} else {
 			const newBusiness = await new Business({
-				name: payload["name"],
-				email: payload["email"],
+				name: name,
+				email: email,
 				password: "1nejn13#google-login#n2j1k23n2j",
 				address: "",
 				city: "",
@@ -60,12 +61,14 @@ const googleSignup = async (req, res) => {
 				taxId: "",
 				wyreWallet: "",
 				isProfileComplete: false,
+				status: "Active"
 			});
 			const savedBusiness = await newBusiness.save();
 			res.status(200).send({ msg: "Business Registered" });
 		}
 	} catch (err) {
-		res.status(404).send({ msg: err });
+		console.log(err.message)
+		res.status(404).send({ msg: err.message });
 	}
 };
 
