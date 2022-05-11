@@ -80,11 +80,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.get("/", (req, res) => {
-	res.send("Binamite Octaloop API 22.03");
+	res.send("Binamite Octaloop API 22.05");
 });
 
-//run every 24 hours
-task.start();
+//runs every 24 hours
+// task.start();
 
 // Base Routes
 app.use("/api/auth", userRoute.route);

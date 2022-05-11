@@ -1,10 +1,9 @@
 const Freelancer = require("../models/freelancer");
 const Business = require("../models/business");
-const Invitation = require("../models/invitation")
 const { sendEmail } = require("./sendEmail");
 var cron = require('node-cron');
 
-var task = cron.schedule('* */24 * * * *', async () => {
+var task = cron.schedule('* */24 * * *', async () => {
     try {
         const users = await Freelancer.find({ status: "Pending" })
         console.log(users.length)

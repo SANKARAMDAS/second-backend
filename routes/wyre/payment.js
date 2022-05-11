@@ -13,6 +13,8 @@ const {
     fundwallet,
     submitAuthorization2,
     wyreWalletPayment,
+    getAuthorization,
+    getSavedCards,
     // createCreditCard,
     createReceiver,
     debitCardQuote2
@@ -32,8 +34,12 @@ router.post("/createReceiver", createReceiver)
 router.post("/debitCardQuote", debitCardQuote);
 //initiate card payment - spreedly
 router.post("/debitCardQuote2", debitCardQuote2);
+//get authorization
+router.post("/getAuthorization", auth, getAuthorization);
+//get saved cards
+router.get("/getcards", getSavedCards);
 //submit otp
-router.post("/submitAuthorization", submitAuthorization);
+router.post("/submitAuthorization", auth, submitAuthorization);
 //get wallet order
 router.get("/walletOrder", getWalletOrder);
 

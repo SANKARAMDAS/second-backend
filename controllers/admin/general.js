@@ -13,8 +13,8 @@ const { wyre } = require("../wyre/boilerplate");
 
 const getUsers = async (req, res) => {
     try {
-        const freelancer = await Freelancer.find()
-        const business = await Business.find()
+        const freelancer = await Freelancer.find({ status: "Active" })
+        const business = await Business.find({ status: "Active" })
         res.status(200).send({ freelancer, business })
     } catch (e) {
         console.log(e)
@@ -62,7 +62,7 @@ const getTransactions = async (req, res) => {
                 finResult.push(result[i]);
             }
         }
-        res.status(200).send(finResult)
+        res.status(200).send({ transactions: finResult })
     } catch (e) {
         res.status(400).send(e)
     }
