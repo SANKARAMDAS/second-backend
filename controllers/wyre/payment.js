@@ -497,12 +497,12 @@ const getPaymentMethods = async (req, res) => {
     try {
         var data = []
         for (var i = 0; i < user.paymentMethods.length; i++) {
-            var res = await wyre.get('/v3/paymentMethod/' + user.paymentMethods[i].paymentMethodId)
-            data.push(res)
+            var res2 = await wyre.get('/v2/paymentMethod/' + user.paymentMethods[i].paymentMethodId)
+            data.push(res2)
         }
         res.status(200).send(data)
     } catch (e) {
-        res.status(400).send({ message: "There was an error" })
+        res.status(400).send({ message: e.message })
     }
 
 

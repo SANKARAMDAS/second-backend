@@ -54,6 +54,7 @@ const freelancerSchema = new mongoose.Schema({
 	ethereum: stringValue,
 	bitcoinTransferId: stringValue,
 	ethereumTransferId: stringValue,
+	fiatTransferId: stringValue,
 	wyreWallet: {
 		type: String,
 	},
