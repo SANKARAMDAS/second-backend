@@ -52,19 +52,19 @@ const wyreTransfer = async (invoiceId) => {
 
         for (var i = 0; i < invoiceInfo.proportions.length; i++) {
 
-            if (invoiceInfo.proportions[i].currency == "FIAT") {
-                if (invoiceInfo.proportions[i].transferId) {
-                    let transferResultx
-                    transferResultx = await wyre.get(`/v3/transfers/${invoiceInfo.proportions[i].transferId}`)
-                    if (transferResultx.status == "COMPLETED") {
-                        count++;
-                        continue
-                    }
-                }
-            }
+            // if (invoiceInfo.proportions[i].currency == "FIAT") {
+            //     if (invoiceInfo.proportions[i].transferId) {
+            //         let transferResultx
+            //         transferResultx = await wyre.get(`/v3/transfers/${invoiceInfo.proportions[i].transferId}`)
+            //         if (transferResultx.status == "COMPLETED") {
+            //             count++;
+            //             continue
+            //         }
+            //     }
+            // }
 
 
-            if (invoiceInfo.proportions[i].currency == "FIAT" || invoiceInfo.proportions[i].percentage == 0) continue;
+            if (invoiceInfo.proportions[i].percentage == 0) continue;
             const currency = invoiceInfo.proportions[i].currency
 
             if (invoiceInfo.proportions[i].transferId) {
@@ -73,14 +73,14 @@ const wyreTransfer = async (invoiceId) => {
                 transferResult = await wyre.get(`/v3/transfers/${invoiceInfo.proportions[i].transferId}`)
                 switch (transferResult.status) {
                     case "PENDING":
-                        finalResult[currency] = "transfer pending"
+                        finalResult[currency] = "previous transfer pending"
                         continue
                     case "COMPLETED":
                         count++;
-                        finalResult[currency] = "transfer completed"
+                        finalResult[currency] = "previous transfer completed"
                         continue
                     case "UNCONFIRMED":
-                        finalResult[currency] = "transfer being processed"
+                        finalResult[currency] = "previous transfer being processed"
                         continue
                 }
 
@@ -88,19 +88,27 @@ const wyreTransfer = async (invoiceId) => {
 
             var amount = (invoiceInfo.proportions[i].percentage / 100) * invoiceInfo.totalAmount
             // amount = amount * exchangeResult["USDC"]
-            const sourceAmount = amount * exchangeResult["USDC" + currency]
+            let destCurrency
+            if (currency == "FIAT") {
+                destCurrency = "USD"
+            } else {
+                destCurrency = currency
+            }
+
 
             const result = await wyre.post('/v3/transfers', {
                 //source - wyre master account
                 source: 'account:' + process.env.WYRE_ACCOUNT_ID,
                 sourceCurrency: "USDC",
-                sourceAmount,
+                sourceAmount: amount,
                 dest: 'wallet:' + user.wyreWallet,
-                destCurrency: currency,
+                destCurrency,
                 notifyUrl: 'https://backend.binamite.com/api/transactions/getTransferStatus',
                 autoConfirm: true,
                 customId: invoiceId + '.' + uuid.v4()
             })
+
+            finalResult[currency] = result.status
 
             invoiceInfo.proportions[i].transferId = result.id
 
@@ -183,10 +191,11 @@ const getWalletOrderStatus = async (req, res) => {
         if (!transaction) return res.status(400).send()
         transaction.status = orderStatus;
         await transaction.save()
-        let finres
+        var finres = []
         if (orderStatus === 'COMPLETE') {
             const invoiceInfo = await Invoice.findOne({ walletOrderId: orderId })
             finres = await wyreTransfer(invoiceInfo.invoiceId)
+            // finres = await wyreTransfer(invoiceInfo.invoiceId)
         }
         res.status(200).send(finres);
     } catch (e) {
