@@ -686,6 +686,7 @@ const updateProfile = async (req, res) => {
 	try {
 		const freelancer = await Freelancer.findOne({ email: email });
 		const business = await Business.findOne({ email: email });
+		console.log(freelancer, business)
 		if (freelancer) {
 			const result = await Freelancer.findOneAndUpdate(
 				{ email: email },
@@ -736,9 +737,6 @@ const updateProfile = async (req, res) => {
 				}
 			);
 			return res.status(200).send({ msg: "Profile Updated Successfully" });
-		} else {
-
-			return res.status(400).send({ message: "error" })
 		}
 	} catch (err) {
 		console.log(err)
