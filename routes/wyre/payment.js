@@ -59,7 +59,7 @@ router.get("/paymentMethods", auth, getPaymentMethods);
 router.post("/ACHtransfer", auth, ACHtransfer);
 
 //Wire Payout//
-router.post('/createSwiftPaymentMethod', createSwiftPaymentMethod);
+router.post('/createSwiftPaymentMethod', auth, createSwiftPaymentMethod);
 
 
 //pay using wallet//

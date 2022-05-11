@@ -574,11 +574,11 @@ const ACHtransfer = async (req, res) => {
 // create swift payment method
 const createSwiftPaymentMethod = async (req, res) => {
     const { name, accountNumber, swiftBic } = req.body
-    // const user = req.user
+    const user = req.user
     let result
 
     try {
-        const user = await Freelancer.findById('624a874c14a1bd0c9bc02761')
+        // const user = await Freelancer.findById('624a874c14a1bd0c9bc02761')
         result = await wyre.post('/v2/paymentMethods', {
             paymentMethodType: 'INTERNATIONAL_TRANSFER',
             paymentType: 'LOCAL_BANK_WIRE',
