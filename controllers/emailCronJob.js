@@ -3,6 +3,7 @@ const Business = require("../models/business");
 const { sendEmail } = require("./sendEmail");
 var cron = require('node-cron');
 
+// verification reminder
 var task = cron.schedule('* */24 * * *', async () => {
     try {
         const users = await Freelancer.find({ status: "Pending" })
@@ -17,15 +18,19 @@ var task = cron.schedule('* */24 * * *', async () => {
 
                 const emailBody = `
 	<div>
-		<p style="font-weight: bold;" >Hello ${user.name},</p>
-		<p>We just need to verify your email address before you can continue using Binamite. <br>Click on the Link to verify your email address: <a href=${link}>Link</a></p>
-		<p>If you have not registered on the website, kindly ignore the email</p>
-		<br/>
-		<p>Have a Nice Day!</p>            
+		<p style="font-weight: bold;" >Hey ${user.name}!</p>
+		<p>We noticed that you haven't yet verified your email address for your Binamite account. Clicking on the verification link below will finish creating your account and allow you to login and start collaborating with other members of our community.</p>
+        <a href=${link}>Link</a>
+        <p>
+		If you have any questions or need assistance along the way, please do not hesitate to reach out to our support team at team@binamite.com
+        </p>
+        <p>
+		Thanks for choosing Binamite as your go-to space for collaboration and inspiration!
+		</p>                
 	</div>
 	`;
 
-                await sendEmail({ email: user.email, name: user.name }, emailBody, "Email Verification Reminder");
+                await sendEmail({ email: user.email, name: user.name }, emailBody, "You’re Almost There!");
                 user.verificationReminderSent = true
                 await user.save()
 

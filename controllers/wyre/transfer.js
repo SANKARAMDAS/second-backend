@@ -38,9 +38,13 @@ const transferInitiate = async (req, res) => {
 
             const emailBody = `
 	<div>
-		<p style="font-weight: bold;" >Hello ${user.name},</p>
-		<p>${otp} is the Onetime password for your Binamite wallet transaction. Do not share OTP for security reasons.</p>
-		<p>Have a Nice Day!</p>            
+        <p style="font-weight: bold;" >Dear ${user.name},</p>
+        <p>A withdrawal has been requested for the following currency: </p>
+        <p style="font-weight: bold;" >${currency}</p>
+		<p><strong>${otp}</strong> is the Onetime password for your Binamite wallet transaction. Do not share OTP for security reasons.</p>
+		<p>If this request was not made by you, please contact our support team at team@binamite.com as soon as possible.
+        </p>   
+        <p>Thank you for your attention to this matter.</p>         
 	</div>
 	`;
 
@@ -50,7 +54,7 @@ const transferInitiate = async (req, res) => {
 
             user.payoutOTP = jwtoken
             await user.save()
-            await sendEmail({ email: user.email, name: user.name }, emailBody, "Transaction 2FA");
+            await sendEmail({ email: user.email, name: user.name }, emailBody, "Authorize withdrawal");
 
             return res.status(200).send({ message: "OTP sent on registered email address." })
         } else {

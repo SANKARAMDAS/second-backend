@@ -246,15 +246,22 @@ const signup = async (req, res) => {
 
 		const emailBody = `
 	<div>
-		<p style="font-weight: bold;" >Hello ${name},</p>
-		<p>You have one more step remaining to activate your Binamite account. <br>Click on the Link to verify your email address: <a href=${link}>Link</a></p>
-		<p>If you have not registered on the website, kindly ignore the email</p>
-		<br/>
-		<p>Have a Nice Day!</p>            
+		<p style="font-weight: bold;" >Hey ${name}!</p>
+		<p>We are so excited to have you onboard as a member of our growing Binamiter community.</p>
+		<p>
+		We know that signing up for new membership can be an exciting, yet somewhat daunting process, which is why we want to welcome you and help you get started.
+		</p>
+		<p>First things first, we want to ensure that you are able to login and access your account with ease. Please click on the link below to verify your email address and finish creating your account.
+		</p>
+		<a href=${link}>Link</a>
+		<p>If you have any questions or need assistance along the way, please do not hesitate to reach out to our support team at team@binamite.com
+		</p><p>
+		Thanks for choosing Binamite as your go-to space for collaboration and inspiration!
+		</p>            
 	</div>
 	`;
 
-		await sendEmail({ email: email, name: name }, emailBody, "Email Verification");
+		await sendEmail({ email: email, name: name }, emailBody, "Verify your Binamite account");
 
 		return res.status(200).send({
 			msg: "User Added Successfully",
@@ -311,15 +318,22 @@ const resendEmail = async (req, res) => {
 
 		const emailBody = `
 	<div>
-		<p style="font-weight: bold;" >Hello ${userf.name},</p>
-		<p>You have one more step remaining to activate your Binamite account. <br>Click on the Link to verify your email address: <a href=${link}>Link</a></p>
-		<p>If you have not registered on the website, kindly ignore the email</p>
-		<br/>
-		<p>Have a Nice Day!</p>            
+		<p style="font-weight: bold;" >Hey ${userf.name}!</p>
+		<p>We are so excited to have you onboard as a member of our growing Binamiter community.</p>
+		<p>
+		We know that signing up for new membership can be an exciting, yet somewhat daunting process, which is why we want to welcome you and help you get started.
+		</p>
+		<p>First things first, we want to ensure that you are able to login and access your account with ease. Please click on the link below to verify your email address and finish creating your account.
+		</p>
+		<a href=${link}>Link</a>
+		<p>If you have any questions or need assistance along the way, please do not hesitate to reach out to our support team at team@binamite.com
+		</p><p>
+		Thanks for choosing Binamite as your go-to space for collaboration and inspiration!
+		</p>                   
 	</div>
 	`;
 
-		await sendEmail({ email: email, name: userf.name }, emailBody, "Email Verification");
+		await sendEmail({ email: email, name: userf.name }, emailBody, "Verify your Binamite account");
 
 		res.status(200).send({ message: "Email sent." })
 
