@@ -10,9 +10,9 @@ const QRCode = require("qrcode")
 
 const transferInitiate = async (req, res) => {
     const { token, currency } = req.body
-    // const user = req.user
+    const user = req.user
     try {
-        const user = await Freelancer.findById("6263cdb9a81fd59d5447da2f")
+        // const user = await Freelancer.findById("6263cdb9a81fd59d5447da2f")
 
         if (!user || !user.is2faenabledPayout) {
             return res.status(400).send({ message: "Enable Payout 2FA in profile" })
@@ -69,11 +69,11 @@ const transferInitiate = async (req, res) => {
 //transfer crypto from from wyre wallet to freelancer's external wallet
 const transferCrypto = async (req, res) => {
     const { otp, currency } = req.body;
-    // const user = req.user;
+    const user = req.user;
 
     try {
 
-        const user = await Freelancer.findById("6263cdb9a81fd59d5447da2f")
+        // const user = await Freelancer.findById("6263cdb9a81fd59d5447da2f")
 
         if (!user || !user.payoutOTP) {
             return res.status(400).send()
