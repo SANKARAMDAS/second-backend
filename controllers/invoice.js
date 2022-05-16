@@ -96,6 +96,23 @@ const invoiceCreation = async (req, res) => {
 				link: link,
 			});
 
+			const previnvoinces = await Invoice.find({ freelancerEmail })
+
+			if (!previnvoinces) {
+
+				const emailBody = `
+	<div>
+		<p style="font-weight: bold;" >Hey ${freelancerName}!</p>
+		<p>Congratulations on taking the first step in getting paid for your amazing work! We're excited to help you receive payment for the value you've provided.</p>
+        <p>
+		If you have any questions or need assistance along the way, please do not hesitate to reach out to our support team at team@binamite.com
+        </p>               
+	</div>
+	`;
+
+				await sendEmail({ email: freelancerEmail, name: freelancerName }, emailBody, "Congratulations on your first invoice!");
+			}
+
 
 
 			savedInvoice = await invoice.save();
